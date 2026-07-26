@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Environments
+.venv/
+venv/
+.env
+
+# Quantas GUI runtime data
+.quantas-gui/
+workspaces/
+*.h5
+*.hdf5
+
+# Editors and OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

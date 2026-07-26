@@ -1,0 +1,46 @@
+name: Bug report
+description: Report reproducible GUI behavior that is incorrect or broken
+title: "[Bug]: "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Please remove private datasets, credentials, and sensitive paths.
+  - type: input
+    id: version
+    attributes:
+      label: Quantas GUI version
+      placeholder: 0.1.0a1
+    validations:
+      required: true
+  - type: input
+    id: backend
+    attributes:
+      label: Quantas backend version
+      placeholder: 2.0.0b6 or not installed
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Reproduction steps
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+  - type: input
+    id: platform
+    attributes:
+      label: Operating system and Python version
+    validations:
+      required: true

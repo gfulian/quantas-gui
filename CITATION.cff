@@ -1,0 +1,12 @@
+cff-version: 1.2.0
+message: "If you use Quantas GUI, cite this software and the Quantas scientific package."
+title: "Quantas GUI"
+type: software
+version: 0.2.1a1
+authors:
+  - family-names: Ulian
+    given-names: Gianfranco
+  - family-names: Valdre'
+    given-names: Giovanni
+repository-code: "https://github.com/gfulian/quantas-gui"
+license: BSD-3-Clause

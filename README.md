@@ -1,2 +1,167 @@
-# quantas-gui
-Graphical User Interface for the Quantas package
+# Quantas GUI
+
+<p align="center"><img src="src/quantas_gui/assets/quantas-logo.png" alt="Quantas logo" width="120"></p>
+
+<p align="center"><strong>A graphical interface for the Quantas scientific library</strong></p>
+
+[![Quantas GUI CI](https://github.com/gfulian/quantas-gui/actions/workflows/ci.yml/badge.svg)](https://github.com/gfulian/quantas-gui/actions/workflows/ci.yml)
+[![Development Status: Alpha](https://img.shields.io/badge/status-alpha-orange)](CHANGELOG.md)
+[![Python 3.10+](https://img.shields.io/badge/Python-%3E%3D3.10-blue)](https://www.python.org/downloads/)
+[![License: BSD 3-Clause](https://img.shields.io/badge/License-BSD--3--Clause-blue)](LICENSE)
+
+Quantas GUI is the Dash and Plotly frontend for
+[Quantas](https://github.com/gfulian/quantas), a Python library for the
+quantitative analysis of solid-state properties.
+
+The application is intended to provide the same scientific workflows available
+through the Quantas Python API and command-line interface in an interactive,
+graphical environment. Numerical methods, physical conventions, units,
+precision, and HDF5 persistence remain implemented and controlled by the
+Quantas library. Quantas GUI is responsible for input forms, workflow control,
+result inspection, tables, interactive figures, and user interaction.
+
+The project is being developed first as a local desktop-style web application:
+`quantas-gui` starts a local Dash server and opens the interface in a browser.
+The architecture also keeps execution, storage, and user-interface concerns
+separate so that the same application can later be deployed on a laboratory or
+remote server.
+
+## Current status
+
+The project is currently in the **0.2 development stage**, centred on the
+**Result Explorer**. The current package version is `0.2.1a1`.
+
+At this stage the application provides:
+
+- a responsive application shell for desktop and mobile layouts;
+- dark, light, and system appearance settings;
+- configurable text size, motion, and table density;
+- a Result Explorer for native Quantas HDF5 files;
+- reusable table and Plotly renderers;
+- module-aware result adapters for Elasticity, SEISMIC, HA, QHA,
+  Thermoelasticity, and EOS archives;
+- a Scientific UI Kit and declarative form system for future workflows;
+- local workspace, cache, and backend abstractions designed for later
+  server-side deployment.
+
+Executable scientific workflows are not yet exposed through the GUI. The first
+complete workflow will be Elasticity in version `0.3`.
+
+See the [project roadmap](ROADMAP.md) for the planned progression from the
+current alpha to the first stable release.
+
+## Installation from source
+
+Quantas GUI is not yet published on PyPI. During development, install Quantas
+and Quantas GUI into the same virtual environment.
+
+### Windows PowerShell
+
+```powershell
+git clone https://github.com/gfulian/quantas-gui.git
+cd quantas-gui
+
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+
+python -m pip install -e "C:\path\to\quantas"
+python -m pip install -e ".[performance]"
+```
+
+### Linux and macOS
+
+```bash
+git clone https://github.com/gfulian/quantas-gui.git
+cd quantas-gui
+
+python -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+
+python -m pip install -e /path/to/quantas
+python -m pip install -e ".[performance]"
+```
+
+The path supplied for Quantas must point to the repository directory containing
+its `pyproject.toml` file.
+
+## Running the application
+
+With the virtual environment active:
+
+```bash
+quantas-gui
+```
+
+The launcher binds to `127.0.0.1`, selects an available port starting from
+`8050`, and opens the default browser. The application is not exposed to the
+network unless a different host is explicitly requested.
+
+Useful options include:
+
+```bash
+quantas-gui --no-browser
+quantas-gui --port 8060
+quantas-gui --debug
+quantas-gui --url-prefix /quantas/
+```
+
+Run the component audit and test suite with:
+
+```bash
+python tools/audit_dash_components.py
+python -m pytest -q
+```
+
+## Result Explorer
+
+The Result Explorer opens native `.h5`, `.hdf5`, and `.hdf` Quantas results and
+identifies their scientific module through the public Quantas API. It can
+present:
+
+- result metadata, provenance, normalized inputs, and options;
+- persisted warnings and workflow events;
+- scientific report tables with filtering and CSV export;
+- interactive Plotly figures derived from neutral Quantas plot specifications;
+- a bounded technical view of the stored data structure.
+
+Large numerical arrays and HDF5 objects remain in the controlled server-side
+workspace. The browser stores only lightweight identifiers and interface state.
+
+EOS uses a persistent archive and session model rather than the standard result
+envelope. Its complete interactive interface is planned for version `0.7`.
+
+Further details are available in the
+[Result Explorer documentation](docs/results-explorer.md).
+
+## Project documentation
+
+- [Roadmap](ROADMAP.md)
+- [Architecture](docs/architecture.md)
+- [Design system](docs/design-system.md)
+- [Result Explorer](docs/results-explorer.md)
+- [Form system and Scientific UI Kit](docs/form-system.md)
+- [Interface settings](docs/settings.md)
+- [Windows and GitHub Desktop workflow](docs/github-desktop-windows.md)
+- [Changelog](CHANGELOG.md)
+
+## Contributing
+
+Contributions, testing, scientific feedback, and reports from different
+platforms are welcome. Development setup, architectural rules, validation
+commands, and pull-request guidance are described in
+[CONTRIBUTING.md](CONTRIBUTING.md).
+
+Please use the [issue tracker](https://github.com/gfulian/quantas-gui/issues)
+for reproducible bugs and focused feature requests.
+
+## License
+
+Quantas GUI is distributed under the BSD 3-Clause license. See
+[LICENSE](LICENSE).
+
+## Citation
+
+Citation information will be maintained in [CITATION.cff](CITATION.cff) as the
+project approaches its first stable release.

@@ -1,0 +1,36 @@
+name: Feature request
+description: Propose a user-interface, workflow, or deployment improvement
+title: "[Feature]: "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or workflow need
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Results Explorer
+        - Table renderer
+        - Plotly renderer
+        - Scientific workflow
+        - Interoperability
+        - Local execution
+        - Server deployment
+        - Accessibility or responsive design
+    validations:
+      required: true
+  - type: textarea
+    id: scientific
+    attributes:
+      label: Scientific constraints or Quantas API contracts
