@@ -81,7 +81,7 @@ In GitHub Desktop:
 2. Use a commit message such as:
 
    ```text
-   Initialize Quantas GUI 0.2.1a4
+   Initialize Quantas GUI 0.2.1a5
    ```
 
 3. Commit to `main`.

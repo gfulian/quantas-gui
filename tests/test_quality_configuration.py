@@ -61,6 +61,7 @@ def test_mypy_skips_third_party_implementation_details() -> None:
     ):
         assert module_pattern in pyproject
     assert 'follow_imports = "skip"' in pyproject
+    assert "follow_imports_for_stubs = true" in pyproject
 
 
 def test_numpy_runtime_range_is_not_downgraded_for_mypy() -> None:

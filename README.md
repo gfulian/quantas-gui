@@ -29,7 +29,7 @@ remote server.
 ## Current status
 
 The project is currently in the **0.2 development stage**, centred on the
-**Result Explorer**. The current package version is `0.2.1a4`.
+**Result Explorer**. The current package version is `0.2.1a5`.
 
 At this stage the application provides:
 

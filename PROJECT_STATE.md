@@ -15,7 +15,7 @@ It is intentionally concise and current. Historical changes belong in
 |---|---|
 | Last updated | 2026-07-26 |
 | Current public milestone | `0.2` — Result Explorer |
-| Current development package | `0.2.1a4` |
+| Current development package | `0.2.1a5` |
 | Quantas backend baseline | `2.0.0b6`, `dev-refactor` line |
 | Legacy reference | Quantas `0.9.1` |
 | Repository | `https://github.com/gfulian/quantas-gui` |
@@ -103,7 +103,7 @@ contains:
 
 ## Current Result Explorer implementation
 
-The current `0.2.1a4` package includes an alpha Result Explorer with:
+The current `0.2.1a5` package includes an alpha Result Explorer with:
 
 - controlled upload of native `.h5`, `.hdf5`, and `.hdf` results;
 - result identification through `quantas.api.registry`;
@@ -140,29 +140,28 @@ The following evidence has been obtained during development:
   rebuilding the scientific collection;
 - component compatibility checks cover constructor and callback properties for
   the pinned Dash, Dash AG Grid, and Plotly baseline;
-- the `0.2.1a4` source compiles and its available non-browser test suite passes
+- the `0.2.1a5` source compiles and its available non-browser test suite passes
   in the build environment.
 
-The remaining evidence required for this maintenance checkpoint is a complete
-Windows run of Ruff `0.16.0`, mypy `2.3.0`, pytest, the Dash audit, package
-build, and `twine check`, followed by a green GitHub Actions matrix.
+Local Windows validation is green for Ruff, pytest, the Dash audit, package
+build, and `twine check`. The remaining maintenance evidence is a fully green
+GitHub Actions matrix after applying the NumPy stub-import correction in
+`0.2.1a5`.
 
 ## Work currently in progress
 
 The active work remains inside milestone `0.2`:
 
-1. validate the directly corrected `0.2.1a4` source with Ruff `0.16.0`, mypy
-   `2.3.0`, tests, Dash audits, and package build in the real Windows
-   development environment;
-2. obtain a fully green GitHub Actions matrix on `main`;
-3. review the Result Explorer visualizers separately for Elasticity, SEISMIC,
+1. obtain a fully green GitHub Actions matrix on `main` with the `0.2.1a5`
+   mypy configuration;
+2. review the Result Explorer visualizers separately for Elasticity, SEISMIC,
    HA, QHA, Thermoelasticity, and EOS structure;
-4. define the final common Plotly control set and the module-specific plot
+3. define the final common Plotly control set and the module-specific plot
    selections;
-5. validate tables, figures, units, masks, labels, and exports against
+4. validate tables, figures, units, masks, labels, and exports against
    representative native Quantas results;
-6. profile large tables, dense grids, spherical maps, and 3D figures;
-7. close the `0.2` milestone only after visual, scientific, responsive, and
+5. profile large tables, dense grids, spherical maps, and 3D figures;
+6. close the `0.2` milestone only after visual, scientific, responsive, and
    performance validation.
 
 ## Immediate next operation
@@ -187,9 +186,8 @@ missing controls before implementing the Elasticity workflow.
 
 ## Known limitations and open issues
 
-- the first public CI run remains red at Ruff and mypy; `0.2.1a4` contains the
-  direct source corrections, but the final Windows and remote green runs are
-  not yet verified;
+- the local quality and runtime gates are green; the Python 3.13 CI jobs still
+  require confirmation after the `follow_imports_for_stubs` correction;
 - module-specific Result Explorer views have not yet received systematic
   scientific sign-off;
 - Plotly controls, annotations, comparison modes, export behaviour, and camera
@@ -205,9 +203,9 @@ missing controls before implementing the Elasticity workflow.
   outside the current local milestone;
 - EOS remains limited to structural archive inspection in the generic Result
   Explorer;
-- the public GitHub repository is populated; its first CI matrix is red at the
-  code-quality stages and awaits validation of the `0.2.1a4` direct source
-  correction.
+- the public GitHub repository is populated; the remaining CI failure was
+  isolated to mypy parsing NumPy stubs against the Python 3.10 target and is
+  addressed in `0.2.1a5`.
 
 ## Open decisions
 

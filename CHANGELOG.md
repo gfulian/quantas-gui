@@ -5,6 +5,26 @@ All notable changes to Quantas GUI will be documented in this file.
 The project follows Semantic Versioning while the public interface remains under
 active alpha development.
 
+## 0.2.1a5 — 2026-07-27
+
+Cross-version mypy correction for NumPy stubs in the GitHub Actions matrix.
+
+### Fixed
+
+- enabled `follow_imports_for_stubs` so the existing `follow_imports = "skip"`
+  overrides also apply to installed `.pyi` files;
+- prevented mypy, configured for the supported Python 3.10 target, from parsing
+  NumPy 2.5+ aliases that use Python 3.12 `type`-statement syntax;
+- retained `numpy>=1.24,<3`, Python 3.10 compatibility, and full checking of the
+  Quantas GUI source tree.
+
+### Validation status
+
+- Ruff, pytest, Dash runtime audits, package build, and metadata checks were
+  already green on Python 3.13 across Linux, macOS, and Windows;
+- this release isolates the remaining failure to the documented mypy stub-import
+  policy and requires one concluding CI matrix run.
+
 ## 0.2.1a4 — 2026-07-27
 
 Final source-quality cleanup before the initial consolidated GitHub commit.
