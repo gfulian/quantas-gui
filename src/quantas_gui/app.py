@@ -12,8 +12,8 @@ from quantas_gui.callbacks.navigation import register_navigation_callbacks
 from quantas_gui.callbacks.results import register_result_callbacks
 from quantas_gui.callbacks.settings import register_settings_callbacks
 from quantas_gui.components.shell import build_shell
-from quantas_gui.forms.callbacks import register_form_component_callbacks
 from quantas_gui.config import Settings
+from quantas_gui.forms.callbacks import register_form_component_callbacks
 from quantas_gui.pages import register_pages
 from quantas_gui.services.application import AppServices, build_default_services
 from quantas_gui.services.backend_info import detect_quantas_backend
@@ -73,7 +73,11 @@ def create_app(
     app.server.config["QUANTAS_GUI_SERVICES"] = app_services
 
     register_pages()
-    app.layout = lambda: build_shell(backend=detect_quantas_backend())
+
+    def serve_layout():
+        return build_shell(backend=detect_quantas_backend())
+
+    app.layout = serve_layout
     register_navigation_callbacks(app)
     register_form_component_callbacks(app)
     register_result_callbacks(app, app_services.results)

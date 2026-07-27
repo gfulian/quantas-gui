@@ -120,16 +120,22 @@ def test_surface_plot_uses_physical_values_as_customdata() -> None:
 
 
 def test_plot_inventory_remains_lightweight() -> None:
-    collection = type("Collection", (), {"plots": [
-        LinePlotSpec(
-            key="line",
-            title="Line",
-            filename_stem="line",
-            x_axis=Axis("x", "X"),
-            y_axis=Axis("y", "Y"),
-            series=[],
-        )
-    ]})()
+    collection = type(
+        "Collection",
+        (),
+        {
+            "plots": [
+                LinePlotSpec(
+                    key="line",
+                    title="Line",
+                    filename_stem="line",
+                    x_axis=Axis("x", "X"),
+                    y_axis=Axis("y", "Y"),
+                    series=[],
+                )
+            ]
+        },
+    )()
     inventory = plot_inventory(collection)
     assert inventory[0].key == "line"
     assert inventory[0].kind == "LinePlotSpec"

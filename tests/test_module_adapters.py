@@ -7,7 +7,12 @@ from quantas_gui.explorer.adapters import adapter_for, registered_adapters
 
 def test_all_scientific_result_adapters_are_registered() -> None:
     assert set(registered_adapters()) == {
-        "elasticity", "seismic", "ha", "qha", "thermoelasticity", "eos"
+        "elasticity",
+        "seismic",
+        "ha",
+        "qha",
+        "thermoelasticity",
+        "eos",
     }
 
 

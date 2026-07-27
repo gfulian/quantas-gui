@@ -65,9 +65,7 @@ class ResultBackend(Protocol):
     def plot_group(self, path: Path, title: str, kind: str, family_key: str) -> str:
         """Return a module-aware group label for one plot."""
 
-    def plot_description(
-        self, path: Path, title: str, kind: str, family_key: str
-    ) -> str:
+    def plot_description(self, path: Path, title: str, kind: str, family_key: str) -> str:
         """Return a module-aware plot description."""
 
 
@@ -288,9 +286,7 @@ class QuantasResultBackend:
         try:
             summary_map = dict(archive.summary())
             events = tuple(self._event_view(event) for event in archive.events())
-            capabilities = tuple(
-                sorted(capability.value for capability in descriptor.capabilities)
-            )
+            capabilities = tuple(sorted(capability.value for capability in descriptor.capabilities))
             result_keys = tuple(str(key) for key in summary_map.get("slots", {}))
             summary = ResultSummary(
                 module="eos",
@@ -392,17 +388,14 @@ def _render_structural_tables(tables: Sequence[Any]) -> str:
         for row in rows:
             for index, value in enumerate(row[: len(widths)]):
                 widths[index] = max(widths[index], len(value))
-        heading = " ".join(
-            value.ljust(widths[index]) for index, value in enumerate(columns)
-        )
+        heading = " ".join(value.ljust(widths[index]) for index, value in enumerate(columns))
         lines = [str(table.title), heading]
         lines.append(" ".join("-" * width for width in widths))
         for row in rows:
             padded = row + [""] * (len(widths) - len(row))
             lines.append(
                 " ".join(
-                    value.ljust(widths[index])
-                    for index, value in enumerate(padded[: len(widths)])
+                    value.ljust(widths[index]) for index, value in enumerate(padded[: len(widths)])
                 )
             )
         blocks.append("\n".join(lines))

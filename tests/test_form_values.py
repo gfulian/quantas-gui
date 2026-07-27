@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import pytest
+
 from quantas_gui.forms.schema import MatrixField
 from quantas_gui.forms.values import matrix_to_row_data, row_data_to_matrix
 
@@ -18,3 +20,10 @@ def test_matrix_grid_round_trip_preserves_numeric_values() -> None:
     rows = matrix_to_row_data(field)
     assert rows[0]["__row__"] == "a"
     assert row_data_to_matrix(field, rows) == ((1.0, 2.0), (2.0, 4.0))
+
+
+def test_row_data_to_matrix_rejects_empty_cells() -> None:
+    field = MatrixField(key="matrix", label="Matrix", rows=1, columns=2)
+
+    with pytest.raises(ValueError, match="row 1, column 2"):
+        row_data_to_matrix(field, [{"c0": 1.0, "c1": None}])

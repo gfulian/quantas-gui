@@ -40,7 +40,7 @@ def main(argv: list[str] | None = None) -> int:
         import dash
         import dash_ag_grid
         import plotly
-        from dash import dash_table, dcc
+        from dash import dcc
         from dash._utils import to_json
     except ImportError as error:
         print(f"[FAIL] frontend import: {error}")
@@ -55,17 +55,12 @@ def main(argv: list[str] | None = None) -> int:
         DASH_CORE_CALLBACK_PROPERTIES,
         DASH_CORE_PROBE_ARGUMENTS,
         DASH_CORE_USED_PROPERTIES,
-        DASH_TABLE_PROBE_ARGUMENTS,
-        DASH_TABLE_USED_PROPERTIES,
         PLOTLY_BASELINE,
         instantiate_component_probe,
     )
 
     print(f"Dash: {dash.__version__} (required {DASH_BASELINE})")
-    print(
-        f"Dash AG Grid: {dash_ag_grid.__version__} "
-        f"(required {DASH_AG_GRID_BASELINE})"
-    )
+    print(f"Dash AG Grid: {dash_ag_grid.__version__} (required {DASH_AG_GRID_BASELINE})")
     print(f"Plotly: {plotly.__version__} (required {PLOTLY_BASELINE})")
 
     from quantas_gui.app import create_app
@@ -85,9 +80,7 @@ def main(argv: list[str] | None = None) -> int:
             passed,
             failures,
             label,
-            lambda installed=installed, required=required: _require_version(
-                installed, required
-            ),
+            lambda installed=installed, required=required: _require_version(installed, required),
         )
 
     component_contracts = (
@@ -97,13 +90,6 @@ def main(argv: list[str] | None = None) -> int:
             DASH_CORE_USED_PROPERTIES,
             DASH_CORE_CALLBACK_PROPERTIES,
             DASH_CORE_PROBE_ARGUMENTS,
-        ),
-        (
-            "dash_table",
-            dash_table,
-            DASH_TABLE_USED_PROPERTIES,
-            {},
-            DASH_TABLE_PROBE_ARGUMENTS,
         ),
         (
             "dash_ag_grid",

@@ -17,42 +17,60 @@ MODULES = (
         "elasticity",
         "Elasticity",
         "Elastic tensors",
-        "Stability criteria, Voigt–Reuss–Hill averages, tensor rotations, and directional elastic properties.",
+        (
+            "Stability criteria, Voigt–Reuss–Hill averages, tensor rotations, "
+            "and directional elastic properties."
+        ),
         "elasticity.png",
     ),
     ModuleCardSpec(
         "seismic",
         "SEISMIC",
         "Wave propagation",
-        "Christoffel analysis, phase and group velocities, polarization tracking, and directional anisotropy.",
+        (
+            "Christoffel analysis, phase and group velocities, polarization "
+            "tracking, and directional anisotropy."
+        ),
         "seismic.png",
     ),
     ModuleCardSpec(
         "ha",
         "Harmonic thermodynamics",
         "Fixed-volume properties",
-        "Vibrational energy, Helmholtz free energy, entropy, and heat capacity as functions of temperature.",
+        (
+            "Vibrational energy, Helmholtz free energy, entropy, and heat "
+            "capacity as functions of temperature."
+        ),
         "ha.png",
     ),
     ModuleCardSpec(
         "qha",
         "Quasi-harmonic approximation",
         "Pressure–temperature properties",
-        "Equilibrium volumes, thermal expansion, heat capacities, and free-energy minimization over pressure and temperature.",
+        (
+            "Equilibrium volumes, thermal expansion, heat capacities, and "
+            "free-energy minimization over pressure and temperature."
+        ),
         "qha.png",
     ),
     ModuleCardSpec(
         "eos",
         "Equation of state",
         "Fitting and diagnostics",
-        "PV, VT, and PVT models with uncertainty treatment, residual analysis, and model diagnostics.",
+        (
+            "PV, VT, and PVT models with uncertainty treatment, residual "
+            "analysis, and model diagnostics."
+        ),
         "eos.png",
     ),
     ModuleCardSpec(
         "thermoelasticity",
         "Thermoelasticity",
         "Quasi-static P–T analysis",
-        "Pressure–temperature elastic tensors, grids, geothermobarometric profiles, and transfer to SEISMIC.",
+        (
+            "Pressure–temperature elastic tensors, grids, "
+            "geothermobarometric profiles, and transfer to SEISMIC."
+        ),
         "thermoelasticity.png",
     ),
 )

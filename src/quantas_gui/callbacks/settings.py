@@ -9,7 +9,6 @@ from dash import Input, Output, State, ctx
 
 from quantas_gui.models.preferences import UserPreferences
 
-
 _STORE_ID = "q-user-preferences"
 _EFFECTIVE_THEME_ID = "q-effective-theme"
 

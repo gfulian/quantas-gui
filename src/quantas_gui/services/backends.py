@@ -2,10 +2,11 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
-from typing import Mapping, Protocol
+from typing import Protocol
 
 
 class JobState(str, Enum):

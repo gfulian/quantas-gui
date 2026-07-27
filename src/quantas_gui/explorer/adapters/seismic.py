@@ -77,7 +77,6 @@ class SeismicAdapter(ResultModuleAdapter):
             return namespace.build_surfaces(result)
         raise KeyError(f"unknown SEISMIC plot family {family_key!r}")
 
-
     def plot_description(self, title: str, kind: str, family_key: str) -> str:
         del kind
         descriptions = {

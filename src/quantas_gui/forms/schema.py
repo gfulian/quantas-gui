@@ -106,11 +106,7 @@ class NumericBounds:
 
     def __post_init__(self) -> None:
         """Validate internally consistent numeric bounds."""
-        if (
-            self.minimum is not None
-            and self.maximum is not None
-            and self.minimum > self.maximum
-        ):
+        if self.minimum is not None and self.maximum is not None and self.minimum > self.maximum:
             raise ValueError("minimum cannot exceed maximum")
         if self.step is not None and self.step <= 0:
             raise ValueError("numeric step must be positive")

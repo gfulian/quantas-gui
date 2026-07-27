@@ -10,7 +10,6 @@ from quantas_gui.explorer.adapters.qha import QHAAdapter
 from quantas_gui.explorer.adapters.seismic import SeismicAdapter
 from quantas_gui.explorer.adapters.thermoelasticity import ThermoelasticityAdapter
 
-
 _ADAPTERS: dict[str, ResultModuleAdapter] = {
     adapter.name: adapter
     for adapter in (

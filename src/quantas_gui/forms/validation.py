@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from math import isfinite
-from typing import Any, Mapping, Sequence
+from typing import Any
 
 from .schema import (
     BooleanField,
@@ -141,26 +142,24 @@ def validate_field(
     """Validate and normalize one field value."""
     if _is_empty(value):
         if field.required:
-            return value, (
-                ValidationIssue(field.key, "This field is required.", "required"),
-            )
+            return value, (ValidationIssue(field.key, "This field is required.", "required"),)
         return None, ()
 
     try:
         if isinstance(field, TextField):
-            normalized = str(value)
-            if field.max_length is not None and len(normalized) > field.max_length:
-                return normalized, (
+            text_value = str(value)
+            if field.max_length is not None and len(text_value) > field.max_length:
+                return text_value, (
                     ValidationIssue(
                         field.key,
                         f"Use at most {field.max_length} characters.",
                         "max-length",
                     ),
                 )
-            return normalized, ()
+            return text_value, ()
         if isinstance(field, NumericField):
-            normalized = _number(value, integer=field.kind is FieldKind.INTEGER)
-            return normalized, _numeric_issues(field.key, normalized, field.bounds)
+            numeric_value = _number(value, integer=field.kind is FieldKind.INTEGER)
+            return numeric_value, _numeric_issues(field.key, numeric_value, field.bounds)
         if isinstance(field, BooleanField):
             return bool(value), ()
         if isinstance(field, ChoiceField):
@@ -208,12 +207,13 @@ def validate_field(
             if len(selected) != 3:
                 raise ValueError("range triplet requires start, stop, and step")
             start, stop, step = selected
-            issues = list(_numeric_issues(field.key, item, field.bounds) for item in selected)
-            flat = tuple(issue for group in issues for issue in group)
+            flat = tuple(
+                issue
+                for item in selected
+                for issue in _numeric_issues(field.key, item, field.bounds)
+            )
             if step == 0:
-                flat += (
-                    ValidationIssue(field.key, "Step cannot be zero.", "zero-step"),
-                )
+                flat += (ValidationIssue(field.key, "Step cannot be zero.", "zero-step"),)
             elif start < stop and step < 0:
                 flat += (
                     ValidationIssue(
@@ -273,9 +273,7 @@ def validate_field(
             issues = _validate_key_value(field, rows)
             return rows, issues
     except (TypeError, ValueError, OverflowError) as exc:
-        return value, (
-            ValidationIssue(field.key, str(exc), "invalid-value"),
-        )
+        return value, (ValidationIssue(field.key, str(exc), "invalid-value"),)
 
     raise TypeError(f"unsupported field specification: {type(field).__name__}")
 
@@ -311,21 +309,15 @@ def _validate_key_value(
     for index, row in enumerate(rows, start=1):
         key = str(row.get("key", "")).strip()
         if not key:
-            issues.append(
-                ValidationIssue(field.key, f"Row {index} has no key.", "missing-key")
-            )
+            issues.append(ValidationIssue(field.key, f"Row {index} has no key.", "missing-key"))
             continue
         keys.append(key)
         try:
             _typed(row.get("value"), field.value_type)
         except (TypeError, ValueError) as exc:
-            issues.append(
-                ValidationIssue(field.key, f"Row {index}: {exc}", "invalid-value")
-            )
+            issues.append(ValidationIssue(field.key, f"Row {index}: {exc}", "invalid-value"))
     if not field.allow_duplicate_keys and len(keys) != len(set(keys)):
-        issues.append(
-            ValidationIssue(field.key, "Keys must be unique.", "duplicate-key")
-        )
+        issues.append(ValidationIssue(field.key, "Keys must be unique.", "duplicate-key"))
     return tuple(issues)
 
 

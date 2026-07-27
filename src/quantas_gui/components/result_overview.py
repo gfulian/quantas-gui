@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from typing import Any, Sequence
+from collections.abc import Sequence
+from typing import Any
 
 from dash import html
 
@@ -79,9 +80,7 @@ def warning_panel(warnings: Sequence[str]) -> html.Section:
                     html.Div(
                         [
                             html.Strong("No stored warnings"),
-                            html.P(
-                                "The result envelope contains no warning messages."
-                            ),
+                            html.P("The result envelope contains no warning messages."),
                         ]
                     ),
                 ],
@@ -94,9 +93,7 @@ def warning_panel(warnings: Sequence[str]) -> html.Section:
             for message in warnings[:6]
         ]
         if len(warnings) > 6:
-            content.append(
-                html.Small(f"{len(warnings) - 6} additional warnings in Messages")
-            )
+            content.append(html.Small(f"{len(warnings) - 6} additional warnings in Messages"))
     return panel("Warnings", content, kicker="Scientific attention")
 
 
@@ -117,9 +114,7 @@ def inventory_panel(overview: ResultOverview) -> html.Section:
             )
         )
     if not rows:
-        rows = [
-            html.P("No scientific payload inventory is available.", className="q-muted")
-        ]
+        rows = [html.P("No scientific payload inventory is available.", className="q-muted")]
     return panel(
         "Result payload",
         rows,

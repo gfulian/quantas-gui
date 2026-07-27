@@ -108,10 +108,12 @@ def test_result_service_caches_report_and_plot_construction(tmp_path: Path) -> N
 
         def table_families(self, path: Path):
             from quantas_gui.explorer.models import TableFamilyDescriptor
+
             return (TableFamilyDescriptor("default", "Report", "Default", default=True),)
 
         def plot_families(self, path: Path):
             from quantas_gui.explorer.models import PlotFamilyDescriptor
+
             return (PlotFamilyDescriptor("default", "Plots", "Default", default=True),)
 
         def build_tables(self, path: Path, family_key=None):

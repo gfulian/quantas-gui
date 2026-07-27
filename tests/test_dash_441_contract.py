@@ -9,7 +9,6 @@ from quantas_gui.compat.dash_441 import (
     DASH_AG_GRID_USED_PROPERTIES,
     DASH_CORE_PROBE_ARGUMENTS,
     DASH_CORE_USED_PROPERTIES,
-    DASH_TABLE_USED_PROPERTIES,
 )
 
 SOURCE_ROOT = Path(__file__).resolve().parents[1] / "src" / "quantas_gui"
@@ -51,8 +50,6 @@ def _mapping_keys(scope: ast.AST) -> dict[str, set[str]]:
 def _component_contract(namespace: str, component: str) -> frozenset[str] | None:
     if namespace == "dcc":
         return DASH_CORE_USED_PROPERTIES.get(component)
-    if namespace == "dash_table":
-        return DASH_TABLE_USED_PROPERTIES.get(component)
     if namespace == "dag":
         return DASH_AG_GRID_USED_PROPERTIES.get(component)
     return None
@@ -64,9 +61,7 @@ def test_component_keywords_match_the_dash_441_project_contract() -> None:
     for path in SOURCE_ROOT.rglob("*.py"):
         tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
         scopes: list[ast.AST] = [
-            node
-            for node in tree.body
-            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+            node for node in tree.body if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
         ]
         for scope in scopes:
             mappings = _mapping_keys(scope)
@@ -126,12 +121,8 @@ def test_radio_and_checklist_disable_through_options_not_container_props() -> No
 def test_required_component_probe_arguments_are_explicit() -> None:
     """Keep required Dash constructor values in the pinned compatibility layer."""
     assert DASH_CORE_PROBE_ARGUMENTS["Link"] == {"href": "/"}
-    assert DASH_CORE_PROBE_ARGUMENTS["Location"] == {
-        "id": "quantas-gui-compat-location"
-    }
-    assert DASH_CORE_PROBE_ARGUMENTS["Store"] == {
-        "id": "quantas-gui-compat-store"
-    }
+    assert DASH_CORE_PROBE_ARGUMENTS["Location"] == {"id": "quantas-gui-compat-location"}
+    assert DASH_CORE_PROBE_ARGUMENTS["Store"] == {"id": "quantas-gui-compat-store"}
 
 
 def test_component_probe_discovers_generated_required_arguments() -> None:

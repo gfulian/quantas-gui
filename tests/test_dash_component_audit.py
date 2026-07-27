@@ -118,9 +118,7 @@ def test_dash_input_modes_stay_within_supported_public_values() -> None:
 
 def test_sidebar_layout_is_scrollable_and_mobile_system_pages_are_reachable() -> None:
     layout_css = (SOURCE_ROOT / "assets" / "10_layout.css").read_text(encoding="utf-8")
-    responsive_css = (SOURCE_ROOT / "assets" / "30_responsive.css").read_text(
-        encoding="utf-8"
-    )
+    responsive_css = (SOURCE_ROOT / "assets" / "30_responsive.css").read_text(encoding="utf-8")
     shell_source = (SOURCE_ROOT / "components" / "shell.py").read_text(encoding="utf-8")
 
     assert "flex-direction: column" in layout_css

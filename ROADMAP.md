@@ -24,7 +24,7 @@ results equivalent to the corresponding Quantas API and command-line workflow.
 | `1.0` | First stable release | Planned |
 
 Development releases may use additional patch and pre-release identifiers, for
-example `0.2.1a1`, while work remains within a milestone.
+example `0.2.1a4`, while work remains within a milestone.
 
 ---
 
@@ -81,7 +81,7 @@ Thermoelasticity, and EOS can be opened and inspected consistently. Tables and
 figures are scientifically faithful, responsive, and sufficiently performant
 for routine use.
 
-**Current position:** `0.2.1a1` is an alpha implementation of this milestone.
+**Current position:** `0.2.1a4` is an alpha implementation of this milestone.
 The remaining work is systematic visual, scientific, and performance validation
 against representative native result files.
 

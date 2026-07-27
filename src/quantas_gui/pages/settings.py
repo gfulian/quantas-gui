@@ -77,14 +77,20 @@ def layout() -> html.Div:
                         [
                             preference_group(
                                 title="Theme",
-                                description="Select the colour scheme used by the application shell and scientific views.",
+                                description=(
+                                    "Select the colour scheme used by the "
+                                    "application shell and scientific views."
+                                ),
                                 control=option_cards(
                                     "q-setting-theme", _THEME_OPTIONS, value=defaults.theme
                                 ),
                             ),
                             preference_group(
                                 title="Text size",
-                                description="Scale interface typography while preserving numerical display precision.",
+                                description=(
+                                    "Scale interface typography while preserving "
+                                    "numerical display precision."
+                                ),
                                 control=option_cards(
                                     "q-setting-text-size",
                                     _TEXT_OPTIONS,
@@ -93,7 +99,9 @@ def layout() -> html.Div:
                             ),
                             preference_group(
                                 title="Motion",
-                                description="Control decorative transitions and interface movement.",
+                                description=(
+                                    "Control decorative transitions and interface movement."
+                                ),
                                 control=option_cards(
                                     "q-setting-motion",
                                     _MOTION_OPTIONS,
@@ -102,13 +110,19 @@ def layout() -> html.Div:
                             ),
                             preference_group(
                                 title="Table density",
-                                description="Choose the default row density for result tables and structured editors.",
+                                description=(
+                                    "Choose the default row density for result "
+                                    "tables and structured editors."
+                                ),
                                 control=option_cards(
                                     "q-setting-table-density",
                                     _DENSITY_OPTIONS,
                                     value=defaults.table_density,
                                 ),
-                                note="Individual scientific views may later expose a temporary per-table override.",
+                                note=(
+                                    "Individual scientific views may later expose "
+                                    "a temporary per-table override."
+                                ),
                             ),
                         ],
                         className="q-settings-list",

@@ -59,7 +59,7 @@ class ResultExplorerService:
 
         workspace_id = self.workspace_store.create_workspace()
         result_id = uuid4().hex
-        path = self.workspace_store.write_result_bytes(
+        self.workspace_store.write_result_bytes(
             workspace_id=workspace_id,
             result_id=result_id,
             payload=payload,

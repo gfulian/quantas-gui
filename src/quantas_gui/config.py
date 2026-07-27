@@ -6,7 +6,7 @@ binding the Dash pages to a particular execution backend or storage system.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, replace
+from dataclasses import dataclass
 from os import environ
 from pathlib import Path
 
@@ -70,7 +70,7 @@ class Settings:
     result_cache_entries: int
 
     @classmethod
-    def local_defaults(cls) -> "Settings":
+    def local_defaults(cls) -> Settings:
         """Return safe defaults for a single-user local installation."""
         return cls(
             mode="local",
@@ -86,7 +86,7 @@ class Settings:
         )
 
     @classmethod
-    def from_environment(cls) -> "Settings":
+    def from_environment(cls) -> Settings:
         """Build settings from ``QUANTAS_GUI_*`` environment variables."""
         defaults = cls.local_defaults()
         return cls(
@@ -107,12 +107,16 @@ class Settings:
                 environ.get("QUANTAS_GUI_URL_PREFIX", defaults.url_prefix)
             ),
             redis_url=environ.get("REDIS_URL"),
-            result_cache_entries=max(8, int(environ.get(
-                "QUANTAS_GUI_RESULT_CACHE_ENTRIES",
-                str(defaults.result_cache_entries),
-            ))),
+            result_cache_entries=max(
+                8,
+                int(
+                    environ.get(
+                        "QUANTAS_GUI_RESULT_CACHE_ENTRIES",
+                        str(defaults.result_cache_entries),
+                    )
+                ),
+            ),
         )
-
 
     @property
     def max_request_bytes(self) -> int:
@@ -120,11 +124,36 @@ class Settings:
         encoded = (self.max_upload_bytes * 4 + 2) // 3
         return encoded + 2 * 1024 * 1024
 
-    def with_overrides(self, **changes: object) -> "Settings":
-        """Return a copy containing command-line overrides."""
-        if "url_prefix" in changes:
-            changes["url_prefix"] = _normalise_prefix(str(changes["url_prefix"]))
-        return replace(self, **changes)
+    def with_overrides(
+        self,
+        *,
+        mode: str | None = None,
+        host: str | None = None,
+        port: int | None = None,
+        open_browser: bool | None = None,
+        debug: bool | None = None,
+        workspace_root: Path | None = None,
+        max_upload_bytes: int | None = None,
+        url_prefix: str | None = None,
+        result_cache_entries: int | None = None,
+    ) -> Settings:
+        """Return a copy containing validated application overrides."""
+        return Settings(
+            mode=self.mode if mode is None else mode,
+            host=self.host if host is None else host,
+            port=self.port if port is None else port,
+            open_browser=self.open_browser if open_browser is None else open_browser,
+            debug=self.debug if debug is None else debug,
+            workspace_root=self.workspace_root if workspace_root is None else workspace_root,
+            max_upload_bytes=(
+                self.max_upload_bytes if max_upload_bytes is None else max_upload_bytes
+            ),
+            url_prefix=self.url_prefix if url_prefix is None else _normalise_prefix(url_prefix),
+            redis_url=self.redis_url,
+            result_cache_entries=(
+                self.result_cache_entries if result_cache_entries is None else result_cache_entries
+            ),
+        )
 
     def prepare_workspace(self) -> Path:
         """Create and return the controlled workspace root."""

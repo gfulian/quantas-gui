@@ -1,0 +1,4 @@
+# Reproducible code-quality baseline for local validation and CI.
+# Upgrade these versions only in a dedicated maintenance change.
+mypy==2.3.0
+ruff==0.16.0

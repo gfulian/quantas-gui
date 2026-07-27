@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping, Sequence
 from dataclasses import fields, is_dataclass
 from datetime import date, datetime
 from enum import Enum
 from pathlib import Path
-from typing import Any, Mapping, Sequence
-
+from typing import Any
 
 _MAX_INLINE_SEQUENCE = 24
 _MAX_DEPTH = 5
@@ -50,10 +50,7 @@ def to_json_value(value: Any, *, depth: int = 0) -> Any:
         return {"type": type(value).__name__, "summary": "maximum inspection depth reached"}
 
     if isinstance(value, Mapping):
-        return {
-            str(key): to_json_value(item, depth=depth + 1)
-            for key, item in value.items()
-        }
+        return {str(key): to_json_value(item, depth=depth + 1) for key, item in value.items()}
 
     if isinstance(value, Sequence) and not isinstance(value, (str, bytes, bytearray)):
         if len(value) <= _MAX_INLINE_SEQUENCE:
@@ -62,8 +59,7 @@ def to_json_value(value: Any, *, depth: int = 0) -> Any:
             "type": type(value).__name__,
             "length": len(value),
             "preview": [
-                to_json_value(item, depth=depth + 1)
-                for item in value[: min(5, len(value))]
+                to_json_value(item, depth=depth + 1) for item in value[: min(5, len(value))]
             ],
         }
 
@@ -90,8 +86,10 @@ def inventory_item(key: str, value: Any) -> dict[str, Any]:
 
     if shape is None and isinstance(value, Mapping):
         summary = f"{len(value)} entries"
-    elif shape is None and isinstance(value, Sequence) and not isinstance(
-        value, (str, bytes, bytearray)
+    elif (
+        shape is None
+        and isinstance(value, Sequence)
+        and not isinstance(value, (str, bytes, bytearray))
     ):
         summary = f"{len(value)} items"
     elif shape is None and is_dataclass(value):

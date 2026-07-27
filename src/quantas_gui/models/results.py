@@ -37,7 +37,7 @@ class ResultReference:
         return asdict(self)
 
     @classmethod
-    def from_dict(cls, values: dict[str, Any]) -> "ResultReference":
+    def from_dict(cls, values: dict[str, Any]) -> ResultReference:
         """Restore a reference from browser-session data."""
         return cls(
             workspace_id=str(values["workspace_id"]),
@@ -73,7 +73,7 @@ class ResultSummary:
         return values
 
     @classmethod
-    def from_dict(cls, values: dict[str, Any]) -> "ResultSummary":
+    def from_dict(cls, values: dict[str, Any]) -> ResultSummary:
         """Restore a summary from browser-session data."""
         return cls(
             module=str(values["module"]),

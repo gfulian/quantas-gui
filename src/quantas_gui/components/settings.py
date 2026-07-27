@@ -7,7 +7,6 @@ from collections.abc import Sequence
 import dash
 from dash import dcc, html
 
-
 Option = tuple[str, str, str]
 
 

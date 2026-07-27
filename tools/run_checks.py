@@ -3,21 +3,37 @@
 from __future__ import annotations
 
 import argparse
-from collections.abc import Sequence
-from pathlib import Path
+import os
+import shutil
 import subprocess
 import sys
+from collections.abc import Sequence
+from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+PYTHON_PATHS = ("src", "tests", "tools")
 
 
 def run(label: str, command: Sequence[str]) -> bool:
     """Run one validation stage and print a stable status line."""
-    print(f"\n== {label} ==")
+    print(f"\n== {label} ==", flush=True)
     completed = subprocess.run(command, cwd=ROOT, check=False)
     status = "PASS" if completed.returncode == 0 else "FAIL"
-    print(f"[{status}] {label}")
+    print(f"[{status}] {label}", flush=True)
     return completed.returncode == 0
+
+
+def _ruff_output_arguments() -> list[str]:
+    """Return CI-specific Ruff output arguments when annotations are supported."""
+    if os.environ.get("GITHUB_ACTIONS") == "true":
+        return ["--output-format", "github"]
+    return []
+
+
+def _clean_build_artifacts() -> None:
+    """Remove stale build products before creating release distributions."""
+    for directory in (ROOT / "build", ROOT / "dist"):
+        shutil.rmtree(directory, ignore_errors=True)
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -26,9 +42,31 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--skip-build", action="store_true")
     args = parser.parse_args(argv)
 
+    ruff_output = _ruff_output_arguments()
     stages: list[tuple[str, list[str]]] = [
-        ("Ruff lint", [sys.executable, "-m", "ruff", "check", "."]),
-        ("Ruff format", [sys.executable, "-m", "ruff", "format", "--check", "."]),
+        (
+            "Ruff lint",
+            [
+                sys.executable,
+                "-m",
+                "ruff",
+                "check",
+                *ruff_output,
+                *PYTHON_PATHS,
+            ],
+        ),
+        (
+            "Ruff format",
+            [
+                sys.executable,
+                "-m",
+                "ruff",
+                "format",
+                "--check",
+                *ruff_output,
+                *PYTHON_PATHS,
+            ],
+        ),
         ("mypy", [sys.executable, "-m", "mypy"]),
         ("pytest", [sys.executable, "-m", "pytest", "-q"]),
         (
@@ -40,6 +78,7 @@ def main(argv: list[str] | None = None) -> int:
     results = [run(label, command) for label, command in stages]
 
     if not args.skip_build:
+        _clean_build_artifacts()
         build_ok = run("build", [sys.executable, "-m", "build"])
         results.append(build_ok)
         distributions = sorted(str(path) for path in (ROOT / "dist").glob("*"))

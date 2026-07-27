@@ -39,8 +39,7 @@ keyword dictionary.
 
 ## Constructor audit
 
-`tests/test_dash_441_contract.py` parses every call to `dcc`, `dash_table`, and
-`dash_ag_grid` constructors in the package. It compares the properties used by
+`tests/test_dash_441_contract.py` parses every call to `dcc` and `dash_ag_grid` constructors in the package. It compares the properties used by
 Quantas GUI with the explicit project contract in
 `quantas_gui.compat.dash_441`.
 

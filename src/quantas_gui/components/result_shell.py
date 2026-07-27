@@ -109,11 +109,7 @@ def upload_panel(*, compact: bool = False) -> html.Section:
             dcc.Upload(
                 id=upload_id,
                 children=children,
-                className=(
-                    "q-upload-zone q-upload-zone--compact"
-                    if compact
-                    else "q-upload-zone"
-                ),
+                className=("q-upload-zone q-upload-zone--compact" if compact else "q-upload-zone"),
                 multiple=False,
             ),
             html.Div(

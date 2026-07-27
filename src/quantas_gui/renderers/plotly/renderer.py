@@ -8,6 +8,7 @@ from typing import Any
 
 import numpy as np
 import plotly.graph_objects as go
+from numpy.typing import NDArray
 from plotly.colors import sample_colorscale
 from plotly.subplots import make_subplots
 
@@ -62,9 +63,13 @@ class PlotDescriptor:
     def as_dict(self) -> dict[str, Any]:
         """Return a bounded JSON-safe descriptor."""
         return {
-            "key": self.key, "title": self.title, "kind": self.kind,
-            "family_key": self.family_key, "group": self.group,
-            "description": self.description, "controls": self.controls.as_dict(),
+            "key": self.key,
+            "title": self.title,
+            "kind": self.kind,
+            "family_key": self.family_key,
+            "group": self.group,
+            "description": self.description,
+            "controls": self.controls.as_dict(),
         }
 
 
@@ -92,7 +97,9 @@ def plot_inventory(
                 kind=kind,
                 family_key=family_key,
                 group=(group_resolver(title, kind, family_key) if group_resolver else "Figures"),
-                description=(description_resolver(title, kind, family_key) if description_resolver else ""),
+                description=(
+                    description_resolver(title, kind, family_key) if description_resolver else ""
+                ),
                 controls=_control_profile(kind),
             )
         )
@@ -240,10 +247,16 @@ def _contour_plot(spec: Any, options: PlotlyRenderOptions) -> go.Figure:
         zmax=upper,
         contours={
             "coloring": "heatmap" if getattr(spec, "mode", "smooth") == "smooth" else "fill",
-            "showlines": (bool(getattr(spec, "isolines", True))
-                          if options.show_isolines is None else options.show_isolines),
-            "showlabels": (bool(getattr(spec, "isoline_labels", False))
-                           if options.show_isoline_labels is None else options.show_isoline_labels),
+            "showlines": (
+                bool(getattr(spec, "isolines", True))
+                if options.show_isolines is None
+                else options.show_isolines
+            ),
+            "showlabels": (
+                bool(getattr(spec, "isoline_labels", False))
+                if options.show_isoline_labels is None
+                else options.show_isoline_labels
+            ),
         },
         showscale=options.show_colorbar,
         colorbar={"title": axis_title(spec.value_axis)},
@@ -359,8 +372,11 @@ def _surface_plot(spec: Any, options: PlotlyRenderOptions) -> go.Figure:
             "y": array(layer.y),
             "z": array(layer.z),
             "name": str(layer.label),
-            "opacity": (float(getattr(style, "opacity", 1.0))
-                        if options.surface_opacity is None else options.surface_opacity),
+            "opacity": (
+                float(getattr(style, "opacity", 1.0))
+                if options.surface_opacity is None
+                else options.surface_opacity
+            ),
             "showscale": bool(getattr(style, "show_colorbar", True)) and options.show_colorbar,
             "cmin": lower,
             "cmax": upper,
@@ -410,6 +426,8 @@ def _spherical_map(spec: Any, options: PlotlyRenderOptions) -> go.Figure:
     )
     theta = array(spec.theta)
     phi = array(spec.phi)
+    theta_grid: NDArray[np.float64]
+    phi_grid: NDArray[np.float64]
     theta_grid, phi_grid = np.meshgrid(theta, phi, indexing="ij")
     x, y = _project_angles(
         theta_grid,
@@ -497,7 +515,6 @@ def _panel_plot(spec: Any, options: PlotlyRenderOptions) -> go.Figure:
     return apply_layout(figure, title=str(spec.title), options=options)
 
 
-
 def _add_scalar_background(
     figure: go.Figure,
     background: Any,
@@ -505,8 +522,8 @@ def _add_scalar_background(
     override_colormap: str | None,
 ) -> None:
     """Approximate one-dimensional scalar backgrounds with bounded spans."""
-    coordinates = array(background.coordinates).astype(float).ravel()
-    values = array(background.values).astype(float).ravel()
+    coordinates: NDArray[np.float64] = array(background.coordinates).astype(float).ravel()
+    values: NDArray[np.float64] = array(background.values).astype(float).ravel()
     if coordinates.size < 2 or coordinates.size != values.size:
         return
     maximum_spans = 160
@@ -578,6 +595,7 @@ def _add_secondary_axes(figure: go.Figure, axes: Any) -> None:
                     }
                 }
             )
+
 
 def _add_cartesian_series(figure: go.Figure, series: Any, *, index: int) -> None:
     style = series.style
@@ -673,7 +691,7 @@ def _add_vector_layer(figure: go.Figure, layer: Any, *, index: int) -> None:
     scale = float(getattr(style, "scale", 1.0))
     resolved = getattr(layer, "resolved_mask", None)
     if resolved is not None:
-        mask = array(resolved).astype(bool)
+        mask: NDArray[np.bool_] = array(resolved).astype(bool)
         origins = origins[mask]
         vectors = vectors[mask]
     if bool(getattr(layer, "axial", False)):
@@ -752,7 +770,7 @@ def _add_axis_fields(figure: go.Figure, spec: Any, *, projection: str) -> None:
         axes = array(layer.axes)
         resolved = getattr(layer, "resolved_mask", None)
         if resolved is not None:
-            mask = array(resolved).astype(bool)
+            mask: NDArray[np.bool_] = array(resolved).astype(bool)
             directions = directions[mask]
             axes = axes[mask]
         theta, phi = _directions_to_angles(directions)

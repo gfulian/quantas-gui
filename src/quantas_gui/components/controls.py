@@ -40,7 +40,7 @@ def labelled_dropdown(
 def action_button(
     label: str,
     *,
-    component_id: str,
+    component_id: str | dict[str, Any],
     icon: str | None = None,
     primary: bool = False,
     danger: bool = False,

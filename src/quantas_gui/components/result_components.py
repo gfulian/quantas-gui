@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
-from datetime import datetime
 import json
-from typing import Any, Iterable, Sequence
+from collections.abc import Iterable, Sequence
+from datetime import datetime
+from typing import Any
 
 from dash import html
 
@@ -81,9 +82,7 @@ def json_details(
     """Create a collapsible bounded JSON block."""
     return html.Details(
         [
-            html.Summary(
-                [html.Span(title), html.Span("JSON", className="q-json-badge")]
-            ),
+            html.Summary([html.Span(title), html.Span("JSON", className="q-json-badge")]),
             html.Pre(json.dumps(values, indent=2, ensure_ascii=False, default=str)),
         ],
         open=open_by_default,

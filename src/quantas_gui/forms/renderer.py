@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from collections.abc import Sequence
 from typing import Any
 
 import dash_ag_grid as dag
@@ -251,8 +250,7 @@ def _choice_control(form_key: str, field: ChoiceField) -> Any:
         return dcc.RadioItems(
             **identity,
             options=[
-                _choice_option(choice, force_disabled=field.disabled)
-                for choice in field.choices
+                _choice_option(choice, force_disabled=field.disabled) for choice in field.choices
             ],
             inline=field.inline,
             className="q-radio-group",
@@ -261,8 +259,7 @@ def _choice_control(form_key: str, field: ChoiceField) -> Any:
         return dcc.Checklist(
             **identity,
             options=[
-                _choice_option(choice, force_disabled=field.disabled)
-                for choice in field.choices
+                _choice_option(choice, force_disabled=field.disabled) for choice in field.choices
             ],
             inline=field.inline,
             className="q-checklist",
@@ -291,9 +288,7 @@ def _slider_control(form_key: str, field: SliderField) -> Any:
         else field.default,
         "marks": marks,
         "disabled": field.disabled,
-        "tooltip": {"placement": "bottom", "always_visible": False}
-        if field.tooltip
-        else None,
+        "tooltip": {"placement": "bottom", "always_visible": False} if field.tooltip else None,
         "persistence": field.persistence,
         "persistence_type": field.persistence_type,
         "className": "q-slider",
@@ -462,9 +457,7 @@ def _upload_control(form_key: str, field: FileUploadField) -> html.Div:
                         html.Strong("Drop files here"),
                         html.Span("or choose from this device"),
                         html.Small(
-                            " · ".join(field.accept)
-                            if field.accept
-                            else "Supported input file"
+                            " · ".join(field.accept) if field.accept else "Supported input file"
                         ),
                     ],
                     className="q-upload-copy",
@@ -491,9 +484,7 @@ def _tags_control(form_key: str, field: TagsField) -> dag.AgGrid:
     if not rows:
         rows = [{"value": ""}]
     editor = (
-        "agNumberCellEditor"
-        if field.value_type in {"integer", "float"}
-        else "agTextCellEditor"
+        "agNumberCellEditor" if field.value_type in {"integer", "float"} else "agTextCellEditor"
     )
     return dag.AgGrid(
         id=FormIds.control(form_key, field.key),
@@ -522,9 +513,7 @@ def _tags_control(form_key: str, field: TagsField) -> dag.AgGrid:
 
 def _key_value_control(form_key: str, field: KeyValueField) -> html.Div:
     editor = (
-        "agNumberCellEditor"
-        if field.value_type in {"integer", "float"}
-        else "agTextCellEditor"
+        "agNumberCellEditor" if field.value_type in {"integer", "float"} else "agTextCellEditor"
     )
     grid = dag.AgGrid(
         id=FormIds.control(form_key, field.key),

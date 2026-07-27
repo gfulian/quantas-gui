@@ -26,7 +26,6 @@ DASH_CORE_PROBE_ARGUMENTS: dict[str, dict[str, object]] = {
     "Store": {"id": "quantas-gui-compat-store"},
 }
 
-DASH_TABLE_PROBE_ARGUMENTS: dict[str, dict[str, object]] = {}
 DASH_AG_GRID_PROBE_ARGUMENTS: dict[str, dict[str, object]] = {}
 
 
@@ -90,6 +89,7 @@ def _probe_value(name: str) -> object:
     if name == "children":
         return ""
     return None
+
 
 # Only properties intentionally used by this package are listed.  Every entry
 # has been checked against the generated Python component classes shipped by
@@ -192,9 +192,7 @@ DASH_CORE_USED_PROPERTIES: dict[str, frozenset[str]] = {
     ),
     "Store": frozenset({"id", "data", "storage_type"}),
     "Tab": frozenset({"label", "value", "className", "selected_className"}),
-    "Tabs": frozenset(
-        {"id", "value", "children", "className", "parent_className"}
-    ),
+    "Tabs": frozenset({"id", "value", "children", "className", "parent_className"}),
     "Textarea": frozenset(
         {
             "id",
@@ -208,9 +206,7 @@ DASH_CORE_USED_PROPERTIES: dict[str, frozenset[str]] = {
             "persistence_type",
         }
     ),
-    "Upload": frozenset(
-        {"id", "children", "accept", "multiple", "disabled", "className"}
-    ),
+    "Upload": frozenset({"id", "children", "accept", "multiple", "disabled", "className"}),
 }
 
 # Properties used by callbacks but not necessarily passed by constructors.
@@ -229,31 +225,6 @@ DASH_CORE_CALLBACK_PROPERTIES: dict[str, frozenset[str]] = {
 
 DASH_AG_GRID_CALLBACK_PROPERTIES: dict[str, frozenset[str]] = {
     "AgGrid": frozenset({"rowData", "selectedRows"})
-}
-
-DASH_TABLE_USED_PROPERTIES: dict[str, frozenset[str]] = {
-    "DataTable": frozenset(
-        {
-            "id",
-            "data",
-            "columns",
-            "page_action",
-            "page_size",
-            "sort_action",
-            "sort_mode",
-            "filter_action",
-            "fixed_rows",
-            "virtualization",
-            "style_as_list_view",
-            "style_table",
-            "style_header",
-            "style_cell",
-            "style_cell_conditional",
-            "style_data_conditional",
-            "tooltip_delay",
-            "tooltip_duration",
-        }
-    )
 }
 
 DASH_AG_GRID_USED_PROPERTIES: dict[str, frozenset[str]] = {
@@ -280,7 +251,5 @@ __all__ = [
     "DASH_CORE_CALLBACK_PROPERTIES",
     "DASH_CORE_PROBE_ARGUMENTS",
     "DASH_CORE_USED_PROPERTIES",
-    "DASH_TABLE_PROBE_ARGUMENTS",
-    "DASH_TABLE_USED_PROPERTIES",
     "instantiate_component_probe",
 ]

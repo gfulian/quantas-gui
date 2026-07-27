@@ -4,9 +4,9 @@ from quantas_gui.components.result_components import empty_result_section
 from quantas_gui.components.result_overview import overview_view
 from quantas_gui.components.result_renderers import (
     data_view,
+    loaded_plot_selector,
     message_timeline,
     messages_view,
-    loaded_plot_selector,
     plots_view,
     rendered_tables_view,
     tables_view,

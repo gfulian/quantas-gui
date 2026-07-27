@@ -10,7 +10,7 @@ try:
     import dash
     import dash_ag_grid
     import plotly
-    from dash import dash_table, dcc
+    from dash import dcc
     from dash._utils import to_json
 
     from quantas_gui.compat import (
@@ -22,8 +22,6 @@ try:
         DASH_CORE_CALLBACK_PROPERTIES,
         DASH_CORE_PROBE_ARGUMENTS,
         DASH_CORE_USED_PROPERTIES,
-        DASH_TABLE_PROBE_ARGUMENTS,
-        DASH_TABLE_USED_PROPERTIES,
         PLOTLY_BASELINE,
         instantiate_component_probe,
     )
@@ -48,12 +46,6 @@ def test_installed_component_classes_expose_the_project_contract() -> None:
             DASH_CORE_PROBE_ARGUMENTS,
         ),
         (
-            dash_table,
-            DASH_TABLE_USED_PROPERTIES,
-            {},
-            DASH_TABLE_PROBE_ARGUMENTS,
-        ),
-        (
             dash_ag_grid,
             DASH_AG_GRID_USED_PROPERTIES,
             DASH_AG_GRID_CALLBACK_PROPERTIES,
@@ -73,9 +65,7 @@ def test_installed_component_classes_expose_the_project_contract() -> None:
                 component_type,
                 probe_arguments.get(component_name, {}),
             )
-            required = used_properties | callback_contract.get(
-                component_name, frozenset()
-            )
+            required = used_properties | callback_contract.get(component_name, frozenset())
             missing = sorted(required - set(component.available_properties))
             if missing:
                 failures.append(f"{module.__name__}.{component_name}: {missing}")

@@ -12,8 +12,7 @@ from collections import OrderedDict
 from collections.abc import Callable, Hashable
 from dataclasses import dataclass, field
 from threading import RLock
-from typing import Any, Protocol, TypeVar
-
+from typing import Any, Protocol, TypeVar, cast
 
 ValueT = TypeVar("ValueT")
 
@@ -59,7 +58,7 @@ class LocalArtifactCache:
                 self.hits += 1
                 value = self._values.pop(key)
                 self._values[key] = value
-                return value
+                return cast(ValueT, value)
         value = factory()
         with self._lock:
             # Another thread may have completed the same artifact meanwhile.
@@ -67,7 +66,7 @@ class LocalArtifactCache:
                 self.hits += 1
                 cached = self._values.pop(key)
                 self._values[key] = cached
-                return cached
+                return cast(ValueT, cached)
             self.misses += 1
             self._values[key] = value
             while len(self._values) > self.max_entries:

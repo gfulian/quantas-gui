@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import asdict, dataclass
-from typing import Any, ClassVar, Mapping
+from typing import Any, ClassVar
 
 
 @dataclass(frozen=True, slots=True)
@@ -31,9 +32,7 @@ class UserPreferences:
         {"compact", "standard", "comfortable", "large"}
     )
     MOTION_POLICIES: ClassVar[frozenset[str]] = frozenset({"system", "reduced"})
-    TABLE_DENSITIES: ClassVar[frozenset[str]] = frozenset(
-        {"comfortable", "compact"}
-    )
+    TABLE_DENSITIES: ClassVar[frozenset[str]] = frozenset({"comfortable", "compact"})
 
     theme: str = "dark"
     text_size: str = "standard"
@@ -41,12 +40,12 @@ class UserPreferences:
     table_density: str = "comfortable"
 
     @classmethod
-    def defaults(cls) -> "UserPreferences":
+    def defaults(cls) -> UserPreferences:
         """Return the presentation defaults used by a new browser profile."""
         return cls()
 
     @classmethod
-    def from_mapping(cls, value: Mapping[str, Any] | None) -> "UserPreferences":
+    def from_mapping(cls, value: Mapping[str, Any] | None) -> UserPreferences:
         """Create validated preferences from browser-provided data.
 
         Unknown or invalid values fall back independently to safe defaults so a
@@ -56,9 +55,7 @@ class UserPreferences:
         data = dict(value or {})
         return cls(
             theme=_member(data.get("theme"), cls.THEMES, defaults.theme),
-            text_size=_member(
-                data.get("text_size"), cls.TEXT_SIZES, defaults.text_size
-            ),
+            text_size=_member(data.get("text_size"), cls.TEXT_SIZES, defaults.text_size),
             motion=_member(data.get("motion"), cls.MOTION_POLICIES, defaults.motion),
             table_density=_member(
                 data.get("table_density"),

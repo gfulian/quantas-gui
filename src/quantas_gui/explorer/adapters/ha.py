@@ -19,7 +19,10 @@ class HAAdapter(ResultModuleAdapter):
             PlotFamilyDescriptor(
                 "thermodynamics",
                 "Thermodynamic functions",
-                "Temperature-dependent vibrational energy, free energy, entropy, and heat capacity.",
+                (
+                    "Temperature-dependent vibrational energy, free energy, "
+                    "entropy, and heat capacity."
+                ),
                 default=True,
                 cost="low",
                 icon="∿",
@@ -30,7 +33,6 @@ class HAAdapter(ResultModuleAdapter):
         if family_key != "thermodynamics":
             raise KeyError(f"unknown HA plot family {family_key!r}")
         return namespace.build_plots(result)
-
 
     def plot_description(self, title: str, kind: str, family_key: str) -> str:
         del kind, family_key

@@ -26,7 +26,13 @@ class PlotlyRenderOptions:
 
 
 COLORMAP_OPTIONS: tuple[tuple[str, str], ...] = (
-    ("From result", "source"), ("Viridis", "viridis"), ("Cividis", "cividis"),
-    ("Plasma", "plasma"), ("Inferno", "inferno"), ("Magma", "magma"),
-    ("Turbo", "turbo"), ("Blue–red", "rdbu"), ("Spectral", "spectral"),
+    ("From result", "source"),
+    ("Viridis", "viridis"),
+    ("Cividis", "cividis"),
+    ("Plasma", "plasma"),
+    ("Inferno", "inferno"),
+    ("Magma", "magma"),
+    ("Turbo", "turbo"),
+    ("Blue–red", "rdbu"),
+    ("Spectral", "spectral"),
 )

@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import argparse
 import socket
-from threading import Timer
 import webbrowser
+from threading import Timer
 
 from quantas_gui.config import Settings
 
@@ -50,22 +50,14 @@ def find_available_port(host: str, preferred: int, *, attempts: int = 50) -> int
 def main(argv: list[str] | None = None) -> int:
     """Start the safe local server and optionally open a browser."""
     args = build_parser().parse_args(argv)
-    settings = Settings.from_environment()
-    changes: dict[str, object] = {}
-    if args.host is not None:
-        changes["host"] = args.host
-    if args.port is not None:
-        changes["port"] = args.port
-    if args.url_prefix is not None:
-        changes["url_prefix"] = args.url_prefix
-    if args.no_browser:
-        changes["open_browser"] = False
-    if args.debug:
-        changes["debug"] = True
-    settings = settings.with_overrides(**changes)
-    settings = settings.with_overrides(
-        port=find_available_port(settings.host, settings.port)
+    settings = Settings.from_environment().with_overrides(
+        host=args.host,
+        port=args.port,
+        url_prefix=args.url_prefix,
+        open_browser=False if args.no_browser else None,
+        debug=True if args.debug else None,
     )
+    settings = settings.with_overrides(port=find_available_port(settings.host, settings.port))
 
     from quantas_gui.app import create_app
 

@@ -27,9 +27,10 @@ class QHAAdapter(ResultModuleAdapter):
                 icon="∿",
             )
         ]
-        if getattr(pressure, "size", len(pressure)) > 1 and getattr(
-            temperature, "size", len(temperature)
-        ) > 1:
+        if (
+            getattr(pressure, "size", len(pressure)) > 1
+            and getattr(temperature, "size", len(temperature)) > 1
+        ):
             families.append(
                 PlotFamilyDescriptor(
                     "contours",
@@ -55,7 +56,6 @@ class QHAAdapter(ResultModuleAdapter):
             )
             return _filtered_collection(collection, include={"ContourPlotSpec"})
         raise KeyError(f"unknown QHA plot family {family_key!r}")
-
 
     def plot_description(self, title: str, kind: str, family_key: str) -> str:
         del kind

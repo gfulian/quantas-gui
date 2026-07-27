@@ -1,4 +1,4 @@
-include README.md LICENSE CHANGELOG.md ROADMAP.md SECURITY.md CITATION.cff
+include README.md LICENSE CHANGELOG.md ROADMAP.md SECURITY.md CITATION.cff PROJECT_STATE.md ARCHITECTURAL_DECISIONS.md
 recursive-include src/quantas_gui/assets *.css *.ico *.png
 recursive-include docs *.md
 recursive-include tests *.py

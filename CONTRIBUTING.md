@@ -13,7 +13,8 @@ python -m venv .venv
 source .venv/bin/activate
 python -m pip install --upgrade pip
 python -m pip install -e /path/to/quantas
-python -m pip install -e ".[dev,performance]"
+python -m pip install -c constraints/ui-baseline.txt \
+    -c constraints/quality-baseline.txt -e ".[dev,performance]"
 python tools/run_checks.py
 ```
 
@@ -24,10 +25,24 @@ python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
 python -m pip install -e "C:\path\to\quantas"
-python -m pip install -e ".[dev,performance]"
-python tools\audit_dash_components.py
-python -m pytest -q
+python -m pip install -c constraints\ui-baseline.txt `
+    -c constraints\quality-baseline.txt -e ".[dev,performance]"
+python tools\run_checks.py
 ```
+
+## Reproducible quality baseline
+
+The exact Ruff and mypy versions used by CI are declared in
+`constraints/quality-baseline.txt`. Install development dependencies through
+both constraint files and do not rely on whatever tool release happens to be
+current on the day of validation.
+
+Ruff is intentionally limited to `src`, `tests`, and `tools`. Ruff 0.16 can
+format Python code blocks embedded in Markdown; documentation formatting is not
+part of the Python formatter contract for this project.
+
+Upgrade Ruff or mypy only in a focused maintenance change that updates the
+constraints, configuration, affected source, tests, and changelog together.
 
 ## Architectural rules
 
@@ -62,7 +77,6 @@ contract and include a comparison with API or CLI reference results.
 Run the standard checks before submitting a pull request:
 
 ```bash
-python tools/audit_dash_components.py
 python tools/run_checks.py
 ```
 

@@ -10,7 +10,6 @@ import plotly.graph_objects as go
 
 from quantas_gui.renderers.plotly.options import PlotlyRenderOptions
 
-
 _BRAND_COLORS = (
     "#69bce8",
     "#ed8a28",

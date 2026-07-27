@@ -65,10 +65,17 @@ def row_data_to_matrix(
     """Convert Dash AG Grid row records back to a numeric matrix."""
     if rows is None:
         return None
-    return tuple(
-        tuple(float(row.get(f"c{column_index}")) for column_index in range(field.columns))
-        for row in rows
-    )
+    matrix: list[tuple[float, ...]] = []
+    for row_index, row in enumerate(rows, start=1):
+        converted: list[float] = []
+        for column_index in range(field.columns):
+            key = f"c{column_index}"
+            value = row.get(key)
+            if value is None or value == "":
+                raise ValueError(f"Matrix row {row_index}, column {column_index + 1} is empty.")
+            converted.append(float(value))
+        matrix.append(tuple(converted))
+    return tuple(matrix)
 
 
 def key_value_to_row_data(field: KeyValueField) -> list[dict[str, Any]]:
@@ -88,14 +95,11 @@ def normalize_component_value(field: FieldSpec, raw: Any) -> Any:
         return tuple(dict(item) for item in (raw or ()))
     if isinstance(field, TagsField):
         return tuple(
-            item.get("value")
-            for item in (raw or ())
-            if item.get("value") not in (None, "")
+            item.get("value") for item in (raw or ()) if item.get("value") not in (None, "")
         )
-    if field.kind is FieldKind.BOOLEAN:
+    if field.kind is FieldKind.BOOLEAN and isinstance(raw, list):
         # A one-option checklist represents false as [] and true as ["enabled"].
-        if isinstance(raw, list):
-            return bool(raw)
+        return bool(raw)
     return raw
 
 

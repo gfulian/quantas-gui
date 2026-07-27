@@ -56,11 +56,13 @@ class ElasticityAdapter(ResultModuleAdapter):
             return namespace.build_3d_plots(result)
         raise KeyError(f"unknown elasticity plot family {family_key!r}")
 
-
     def plot_description(self, title: str, kind: str, family_key: str) -> str:
         if family_key == "polar-2d":
             return f"{title}: directional variation in archived principal-plane sections."
-        return f"{title}: physical-radius directional surface computed from the stored stiffness tensor."
+        return (
+            f"{title}: physical-radius directional surface computed from the "
+            "stored stiffness tensor."
+        )
 
     def table_group(self, title: str) -> str:
         normalized = title.lower()
