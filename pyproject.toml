@@ -53,8 +53,8 @@ quantas = ["quantas>=2.0.0b6,<2.1"]
 local-jobs = ["diskcache>=5.6,<6"]
 server = [
     "celery>=5.5,<6",
-    "redis>=6,<7",
-    "gunicorn>=23,<24; platform_system != 'Windows'",
+    "redis>=6,<9",
+    "gunicorn>=23,<27; platform_system != 'Windows'",
     "waitress>=3,<4; platform_system == 'Windows'",
 ]
 dev = [
