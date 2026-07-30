@@ -5,7 +5,7 @@ from __future__ import annotations
 from dash import dcc, html
 
 from quantas_gui.components.settings import (
-    developer_tools_link,
+    developer_mode_notice,
     option_cards,
     preference_group,
     settings_preview,
@@ -19,9 +19,13 @@ ORDER = 90
 
 
 _THEME_OPTIONS = (
-    ("Quantas Dark", "dark", "Current dark interface and default theme."),
-    ("Quantas Light", "light", "Light surfaces with the same scientific colour accents."),
-    ("System", "system", "Follow the operating-system light or dark preference."),
+    (
+        "System",
+        "system",
+        "Default. Follow the operating-system light or dark preference automatically.",
+    ),
+    ("Quantas Dark", "dark", "Keep the dark interface regardless of system settings."),
+    ("Quantas Light", "light", "Keep the light interface regardless of system settings."),
 )
 
 _TEXT_OPTIONS = (
@@ -42,8 +46,8 @@ _DENSITY_OPTIONS = (
 )
 
 
-def layout() -> html.Div:
-    """Return the application-settings page."""
+def layout(*, developer_mode: bool = False) -> html.Div:
+    """Return browser-local settings for the selected application profile."""
     defaults = UserPreferences.defaults()
     return html.Div(
         [
@@ -130,7 +134,7 @@ def layout() -> html.Div:
                     html.Div(
                         [
                             settings_preview(),
-                            developer_tools_link(),
+                            *([developer_mode_notice()] if developer_mode else []),
                             html.Div(
                                 [
                                     html.Strong("Storage policy"),

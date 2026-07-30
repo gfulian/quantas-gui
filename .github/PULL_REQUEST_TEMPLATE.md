@@ -1,18 +1,25 @@
-## Summary
+## What changes
 
-## User-facing behavior
+Describe the problem and the behaviour visible to users.
 
 ## Architectural boundary
 
-- [ ] Scientific functionality is imported only from `quantas.api`.
+- [ ] Scientific work uses only `quantas.api`.
 - [ ] Large scientific data remain server-side.
-- [ ] The change does not encode scientific formulas in the GUI.
+- [ ] The GUI does not introduce its own formulas or conventions.
+- [ ] Browser state contains only identifiers and lightweight state.
 
-## Validation
+## Security and repository hygiene
 
-- [ ] Ruff
-- [ ] mypy
-- [ ] pytest
-- [ ] package build
-- [ ] desktop screenshot for visual changes
-- [ ] mobile screenshot for visual changes
+- [ ] No credentials, private data, local paths or generated files are included.
+- [ ] Dependency changes are intentional and respect the declared baselines.
+- [ ] GitHub Actions keep minimal permissions and immutable SHA pins.
+
+## Validation performed
+
+- [ ] `python tools/run_checks.py`
+- [ ] desktop review, when visual behaviour changes
+- [ ] mobile review, when visual behaviour changes
+- [ ] Quantas Dark and Quantas Light review
+- [ ] scientific comparison with API/CLI, when applicable
+- [ ] `CHANGELOG.md` and `PROJECT_STATE.md` updated, when needed

@@ -1,34 +1,42 @@
-# Results Explorer performance policy
+# Performance policy
 
-The Results Explorer treats expensive scientific construction and browser
-presentation as different costs.
+The alpha aims for responsive local use without hiding expensive scientific
+work in the browser.
 
-## Local alpha policy
+## Current approach
 
-- Opening a result builds only a lightweight overview and payload inventory.
-- Report and plot *families* are listed before their content is built.
-- One selected family is constructed on demand.
-- Overview objects, family descriptors, report tables, and PlotCollections are
-  retained in a bounded process-local LRU cache.
-- Closing a result invalidates its entire cache namespace.
-- The browser stores only opaque result references and bounded plot inventory.
-- Tables use Dash AG Grid so row rendering is virtualized by the grid rather
-  than creating one DOM element for every cell.
-- Cartesian dense traces use Plotly WebGL traces where the public specification
-  permits them.
-- Plotly `uirevision` preserves zoom, camera, and selections while cosmetic
-  controls update the figure.
+- Opening a result builds only its overview and public inventories.
+- Reports and plots are constructed when selected.
+- Artifacts are cached by result, family and scientific selection.
+- Appearance changes reuse cached PlotSpecs.
+- AG Grid virtualizes large tables.
+- Compatible dense Cartesian traces may use WebGL.
+- Browser stores contain identifiers and small preferences, not numerical
+  payloads.
+- Cache size is bounded and configurable.
 
-The local cache is intentionally behind an `ArtifactCache` protocol. A server
-installation may replace it with a shared Redis/filesystem implementation
-without changing pages or scientific adapters.
+## What to measure
 
-## Diagnostics
+Performance work should use representative native files rather than synthetic
+DOM-only tests. Record:
 
-`QUANTAS_GUI_RESULT_CACHE_ENTRIES` controls the local cache size (default 48).
-The optional `performance` extra installs `orjson`, which Dash can use for
-faster JSON serialization when available.
+- result-open time;
+- first and cached report-build time;
+- first and cached plot-build time;
+- table row and column counts;
+- Plotly trace and point counts;
+- browser responsiveness during selection and appearance changes;
+- server memory before and after close;
+- workspace cleanup time;
+- behaviour with simultaneous requests.
 
-Avoid timing assertions in unit tests. Regression tests instead verify that
-repeated requests call the scientific builder once and return the same cached
-artifact.
+## Practical thresholds
+
+No single timing threshold fits every scientific result, but a change should not
+make routine interactions noticeably slower without a documented reason. Slow
+scientific construction should be visible as progress and should not block
+unrelated HTTP requests once workflow execution is enabled.
+
+When a dataset is too large for a current renderer, report the limitation and
+choose a scientifically safe reduction strategy through Quantas. Do not silently
+truncate or resample data in the GUI.

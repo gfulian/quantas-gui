@@ -1,0 +1,2 @@
+quantas==2.0.0b7
+packaging==25.0

@@ -2,15 +2,20 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 import dash
 from dash import dcc, html
 
+from quantas_gui.components.backend import backend_diagnostic
 from quantas_gui.components.cards import ModuleCardSpec, module_card
+from quantas_gui.services.backend_info import BackendCompatibility
 
 PATH = "/"
 NAME = "Home"
 TITLE = "Quantas GUI"
 ORDER = 0
+USES_BACKEND_STATUS = True
 
 MODULES = (
     ModuleCardSpec(
@@ -99,8 +104,26 @@ def _inspection_step(number: str, title: str, subtitle: str) -> html.Div:
     )
 
 
-def layout() -> html.Div:
-    """Return the landing-page layout."""
+def _hero_action(
+    backend: BackendCompatibility,
+    *,
+    label: str,
+    path: str,
+    primary: bool = False,
+) -> Any:
+    class_name = "q-button q-button--primary" if primary else "q-button"
+    if backend.ready:
+        return dcc.Link(label, href=dash.get_relative_path(path), className=class_name)
+    return html.Span(
+        label,
+        className=f"{class_name} is-disabled",
+        title=backend.diagnostic_message(),
+        **{"aria-disabled": "true"},
+    )
+
+
+def layout(*, backend: BackendCompatibility) -> html.Div:
+    """Return the landing-page layout and backend diagnostic."""
     return html.Div(
         [
             html.Section(
@@ -126,15 +149,16 @@ def layout() -> html.Div:
                             ),
                             html.Div(
                                 [
-                                    dcc.Link(
-                                        "Open Result Explorer",
-                                        href=dash.get_relative_path("/results"),
-                                        className="q-button q-button--primary",
+                                    _hero_action(
+                                        backend,
+                                        label="Open Result Explorer",
+                                        path="/results",
+                                        primary=True,
                                     ),
-                                    dcc.Link(
-                                        "Review workflow structure",
-                                        href=dash.get_relative_path("/workflows"),
-                                        className="q-button",
+                                    _hero_action(
+                                        backend,
+                                        label="Review workflow structure",
+                                        path="/workflows",
                                     ),
                                 ],
                                 className="q-hero-actions",
@@ -148,7 +172,7 @@ def layout() -> html.Div:
                                 "H5",
                                 "Native HDF5 results",
                                 "Metadata, inputs, outputs, and diagnostics",
-                                "Available",
+                                "Available" if backend.ready else "Disabled",
                             ),
                             _capability(
                                 "API",
@@ -168,6 +192,7 @@ def layout() -> html.Div:
                 ],
                 className="q-hero",
             ),
+            *([] if backend.ready else [backend_diagnostic(backend)]),
             html.Div(
                 [
                     html.Div(
@@ -179,15 +204,25 @@ def layout() -> html.Div:
                             ),
                         ]
                     ),
-                    dcc.Link(
-                        "View workflow map →",
-                        href=dash.get_relative_path("/workflows"),
-                        className="q-button",
+                    _hero_action(
+                        backend,
+                        label="View workflow map →",
+                        path="/workflows",
                     ),
                 ],
                 className="q-section-heading",
             ),
-            html.Div([module_card(spec) for spec in MODULES], className="q-module-grid"),
+            html.Div(
+                [
+                    module_card(
+                        spec,
+                        disabled=not backend.ready,
+                        disabled_reason=backend.diagnostic_message(),
+                    )
+                    for spec in MODULES
+                ],
+                className="q-module-grid",
+            ),
             html.Div(
                 [
                     html.Section(
@@ -195,9 +230,10 @@ def layout() -> html.Div:
                             html.Div(
                                 [
                                     html.H3("Result Explorer"),
-                                    dcc.Link(
-                                        "Open Explorer →",
-                                        href=dash.get_relative_path("/results"),
+                                    _hero_action(
+                                        backend,
+                                        label="Open Explorer →",
+                                        path="/results",
                                     ),
                                 ],
                                 className="q-panel-header",

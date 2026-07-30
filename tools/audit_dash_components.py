@@ -67,6 +67,7 @@ def main(argv: list[str] | None = None) -> int:
     from quantas_gui.config import Settings
     from quantas_gui.forms.catalog import ui_kit_form
     from quantas_gui.forms.renderer import render_field
+    from quantas_gui.profile import ApplicationProfile
 
     passed: list[str] = []
     failures: list[str] = []
@@ -153,37 +154,72 @@ def main(argv: list[str] | None = None) -> int:
         workspace_root=args.workspace,
         open_browser=False,
     )
-    app = create_app(settings)
 
-    def shell_endpoint() -> None:
-        response = app.server.test_client().get("/_dash-layout")
-        if response.status_code != 200:
-            raise RuntimeError(f"/_dash-layout returned {response.status_code}")
+    for profile in (ApplicationProfile.STANDARD, ApplicationProfile.UI_KIT):
+        app = create_app(settings, profile=profile)
+        label_prefix = profile.value
 
-    _record(passed, failures, "application /_dash-layout", shell_endpoint)
+        def shell_endpoint(app=app) -> None:
+            response = app.server.test_client().get("/_dash-layout")
+            if response.status_code != 200:
+                raise RuntimeError(f"/_dash-layout returned {response.status_code}")
 
-    def dependencies_endpoint() -> None:
-        response = app.server.test_client().get("/_dash-dependencies")
-        if response.status_code != 200:
-            raise RuntimeError(f"/_dash-dependencies returned {response.status_code}")
+        _record(
+            passed,
+            failures,
+            f"{label_prefix} /_dash-layout",
+            shell_endpoint,
+        )
 
-    _record(
-        passed,
-        failures,
-        "application /_dash-dependencies",
-        dependencies_endpoint,
+        def dependencies_endpoint(app=app) -> None:
+            response = app.server.test_client().get("/_dash-dependencies")
+            if response.status_code != 200:
+                raise RuntimeError(f"/_dash-dependencies returned {response.status_code}")
+
+        _record(
+            passed,
+            failures,
+            f"{label_prefix} /_dash-dependencies",
+            dependencies_endpoint,
+        )
+
+        for page in tuple(dash.page_registry.values()):
+            path = str(page.get("path", page.get("module", "unknown")))
+
+            def construct_page(page=page) -> None:
+                factory = page.get("layout")
+                component = factory() if callable(factory) else factory
+                if not to_json(component):
+                    raise RuntimeError("empty serialized page")
+
+            _record(
+                passed,
+                failures,
+                f"{label_prefix} page {path}",
+                construct_page,
+            )
+
+    server_settings = Settings.server_defaults().with_overrides(
+        workspace_root=args.workspace / "server",
+        trusted_hosts=("localhost",),
     )
+    server_app = create_app(server_settings, profile=ApplicationProfile.STANDARD)
 
-    for page in dash.page_registry.values():
-        path = str(page.get("path", page.get("module", "unknown")))
+    def server_health() -> None:
+        client = server_app.server.test_client()
+        response = client.get("/healthz", headers={"Host": "localhost"})
+        readiness = client.get("/readyz", headers={"Host": "localhost"})
+        if response.status_code != 200:
+            raise RuntimeError(f"/healthz returned {response.status_code}")
+        if readiness.status_code != 200:
+            raise RuntimeError(f"/readyz returned {readiness.status_code}")
+        payload = response.get_json()
+        if payload.get("mode") != "server":
+            raise RuntimeError("health endpoint did not report server mode")
+        if response.headers.get("X-Content-Type-Options") != "nosniff":
+            raise RuntimeError("security headers are missing")
 
-        def construct_page(page=page) -> None:
-            factory = page.get("layout")
-            component = factory() if callable(factory) else factory
-            if not to_json(component):
-                raise RuntimeError("empty serialized page")
-
-        _record(passed, failures, f"page {path}", construct_page)
+    _record(passed, failures, "server profile /healthz and headers", server_health)
 
     print(f"\nSummary: {len(passed)} passed, {len(failures)} failed")
     if failures:

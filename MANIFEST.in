@@ -1,7 +1,9 @@
-include README.md LICENSE CHANGELOG.md ROADMAP.md SECURITY.md CITATION.cff PROJECT_STATE.md ARCHITECTURAL_DECISIONS.md
-recursive-include src/quantas_gui/assets *.css *.ico *.png
+include .env.example
+include README.md LICENSE CHANGELOG.md ROADMAP.md SECURITY.md CITATION.cff PROJECT_STATE.md ARCHITECTURAL_DECISIONS.md CONTRIBUTING.md CODE_OF_CONDUCT.md
+recursive-include src/quantas_gui/assets *.css *.js *.ico *.png
 recursive-include docs *.md
 recursive-include tests *.py
 recursive-include constraints *.txt
 recursive-include tools *.py
-recursive-include scripts *.sh *.ps1
+recursive-include scripts *.sh *.ps1 *.cmd
+recursive-include .github *.yml *.md CODEOWNERS

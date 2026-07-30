@@ -123,8 +123,8 @@ DASH_CORE_USED_PROPERTIES: dict[str, frozenset[str]] = {
             "persistence_type",
         }
     ),
-    "Graph": frozenset({"id", "figure", "config", "className", "responsive"}),
-    "Interval": frozenset({"id", "interval", "max_intervals"}),
+    "Graph": frozenset({"id", "figure", "config", "className", "responsive", "mathjax"}),
+    "Interval": frozenset({"id", "interval", "max_intervals", "n_intervals"}),
     "Input": frozenset(
         {
             "id",

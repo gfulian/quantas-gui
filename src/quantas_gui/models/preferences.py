@@ -34,7 +34,7 @@ class UserPreferences:
     MOTION_POLICIES: ClassVar[frozenset[str]] = frozenset({"system", "reduced"})
     TABLE_DENSITIES: ClassVar[frozenset[str]] = frozenset({"comfortable", "compact"})
 
-    theme: str = "dark"
+    theme: str = "system"
     text_size: str = "standard"
     motion: str = "system"
     table_density: str = "comfortable"

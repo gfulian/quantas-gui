@@ -24,13 +24,17 @@ class ResultReference:
     filename
         Sanitized display name of the uploaded file.
     size_bytes
-        Physical upload size in bytes.
+        Physical result size in bytes.
+    disposable_workspace
+        Whether closing the Explorer may delete the complete workspace. Browser
+        uploads use isolated disposable workspaces; workflow results do not.
     """
 
     workspace_id: str
     result_id: str
     filename: str
     size_bytes: int
+    disposable_workspace: bool = True
 
     def as_dict(self) -> dict[str, Any]:
         """Return a JSON-compatible representation."""
@@ -44,6 +48,7 @@ class ResultReference:
             result_id=str(values["result_id"]),
             filename=str(values["filename"]),
             size_bytes=int(values["size_bytes"]),
+            disposable_workspace=bool(values.get("disposable_workspace", True)),
         )
 
 
@@ -89,6 +94,34 @@ class ResultSummary:
             event_count=int(values.get("event_count", 0)),
             result_keys=tuple(str(item) for item in values.get("result_keys", ())),
             archive=bool(values.get("archive", False)),
+        )
+
+
+@dataclass(frozen=True, slots=True)
+class ActiveResultState:
+    """Lightweight application-level handoff for one active result.
+
+    Workflow pages and the Results Explorer exchange this payload through the
+    global session store. It contains only the opaque server-side reference and
+    a compact summary; numerical results remain in the controlled workspace.
+    """
+
+    reference: ResultReference
+    summary: ResultSummary
+
+    def as_dict(self) -> dict[str, Any]:
+        """Return a JSON-compatible browser-session payload."""
+        return {
+            "reference": self.reference.as_dict(),
+            "summary": self.summary.as_dict(),
+        }
+
+    @classmethod
+    def from_dict(cls, values: dict[str, Any]) -> ActiveResultState:
+        """Restore one active-result handoff from browser-session data."""
+        return cls(
+            reference=ResultReference.from_dict(dict(values["reference"])),
+            summary=ResultSummary.from_dict(dict(values["summary"])),
         )
 
 

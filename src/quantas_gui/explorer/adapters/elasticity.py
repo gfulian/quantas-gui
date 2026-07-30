@@ -5,11 +5,15 @@ from __future__ import annotations
 from typing import Any
 
 from quantas_gui.explorer.adapters.base import ResultModuleAdapter
-from quantas_gui.explorer.models import PlotFamilyDescriptor
+from quantas_gui.explorer.models import (
+    PlotBuildSelection,
+    PlotFamilyDescriptor,
+    ScientificExportDescriptor,
+)
 
 
 class ElasticityAdapter(ResultModuleAdapter):
-    """Expose stored polar data and on-demand 3D elasticity surfaces."""
+    """Expose public polar and three-dimensional elasticity representations."""
 
     name = "elasticity"
 
@@ -17,52 +21,83 @@ class ElasticityAdapter(ResultModuleAdapter):
         self,
         namespace: Any,
         result: Any,
+        inventory: Any,
     ) -> tuple[PlotFamilyDescriptor, ...]:
-        payload = namespace.get_result(result)
-        families: list[PlotFamilyDescriptor] = []
-        if bool(getattr(payload, "properties_2d", {})):
-            families.append(
-                PlotFamilyDescriptor(
-                    key="polar-2d",
-                    title="Directional properties · 2D polar",
-                    description=(
-                        "Principal-plane polar diagrams for Young's modulus, "
-                        "compressibility, shear modulus, and Poisson's ratio."
-                    ),
-                    default=True,
-                    cost="low",
-                    icon="◉",
-                )
+        del namespace, result
+        return tuple(
+            self._family_from_representation(
+                representation,
+                default=index == 0,
+                cost="high" if representation.key == "surface_3d" else "low",
             )
-        families.append(
-            PlotFamilyDescriptor(
-                key="surface-3d",
-                title="Directional properties · 3D surfaces",
-                description=(
-                    "Interactive physical-radius surfaces calculated from the "
-                    "stored stiffness tensor."
-                ),
-                default=not families,
-                cost="high",
-                icon="⬡",
-            )
+            for index, representation in enumerate(inventory.representations)
         )
-        return tuple(families)
 
-    def build_plots(self, namespace: Any, result: Any, family_key: str) -> Any:
-        if family_key == "polar-2d":
-            return namespace.build_2d_plots(result)
-        if family_key == "surface-3d":
-            return namespace.build_3d_plots(result)
-        raise KeyError(f"unknown elasticity plot family {family_key!r}")
+    def build_plots(
+        self,
+        namespace: Any,
+        result: Any,
+        family_key: str,
+        inventory: Any,
+        selection: PlotBuildSelection | None = None,
+    ) -> Any:
+        representation = inventory.representation_by_key(family_key)
+        properties = (
+            selection.property_keys
+            if selection is not None and selection.property_keys
+            else tuple(representation.property_keys)
+        )
+        if family_key == "polar_2d":
+            return namespace.build_2d_plots(result, properties=tuple(properties))
+        if family_key == "surface_3d":
+            geometry = (
+                str(selection.context("surface_geometry", "physical"))
+                if selection is not None
+                else "physical"
+            )
+            return namespace.build_3d_plots(
+                result,
+                options=namespace.SurfaceOptions(properties=tuple(properties)),
+                geometry=geometry,
+            )
+        raise KeyError(f"unknown elasticity representation {family_key!r}")
+
+    def scientific_exports(
+        self,
+        namespace: Any,
+        result: Any,
+        operations: tuple[Any, ...],
+    ) -> tuple[ScientificExportDescriptor, ...]:
+        """Expose the parameter-free public principal-plane table export."""
+        del namespace, result
+        return tuple(
+            ScientificExportDescriptor(
+                key=str(operation.key),
+                title=str(operation.name),
+                description=str(operation.description),
+                suffix=".dat",
+                enabled=str(operation.key) == "export_2d_table",
+            )
+            for operation in operations
+        )
+
+    def write_scientific_export(
+        self,
+        namespace: Any,
+        result: Any,
+        operation_key: str,
+        destination: Any,
+    ) -> Any:
+        """Write the public elasticity table export."""
+        if operation_key != "export_2d_table":
+            return super().write_scientific_export(namespace, result, operation_key, destination)
+        return namespace.write_table(result, destination)
 
     def plot_description(self, title: str, kind: str, family_key: str) -> str:
-        if family_key == "polar-2d":
-            return f"{title}: directional variation in archived principal-plane sections."
-        return (
-            f"{title}: physical-radius directional surface computed from the "
-            "stored stiffness tensor."
-        )
+        del kind
+        if family_key == "polar_2d":
+            return f"{title}: public principal-plane directional sections."
+        return f"{title}: public directional surface prepared from the stored tensor."
 
     def table_group(self, title: str) -> str:
         normalized = title.lower()
@@ -78,4 +113,4 @@ class ElasticityAdapter(ResultModuleAdapter):
 
     def plot_group(self, title: str, kind: str, family_key: str) -> str:
         del title, kind
-        return "2D polar" if family_key == "polar-2d" else "3D surface"
+        return "2D polar" if family_key == "polar_2d" else "3D surface"

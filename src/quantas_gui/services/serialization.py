@@ -1,4 +1,4 @@
-"""Safe lightweight serialization helpers for GUI inspection views."""
+"""Safe bounded serialization helpers for browser inspection views."""
 
 from __future__ import annotations
 
@@ -10,32 +10,31 @@ from pathlib import Path
 from typing import Any
 
 _MAX_INLINE_SEQUENCE = 24
+_MAX_INLINE_MAPPING = 64
+_MAX_MAPPING_PREVIEW = 12
+_MAX_STRING_LENGTH = 4096
 _MAX_DEPTH = 5
 
 
 def to_json_value(value: Any, *, depth: int = 0) -> Any:
-    """Return a bounded JSON-compatible view without expanding large arrays.
+    """Return a bounded JSON-compatible view of a public Quantas value.
 
-    Parameters
-    ----------
-    value
-        Arbitrary value restored from a public Quantas result contract.
-    depth
-        Current recursion depth used internally.
-
-    Returns
-    -------
-    object
-        JSON-compatible scalar, mapping, sequence, or structural summary.
+    Filesystem paths are reduced to display names before entering browser state.
+    Large mappings, sequences, strings, arrays, and byte buffers are represented
+    by bounded structural summaries rather than expanded payloads.
     """
-    if value is None or isinstance(value, (str, int, float, bool)):
+    if value is None or isinstance(value, (int, float, bool)):
         return value
+    if isinstance(value, str):
+        return _bounded_string(value)
     if isinstance(value, Enum):
         return to_json_value(value.value, depth=depth + 1)
     if isinstance(value, (datetime, date)):
         return value.isoformat()
     if isinstance(value, Path):
-        return str(value)
+        return {"type": "path", "name": _path_display_name(value)}
+    if isinstance(value, (bytes, bytearray, memoryview)):
+        return {"type": type(value).__name__, "length": len(value)}
 
     shape = getattr(value, "shape", None)
     dtype = getattr(value, "dtype", None)
@@ -50,7 +49,17 @@ def to_json_value(value: Any, *, depth: int = 0) -> Any:
         return {"type": type(value).__name__, "summary": "maximum inspection depth reached"}
 
     if isinstance(value, Mapping):
-        return {str(key): to_json_value(item, depth=depth + 1) for key, item in value.items()}
+        items = list(value.items())
+        if len(items) <= _MAX_INLINE_MAPPING:
+            return {str(key): to_json_value(item, depth=depth + 1) for key, item in items}
+        return {
+            "type": type(value).__name__,
+            "length": len(items),
+            "preview": {
+                str(key): to_json_value(item, depth=depth + 1)
+                for key, item in items[:_MAX_MAPPING_PREVIEW]
+            },
+        }
 
     if isinstance(value, Sequence) and not isinstance(value, (str, bytes, bytearray)):
         if len(value) <= _MAX_INLINE_SEQUENCE:
@@ -94,8 +103,10 @@ def inventory_item(key: str, value: Any) -> dict[str, Any]:
         summary = f"{len(value)} items"
     elif shape is None and is_dataclass(value):
         summary = f"{len(fields(value))} fields"
+    elif isinstance(value, Path):
+        summary = _path_display_name(value)
     elif value is None or isinstance(value, (str, int, float, bool)):
-        summary = str(value)
+        summary = _bounded_string(str(value))
 
     return {
         "key": str(key),
@@ -104,3 +115,14 @@ def inventory_item(key: str, value: Any) -> dict[str, Any]:
         "dtype": None if dtype is None else str(dtype),
         "summary": summary,
     }
+
+
+def _bounded_string(value: str) -> str:
+    if len(value) <= _MAX_STRING_LENGTH:
+        return value
+    return value[: _MAX_STRING_LENGTH - 1] + "…"
+
+
+def _path_display_name(value: Path) -> str:
+    candidate = str(value).replace("\\", "/").rstrip("/")
+    return Path(candidate).name or "path"

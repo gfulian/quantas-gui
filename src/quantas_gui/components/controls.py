@@ -10,7 +10,7 @@ from dash import dcc, html
 
 def labelled_dropdown(
     *,
-    component_id: str,
+    component_id: str | dict[str, Any],
     label: str,
     options: Sequence[dict[str, Any]],
     value: Any = None,

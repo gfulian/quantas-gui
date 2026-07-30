@@ -17,7 +17,7 @@ body:
     id: backend
     attributes:
       label: Quantas backend version
-      placeholder: 2.0.0b6 or not installed
+      placeholder: 2.0.0b7 or not installed
     validations:
       required: true
   - type: textarea

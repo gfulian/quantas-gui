@@ -4,22 +4,33 @@ from __future__ import annotations
 
 from dash import html
 
-from quantas_gui.components.placeholders import development_page
+from quantas_gui.components.backend import backend_diagnostic
+from quantas_gui.services.backend_info import BackendCompatibility
 
 PATH = "/about"
 NAME = "About"
 TITLE = "About Quantas GUI · Quantas GUI"
 ORDER = None
+USES_BACKEND_STATUS = True
 
 
-def layout() -> html.Div:
-    """Return the page layout."""
-    return development_page(
-        eyebrow="Project information",
-        title="About Quantas GUI",
-        summary="A modern graphical interface to the validated Quantas Python library.",
-        next_step=(
-            "Project, version, citation, license, and backend compatibility "
-            "information will live here."
-        ),
+def layout(*, backend: BackendCompatibility) -> html.Div:
+    """Return project information and the live backend diagnostic."""
+    return html.Div(
+        [
+            html.Section(
+                [
+                    html.Div("Project information", className="q-eyebrow"),
+                    html.H1("About Quantas GUI"),
+                    html.P(
+                        "Quantas GUI is an independent Dash and Plotly frontend for the "
+                        "validated Quantas scientific library. Scientific operations use "
+                        "only the public quantas.api lifecycle contract."
+                    ),
+                ],
+                className="q-page-intro",
+            ),
+            backend_diagnostic(backend),
+        ],
+        className="q-content",
     )

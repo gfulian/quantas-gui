@@ -1,92 +1,121 @@
-# Results Explorer
+# Result Explorer
 
-The Results Explorer is the shared scientific presentation surface of Quantas
-GUI. It verifies the boundary from native HDF5 to public Quantas contracts,
-module-aware scientific selection, frontend-neutral reports/plots, and
-Dash/Plotly presentation.
+The Result Explorer is the common read-only interface for native Quantas
+results. Users can upload a file, and future workflows can open their completed
+result directly without uploading it again.
 
-## Boundaries
+## What the Explorer is responsible for
 
-The Explorer may identify a result from persisted metadata, display provenance,
-request public report/plot specifications, and apply visual interactivity. It
-may not infer file type from names, import private Quantas modules, modify
-scientific data, or place large arrays in browser storage.
+The Explorer:
 
-```text
-browser upload
-    ↓ controlled workspace + opaque ResultReference
-ResultExplorerService
-    ↓ bounded ArtifactCache
-QuantasResultBackend
-    ↓ quantas.api.registry only
-module ResultModuleAdapter
-    ↓ selected report/plot family
-ReportTable / PlotCollection
-    ↓
-Dash AG Grid / Plotly
-```
+- identifies a result through `quantas.api.registry`;
+- keeps the file in a controlled server-side workspace;
+- shows provenance, inputs, options, warnings and events;
+- asks the public module API which reports, plots and exports are available;
+- builds expensive artifacts only after the user selects them;
+- renders public `ReportTable` objects with Dash AG Grid;
+- renders public PlotSpecs with Plotly;
+- offers original-file, report, table and supported scientific downloads;
+- closes Explorer-owned workspaces safely.
 
-## Module-aware lazy families
+It does not calculate new scientific results, infer missing scientific meaning
+from private payloads, or put large numerical objects in browser storage.
 
-Opening a native result creates only `ResultOverview`. Entering Tables or Plots
-lists lightweight families. Scientific content is built only after a family is
-selected.
+## Opening a file
 
-- Elasticity: archived 2D polar plots and on-demand 3D surfaces.
-- SEISMIC: spherical maps, extrema summaries, and 3D wave surfaces.
-- HA: harmonic thermodynamic curves.
-- QHA: one-dimensional curves and P-T contours when a grid exists.
-- Thermoelasticity: fits, P-T maps, domain diagnostics, and profiles according
-  to the archived workflow stage.
-- EOS: archive summary only; accepted-fit selection remains in the dedicated
-  session UI.
+Supported uploads use `.h5`, `.hdf5` or `.hdf`. Before decoding the browser
+payload, the application checks that the Quantas backend is ready. The file is
+then written atomically to an isolated workspace and opened through the public
+registry.
 
-See [module adapter architecture](module-result-adapters.md).
+The browser receives an `ActiveResultState` containing only an opaque reference
+and a lightweight summary. The path, native result and HDF5 handle stay on the
+server.
 
 ## Views
 
 ### Overview
 
-Module identity, method, schema, provenance, warnings, events, and a payload
-inventory containing only type, shape, dtype, and bounded metadata.
+Shows the module, source, creation information, provenance, normalized inputs,
+options and a compact summary.
 
 ### Tables
 
-A report-family selector builds one public `ReportTable` collection. Tables are
-grouped using module presentation adapters and displayed with Dash AG Grid.
-Formatting metadata is applied to separate display values; CSV export always
-uses raw cells and unit-bearing headers.
+The module advertises report families. A selected family is built lazily and
+rendered with AG Grid. Raw numeric and boolean values are preserved for sorting
+and filtering; formatting follows the precision and units supplied by Quantas.
+CSV downloads contain the complete table, not only visible rows.
 
 ### Plots
 
-A scientific-view selector builds one plot family. A second selector lists its
-figures with module grouping and descriptions. The generic dispatcher supports:
+The module exposes a public plot inventory. The GUI presents only the property,
+independent variable, fixed coordinate, representation and other contexts listed
+there. Those choices form a `PlotBuildSelection` and a stable cache key.
 
-- line and error/band plots;
-- contours and diagnostic masks;
-- polar panels;
-- 3D surfaces and vector layers;
-- spherical maps and summaries;
-- composed panels.
+After the public PlotSpec is built, presentation controls can change colormap,
+line appearance, hover mode, legend, grid, contour presentation, projection,
+opacity or camera without rebuilding the scientific object.
 
-A collapsible responsive drawer shows only controls meaningful for the selected
-specification: colormap, hover, projection, isolines, labels, surface opacity,
-3D camera, colorbar, legend, grid, and axes. These controls affect display only.
-`uirevision` preserves user zoom and camera where Plotly supports it.
+### Messages
 
-### Messages and Data
+Stored warnings and structured events can be filtered by severity and text.
+Technical exceptions are logged server-side; the browser receives a bounded,
+sanitized message without local paths.
 
-Persistent events and warnings can be filtered by level and text. Metadata,
-normalized input, options, and payload structure are exposed through bounded
-JSON views; large arrays remain server-side.
+### Data
 
-## Performance
+A bounded technical view helps diagnose file structure without transferring
+complete arrays. Large mappings, sequences, strings and arrays are summarized.
+Server paths are reduced to safe display names.
 
-Prepared overviews, family inventories, report tables, and PlotCollections are
-cached under `(workspace_id, result_id, artifact...)`. Repeated figure or table
-selection therefore does not reopen HDF5 or rerun a scientific builder. Closing
-a result invalidates the complete cache namespace.
+## Module behaviour
 
-The local implementation uses a bounded thread-safe LRU. The `ArtifactCache`
-protocol permits a future Redis/filesystem implementation for multi-process
-server deployment. See [performance policy](performance.md).
+Elasticity, SEISMIC, HA, QHA and Thermoelasticity use module adapters that group
+public lifecycle families and provide interface labels. These adapters do not
+recreate calculations or inspect private backend internals.
+
+EOS is different. Its native object is a persistent archive with datasets, fit
+slots and records. The Explorer offers read-only archive, record, status,
+parameter, covariance and diagnostic-plot inspection. Editing and fitting are
+reserved for the dedicated EOS workflow.
+
+## Caching and performance
+
+Opening a file is intentionally cheap. Report and plot families are built on
+demand and cached by workspace, result, family and scientific selection.
+Cosmetic changes reuse the same artifact.
+
+Tables use AG Grid virtualization. Suitable dense Cartesian traces may use
+Plotly WebGL. Cache size is bounded by configuration and remains process-local
+in the current server implementation.
+
+## Concurrent requests and close
+
+Workspace locks coordinate reads and deletion across processes. If a result is
+closed while a report or plot is being built, the active request may finish,
+but its artifact cannot return to the invalidated cache. Explorer-owned files
+are removed after active readers release the workspace.
+
+Workflow-owned results use the same Explorer but keep their workspace when the
+view is closed.
+
+## Backend unavailable behaviour
+
+When Quantas is missing or incompatible, the Results page and upload controls
+are disabled and the application shows backend diagnostics. No upload data are
+decoded or written in that state.
+
+## Validation
+
+A Result Explorer change should be checked with representative results from
+each module. Validation includes:
+
+- public inventory and selector correctness;
+- table values, units, formatting, sorting and CSV output;
+- Plotly/Matplotlib scientific equivalence where applicable;
+- cache reuse and invalidation;
+- warnings, errors and empty states;
+- dark and light themes;
+- desktop and narrow viewports;
+- keyboard operation;
+- large-result performance.

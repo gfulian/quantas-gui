@@ -38,12 +38,14 @@ def test_repository_checks_limit_ruff_to_python_trees() -> None:
     assert '"ruff", "format", "--check", "."' not in checks
 
 
-def test_ci_installs_both_reproducibility_constraints() -> None:
+def test_ci_installs_all_reproducibility_constraints() -> None:
     workflow = _text(".github/workflows/ci.yml")
 
     assert "constraints/ui-baseline.txt" in workflow
     assert "constraints/quality-baseline.txt" in workflow
+    assert "constraints/backend-baseline.txt" in workflow
     assert "-c constraints/quality-baseline.txt" in workflow
+    assert "-c constraints/backend-baseline.txt" in workflow
 
 
 def test_mypy_skips_third_party_implementation_details() -> None:
@@ -53,7 +55,6 @@ def test_mypy_skips_third_party_implementation_details() -> None:
         '"dash"',
         '"dash.*"',
         '"dash_ag_grid"',
-        '"dash_ag_grid.*"',
         '"plotly"',
         '"plotly.*"',
         '"numpy"',
@@ -73,7 +74,49 @@ def test_numpy_runtime_range_is_not_downgraded_for_mypy() -> None:
 
 
 def test_windows_validator_uses_supported_check_arguments() -> None:
-    script = _text("scripts/validate_windows.ps1")
+    powershell_script = _text("scripts/validate_windows.ps1")
+    command_script = _text("scripts/validate_windows.cmd")
 
-    assert "tools\\run_checks.py" in script
-    assert "--build" not in script
+    assert "tools\\run_checks.py" in powershell_script
+    assert "tools\\run_checks.py" in command_script
+    assert "--build" not in powershell_script
+    assert "--build" not in command_script
+    assert "[dev,performance]" in powershell_script
+    assert "[dev,performance]" in command_script
+    assert "Invoke-Checked" in powershell_script
+    assert "EnableDelayedExpansion" in command_script
+
+
+def test_windows_command_validator_is_included_in_source_archives() -> None:
+    manifest = _text("MANIFEST.in")
+
+    assert "recursive-include scripts *.sh *.ps1 *.cmd" in manifest
+
+
+def test_runtime_file_lock_dependency_is_declared() -> None:
+    pyproject = _text("pyproject.toml")
+
+    assert '"filelock>=3.16,<4"' in pyproject
+
+
+def test_quantas_is_a_required_constrained_backend() -> None:
+    pyproject = _text("pyproject.toml")
+    constraints = _text("constraints/backend-baseline.txt")
+    workflow = _text(".github/workflows/ci.yml")
+
+    assert '"quantas>=2.0.0b7,<2.1"' in pyproject
+    assert "quantas==2.0.0b7" in constraints.splitlines()
+    assert "repository: gfulian/quantas" in workflow
+    assert "ref: dev/refactor" in workflow
+    assert ".ci/quantas" in workflow
+    assert "[project.optional-dependencies]\nquantas" not in pyproject
+
+
+def test_packaging_does_not_advertise_unimplemented_job_backends() -> None:
+    pyproject = _text("pyproject.toml").lower()
+
+    for package in ("diskcache", "celery", "redis"):
+        assert package not in pyproject
+    assert "server = [" in pyproject
+    assert "gunicorn" in pyproject
+    assert "waitress" in pyproject

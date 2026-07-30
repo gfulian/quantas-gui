@@ -1,8 +1,8 @@
-"""Optional Quantas backend adapter for native result inspection.
+"""Quantas public-lifecycle backend for native result inspection.
 
 This module is the only Results Explorer layer that opens native Quantas
-results.  Module-specific presentation is delegated to adapters that use only
-public ``quantas.api`` namespaces.
+results. Module-specific presentation is delegated to adapters that consume
+only public ``quantas.api`` namespaces, inventories, reports, and PlotSpecs.
 """
 
 from __future__ import annotations
@@ -15,13 +15,25 @@ from pathlib import Path
 from typing import Any, Protocol
 
 from quantas_gui.explorer.adapters import adapter_for
-from quantas_gui.explorer.models import PlotFamilyDescriptor, TableFamilyDescriptor
+from quantas_gui.explorer.models import (
+    PlotBuildSelection,
+    PlotFamilyDescriptor,
+    PlotSelectionSchema,
+    ScientificExportDescriptor,
+    TableFamilyDescriptor,
+)
 from quantas_gui.models.results import (
     EventView,
     InventoryItem,
     ResultOverview,
     ResultSummary,
-    TableData,
+)
+from quantas_gui.services.eos_inspection import (
+    build_eos_tables,
+    decode_eos_plot_family,
+    eos_plot_families,
+    eos_table_families,
+    render_structural_tables,
 )
 from quantas_gui.services.serialization import inventory_item, to_json_value
 
@@ -31,7 +43,7 @@ class ResultBackendError(RuntimeError):
 
 
 class ResultBackendUnavailable(ResultBackendError):
-    """Raised when the optional Quantas public API cannot be imported."""
+    """Raised when the required Quantas public API cannot be used."""
 
 
 class InvalidNativeResult(ResultBackendError):
@@ -53,11 +65,30 @@ class ResultBackend(Protocol):
     def plot_families(self, path: Path) -> tuple[PlotFamilyDescriptor, ...]:
         """Return lazily generated plot families."""
 
-    def build_plots(self, path: Path, family_key: str | None = None) -> Any:
+    def plot_selection_schema(self, path: Path, family_key: str) -> PlotSelectionSchema:
+        """Return result-aware scientific selectors for one plot family."""
+
+    def build_plots(
+        self,
+        path: Path,
+        family_key: str | None = None,
+        selection: PlotBuildSelection | None = None,
+    ) -> Any:
         """Return a neutral plot collection."""
 
     def render_plain_report(self, path: Path, family_key: str | None = None) -> str:
         """Return deterministic plain-text report content."""
+
+    def scientific_exports(self, path: Path) -> tuple[ScientificExportDescriptor, ...]:
+        """Return public scientific export operations and GUI readiness."""
+
+    def write_scientific_export(
+        self,
+        path: Path,
+        operation_key: str,
+        destination: Path,
+    ) -> Path:
+        """Run one configured public export operation."""
 
     def table_group(self, path: Path, title: str) -> str:
         """Return a module-aware group label for one report table."""
@@ -75,28 +106,21 @@ class QuantasResultBackend:
 
     def inspect(self, path: Path) -> ResultOverview:
         """Inspect one native result through metadata-driven API dispatch."""
-        descriptor, opened = self._open(path)
+        descriptor = self._descriptor(path)
         if descriptor.name == "eos":
-            return self._inspect_eos_archive(descriptor, opened)
-        return self._inspect_result_envelope(descriptor, opened)
+            return self._inspect_eos_archive(descriptor, path)
+        return self._inspect_result_envelope(descriptor, self._open_result(path))
 
     def table_families(self, path: Path) -> tuple[TableFamilyDescriptor, ...]:
         """List report families without constructing their tables."""
-        descriptor, opened = self._open(path)
+        descriptor = self._descriptor(path)
         if descriptor.name == "eos":
-            try:
-                return (
-                    TableFamilyDescriptor(
-                        key="summary",
-                        title="Archive summary",
-                        description="Structural EOS archive metadata and slot inventory.",
-                        default=True,
-                    ),
-                )
-            finally:
-                opened.close()
+            eos = self._namespace("eos")
+            inventory = self._describe_eos(eos, path)
+            return eos_table_families(inventory)
+        result = self._open_result(path)
         namespace = descriptor.load()
-        return adapter_for(descriptor.name).table_families(namespace, opened)
+        return adapter_for(descriptor.name).table_families(namespace, result)
 
     def build_tables(
         self,
@@ -104,74 +128,171 @@ class QuantasResultBackend:
         family_key: str | None = None,
     ) -> Sequence[Any]:
         """Build one report family lazily for one native result."""
-        descriptor, opened = self._open(path)
+        descriptor = self._descriptor(path)
         if descriptor.name == "eos":
-            try:
-                if family_key not in {None, "summary"}:
-                    raise KeyError(f"unknown EOS report family {family_key!r}")
-                summary = opened.summary()
-                rows = [[key, to_json_value(value)] for key, value in summary.items()]
-                return (
-                    TableData(
-                        title="EOS archive summary",
-                        columns=["Property", "Value"],
-                        rows=rows,
-                    ),
-                )
-            finally:
-                opened.close()
+            eos = self._namespace("eos")
+            inventory = self._describe_eos(eos, path)
+            return build_eos_tables(eos, path, inventory, family_key)
 
+        result = self._open_result(path)
         namespace = descriptor.load()
         adapter = adapter_for(descriptor.name)
-        families = adapter.table_families(namespace, opened)
+        families = adapter.table_families(namespace, result)
         selected = family_key or _default_key(families)
         if selected is None:
             return ()
         try:
-            return tuple(adapter.build_tables(namespace, opened, selected))
+            return tuple(adapter.build_tables(namespace, result, selected))
         except Exception as exc:
             raise ResultBackendError(f"unable to build result tables: {exc}") from exc
 
     def plot_families(self, path: Path) -> tuple[PlotFamilyDescriptor, ...]:
-        """List module-aware plot families without calculating figures."""
-        descriptor, opened = self._open(path)
+        """List result-aware plot families without calculating figures."""
+        descriptor = self._descriptor(path)
         if descriptor.name == "eos":
-            try:
-                return ()
-            finally:
-                opened.close()
+            eos = self._namespace("eos")
+            inventory = self._describe_eos(eos, path)
+            return eos_plot_families(inventory)
+
+        result = self._open_result(path)
         namespace = descriptor.load()
         try:
-            return adapter_for(descriptor.name).plot_families(namespace, opened)
+            inventory = namespace.describe_plots(result)
+            return adapter_for(descriptor.name).plot_families(
+                namespace,
+                result,
+                inventory,
+            )
         except Exception as exc:
             raise ResultBackendError(f"unable to inspect plot families: {exc}") from exc
 
-    def build_plots(self, path: Path, family_key: str | None = None) -> Any:
-        """Build one selected plot family lazily for one native result."""
-        descriptor, opened = self._open(path)
+    def plot_selection_schema(self, path: Path, family_key: str) -> PlotSelectionSchema:
+        """Describe property and context selectors without building PlotSpecs."""
+        descriptor = self._descriptor(path)
         if descriptor.name == "eos":
-            try:
+            eos = self._namespace("eos")
+            inventory = self._describe_eos(eos, path)
+            family = next(
+                (item for item in eos_plot_families(inventory) if item.key == family_key),
+                None,
+            )
+            if family is None:
+                raise KeyError(f"unknown EOS plot family {family_key!r}")
+            return PlotSelectionSchema(
+                family_key=family.key,
+                title=family.title,
+                description=family.description,
+                constraints=family.constraints,
+                warnings=tuple(str(item) for item in inventory.warnings),
+            )
+        result = self._open_result(path)
+        namespace = descriptor.load()
+        inventory = namespace.describe_plots(result)
+        return adapter_for(descriptor.name).plot_selection_schema(
+            namespace, result, family_key, inventory
+        )
+
+    def build_plots(
+        self,
+        path: Path,
+        family_key: str | None = None,
+        selection: PlotBuildSelection | None = None,
+    ) -> Any:
+        """Build one selected PlotSpec family lazily for one native result."""
+        descriptor = self._descriptor(path)
+        if descriptor.name == "eos":
+            eos = self._namespace("eos")
+            inventory = self._describe_eos(eos, path)
+            families = eos_plot_families(inventory)
+            selected = family_key or _default_key(families)
+            if selected is None:
+                return _EmptyPlotCollection(warnings=list(inventory.warnings))
+            if selected == "eos_select_record":
                 return _EmptyPlotCollection(
                     warnings=[
-                        "EOS archives require selection of an accepted fit record before "
-                        "plot specifications can be built."
+                        *[str(item) for item in inventory.warnings],
+                        "Select an explicit EOS record and representation to build a plot.",
                     ]
                 )
-            finally:
-                opened.close()
+            record_id, representation_key = decode_eos_plot_family(selected)
+            try:
+                return eos.build_plots(
+                    path,
+                    (representation_key,),
+                    record_id=record_id,
+                )
+            except Exception as exc:
+                raise ResultBackendError(f"unable to build EOS plots: {exc}") from exc
 
+        result = self._open_result(path)
         namespace = descriptor.load()
         adapter = adapter_for(descriptor.name)
-        families = adapter.plot_families(namespace, opened)
-        selected = family_key or _default_key(families)
-        if selected is None:
-            return _EmptyPlotCollection(
-                warnings=["This result does not expose a compatible plot family."]
-            )
         try:
-            return adapter.build_plots(namespace, opened, selected)
+            inventory = namespace.describe_plots(result)
+            families = adapter.plot_families(namespace, result, inventory)
+            selected = (
+                (selection.family_key if selection is not None else None)
+                or family_key
+                or _default_key(families)
+            )
+            if selected is None:
+                return _EmptyPlotCollection(
+                    warnings=["This result does not expose a compatible plot family."]
+                )
+            if selection is None:
+                schema = adapter.plot_selection_schema(namespace, result, selected, inventory)
+                selection = adapter.default_plot_selection(schema)
+            return adapter.build_plots(namespace, result, selected, inventory, selection=selection)
         except Exception as exc:
             raise ResultBackendError(f"unable to build result plots: {exc}") from exc
+
+    def scientific_exports(self, path: Path) -> tuple[ScientificExportDescriptor, ...]:
+        """Discover public export operations without constructing export files."""
+        descriptor = self._descriptor(path)
+        registry = self._namespace("registry")
+        operations = tuple(descriptor.list_operations(registry.Capability.EXPORT))
+        namespace = descriptor.load()
+        result = (
+            self._describe_eos(namespace, path)
+            if descriptor.name == "eos"
+            else self._open_result(path)
+        )
+        return adapter_for(descriptor.name).scientific_exports(
+            namespace,
+            result,
+            operations,
+        )
+
+    def write_scientific_export(
+        self,
+        path: Path,
+        operation_key: str,
+        destination: Path,
+    ) -> Path:
+        """Run one export through the public module API and return its path."""
+        descriptor = self._descriptor(path)
+        namespace = descriptor.load()
+        exports = self.scientific_exports(path)
+        selected = next((item for item in exports if item.key == operation_key), None)
+        if selected is None:
+            raise KeyError(f"unknown scientific export {operation_key!r}")
+        if not selected.enabled:
+            reason = selected.unavailable_reason or "additional scientific selections are required"
+            raise ResultBackendError(reason)
+        if descriptor.name == "eos":
+            result = self._describe_eos(namespace, path)
+        else:
+            result = self._open_result(path)
+        try:
+            written = adapter_for(descriptor.name).write_scientific_export(
+                namespace,
+                result,
+                operation_key,
+                destination,
+            )
+        except Exception as exc:
+            raise ResultBackendError(f"unable to write scientific export: {exc}") from exc
+        return Path(written)
 
     def render_plain_report(
         self,
@@ -179,11 +300,10 @@ class QuantasResultBackend:
         family_key: str | None = None,
     ) -> str:
         """Render one report family with deterministic plain text."""
-        registry = self._namespace("registry")
-        descriptor = registry.module_from_result(path)
+        descriptor = self._descriptor(path)
         tables = self.build_tables(path, family_key=family_key)
         if descriptor.name == "eos":
-            return _render_structural_tables(tables)
+            return render_structural_tables(tables)
         rendering = self._namespace("rendering")
         try:
             return str(rendering.render_tables(tables))
@@ -192,11 +312,7 @@ class QuantasResultBackend:
 
     def module_name(self, path: Path) -> str:
         """Return the stable module identifier stored in one native result."""
-        registry = self._namespace("registry")
-        try:
-            return str(registry.module_from_result(path).name)
-        except Exception as exc:
-            raise InvalidNativeResult(str(exc)) from exc
+        return str(self._descriptor(path).name)
 
     def table_group(self, path: Path, title: str) -> str:
         """Return the module-aware group label for one table title."""
@@ -220,14 +336,19 @@ class QuantasResultBackend:
             family_key,
         )
 
-    def _open(self, path: Path) -> tuple[Any, Any]:
+    def _descriptor(self, path: Path) -> Any:
         registry = self._namespace("registry")
         try:
-            descriptor = registry.module_from_result(path)
-            opened = registry.open_result(path)
+            return registry.module_from_result(path)
         except Exception as exc:
             raise InvalidNativeResult(str(exc)) from exc
-        return descriptor, opened
+
+    def _open_result(self, path: Path) -> Any:
+        registry = self._namespace("registry")
+        try:
+            return registry.open_result(path)
+        except Exception as exc:
+            raise InvalidNativeResult(str(exc)) from exc
 
     def _inspect_result_envelope(self, descriptor: Any, result: Any) -> ResultOverview:
         metadata = result.metadata
@@ -282,48 +403,98 @@ class QuantasResultBackend:
             events=events,
         )
 
-    def _inspect_eos_archive(self, descriptor: Any, archive: Any) -> ResultOverview:
+    def _inspect_eos_archive(self, descriptor: Any, path: Path) -> ResultOverview:
+        eos = self._namespace("eos")
+        inventory = self._describe_eos(eos, path)
+        capabilities = tuple(sorted(capability.value for capability in descriptor.capabilities))
+        result_keys = tuple(item.key for item in inventory.slots)
+        summary = ResultSummary(
+            module="eos",
+            module_title=str(descriptor.title),
+            method="EOS archive",
+            program="quantas",
+            quantas_version=None,
+            schema_version=str(inventory.schema_version),
+            created_at=None,
+            created_by=None,
+            capabilities=capabilities,
+            warning_count=len(inventory.warnings),
+            event_count=int(inventory.event_count),
+            result_keys=result_keys,
+            archive=True,
+        )
+        compact_inventory: tuple[InventoryItem, ...] = (
+            InventoryItem(
+                key="datasets",
+                value_type="EOSDatasetPlotDescriptor",
+                shape=(len(inventory.datasets),),
+                summary=f"{len(inventory.datasets)} embedded datasets",
+            ),
+            InventoryItem(
+                key="slots",
+                value_type="EOSSlotPlotDescriptor",
+                shape=(len(inventory.slots),),
+                summary=f"{len(inventory.slots)} result slots",
+            ),
+            InventoryItem(
+                key="records",
+                value_type="EOSRecordPlotDescriptor",
+                shape=(len(inventory.records),),
+                summary=f"{len(inventory.records)} immutable fit records",
+            ),
+        )
+        if inventory.selected_plots is not None:
+            compact_inventory += (
+                InventoryItem(
+                    key="selected_plots",
+                    value_type="PlotInventory",
+                    shape=(len(inventory.selected_plots.representations),),
+                    summary=(
+                        f"record #{inventory.selected_record_id}: "
+                        f"{len(inventory.selected_plots.representations)} representations"
+                    ),
+                ),
+            )
+        return ResultOverview(
+            summary=summary,
+            metadata={
+                "program": "quantas",
+                "module": "eos",
+                "method": "EOS archive",
+                "schema_version": summary.schema_version,
+                "selected_record_id": inventory.selected_record_id,
+            },
+            input_data={
+                "datasets": [
+                    {
+                        "dataset_id": item.dataset_id,
+                        "jobname": item.jobname,
+                        "npoints": item.npoints,
+                        "selected_npoints": item.selected_npoints,
+                        "excluded_npoints": item.excluded_npoints,
+                        "columns": list(item.columns),
+                        "units": dict(item.units),
+                    }
+                    for item in inventory.datasets
+                ]
+            },
+            options={
+                "selected_record_id": inventory.selected_record_id,
+                "selected_representations": []
+                if inventory.selected_plots is None
+                else [item.key for item in inventory.selected_plots.representations],
+            },
+            inventory=compact_inventory,
+            warnings=tuple(str(item) for item in inventory.warnings),
+            events=(),
+        )
+
+    @staticmethod
+    def _describe_eos(eos: Any, path: Path) -> Any:
         try:
-            summary_map = dict(archive.summary())
-            events = tuple(self._event_view(event) for event in archive.events())
-            capabilities = tuple(sorted(capability.value for capability in descriptor.capabilities))
-            result_keys = tuple(str(key) for key in summary_map.get("slots", {}))
-            summary = ResultSummary(
-                module="eos",
-                module_title=str(descriptor.title),
-                method="EOS archive",
-                program="quantas",
-                quantas_version=None,
-                schema_version=str(summary_map.get("schema_version", "unknown")),
-                created_at=None,
-                created_by=None,
-                capabilities=capabilities,
-                warning_count=0,
-                event_count=len(events),
-                result_keys=result_keys,
-                archive=True,
-            )
-            inventory = tuple(
-                InventoryItem(**inventory_item(str(key), value))
-                for key, value in summary_map.items()
-                if key != "path"
-            )
-            return ResultOverview(
-                summary=summary,
-                metadata={
-                    "program": "quantas",
-                    "module": "eos",
-                    "method": "EOS archive",
-                    "schema_version": summary.schema_version,
-                },
-                input_data={"datasets": to_json_value(summary_map.get("datasets", []))},
-                options={},
-                inventory=inventory,
-                warnings=(),
-                events=events,
-            )
-        finally:
-            archive.close()
+            return eos.describe_plots(path)
+        except Exception as exc:
+            raise InvalidNativeResult(str(exc)) from exc
 
     @staticmethod
     def _event_view(event: Any) -> EventView:
@@ -376,27 +547,3 @@ def _default_key(families: Sequence[Any]) -> str | None:
         if bool(getattr(family, "default", False)):
             return str(family.key)
     return str(families[0].key) if families else None
-
-
-def _render_structural_tables(tables: Sequence[Any]) -> str:
-    """Render GUI-owned structural tables for archive-only workflows."""
-    blocks: list[str] = []
-    for table in tables:
-        columns = [str(item) for item in table.columns]
-        rows = [["" if value is None else str(value) for value in row] for row in table.rows]
-        widths = [len(column) for column in columns]
-        for row in rows:
-            for index, value in enumerate(row[: len(widths)]):
-                widths[index] = max(widths[index], len(value))
-        heading = " ".join(value.ljust(widths[index]) for index, value in enumerate(columns))
-        lines = [str(table.title), heading]
-        lines.append(" ".join("-" * width for width in widths))
-        for row in rows:
-            padded = row + [""] * (len(widths) - len(row))
-            lines.append(
-                " ".join(
-                    value.ljust(widths[index]) for index, value in enumerate(padded[: len(widths)])
-                )
-            )
-        blocks.append("\n".join(lines))
-    return "\n\n".join(blocks)

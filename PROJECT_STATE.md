@@ -1,257 +1,245 @@
 # Quantas GUI project state
 
-This document is the operational source of truth for the current state of
-Quantas GUI. It records the active milestone, validated baseline, completed
-work, open issues, and next operation.
-
-It is intentionally concise and current. Historical changes belong in
-[CHANGELOG.md](CHANGELOG.md), public release goals belong in
-[ROADMAP.md](ROADMAP.md), and durable technical decisions belong in
+This file is the quickest way to understand where the project is now and what
+should happen next. It is intentionally practical: completed work, current
+limitations and the next development step belong here. Historical details stay
+in [CHANGELOG.md](CHANGELOG.md), longer-term goals in [ROADMAP.md](ROADMAP.md),
+and durable technical choices in
 [ARCHITECTURAL_DECISIONS.md](ARCHITECTURAL_DECISIONS.md).
 
-## State metadata
+## Current snapshot
 
 | Item | Current value |
 |---|---|
-| Last updated | 2026-07-26 |
-| Current public milestone | `0.2` — Result Explorer |
-| Current development package | `0.2.1a5` |
-| Quantas backend baseline | `2.0.0b6`, `dev-refactor` line |
+| Last updated | 2026-07-30 |
+| Active milestone | `0.2` — Result Explorer |
+| Development package | `0.2.9a4` |
+| Quantas baseline | `2.0.0b7`, `dev-refactor` line |
 | Legacy reference | Quantas `0.9.1` |
-| Repository | `https://github.com/gfulian/quantas-gui` |
-| Development status | Alpha |
-| Primary runtime mode | Local browser application |
-| Next public milestone | `0.3` — Elasticity workflow |
+| Status | Alpha |
+| Main runtime | Local browser application |
+| Next milestone | `0.3` — Elasticity workflow |
 
-## Canonical source hierarchy
+## Which sources take precedence
 
-Use project sources in the following order when behaviour or architecture is
-unclear:
+When two files disagree, use this order:
 
-1. the current Quantas GUI repository or latest approved source snapshot;
-2. the current Quantas `dev-refactor` repository;
-3. this `PROJECT_STATE.md` file;
-4. [ARCHITECTURAL_DECISIONS.md](ARCHITECTURAL_DECISIONS.md);
-5. the current roadmap, documentation, and tests;
-6. Quantas `0.9.1`, only as a legacy behavioural and format reference.
+1. the newest approved Quantas GUI source snapshot or repository state;
+2. the current Quantas `dev-refactor` code and tests;
+3. this file;
+4. the architectural decisions;
+5. the roadmap and other documentation;
+6. Quantas `0.9.1`, only for legacy behaviour, formats or numerical comparison.
 
-Quantas `0.9.1` must not be used automatically as an architectural model for
-Quantas 2 or Quantas GUI.
+The legacy package is useful evidence, but it is not a template for the current
+architecture.
 
-## Project scope
+## Project boundary
 
-Quantas is the scientific backend. Quantas GUI is an independent Dash and
-Plotly frontend that consumes the public `quantas.api` contract.
+Quantas is the scientific backend. It owns calculations, physical conventions,
+units, typed inputs and options, numerical results, HDF5 persistence, reports,
+plot specifications, events and interoperability.
 
-The GUI is responsible for:
+Quantas GUI is the frontend. It owns forms, navigation, workflow orchestration,
+progress and error presentation, AG Grid tables, Plotly rendering, browser
+preferences and controlled workspace access.
 
-- application navigation and user interaction;
-- scientific input forms and preliminary structural validation;
-- workflow orchestration;
-- progress, log, warning, and error presentation;
-- result inspection, interactive tables, and Plotly figures;
-- controlled uploads, downloads, workspaces, and lightweight session state.
+Runtime scientific integration goes through `quantas.api`. The GUI must not
+import the CLI, private calculators, internal module implementations, Rich or
+Matplotlib renderers, or HDF5 internals to recreate scientific meaning.
 
-Quantas remains responsible for:
-
-- scientific formulas and algorithms;
-- physical conventions and units;
-- typed scientific input, options, and results;
-- numerical validation and calculation;
-- native HDF5 persistence;
-- frontend-neutral report and plot specifications;
-- explicit interoperability transformations.
-
-## Milestone status
+## Milestone overview
 
 | Version | Capability | Status |
 |---|---|---|
 | `0.1` | Application foundation | Complete |
-| `0.2` | Result Explorer | In progress |
-| `0.3` | Elasticity workflow | Planned |
+| `0.2` | Result Explorer | Final hardening |
+| `0.3` | Elasticity workflow | Next |
 | `0.4` | SEISMIC workflow | Planned |
 | `0.5` | HA/QHA workflow | Planned |
 | `0.6` | Thermoelasticity workflow | Planned |
 | `0.7` | EOS workflow | Planned |
 | `0.8` | Interoperability | Planned |
-| `0.9` | Integration, testing, and beta validation | Planned |
-| `1.0` | First stable release and PyPI publication | Planned |
+| `0.9` | Integrated beta validation | Planned |
+| `1.0` | First stable release | Planned |
 
-The complete public definition and exit criterion for each milestone are in
-[ROADMAP.md](ROADMAP.md).
+## What is already in place
 
-## Completed foundation
+The application foundation includes:
 
-The `0.1` application foundation is considered complete. The repository
-contains:
+- an installable package and `quantas-gui` launcher;
+- an application factory, WSGI entry point, URL-prefix support and health
+  endpoints;
+- a responsive shell with system, dark and light themes;
+- browser-local typography, motion and table-density settings;
+- declarative scientific forms and reusable feedback components;
+- a separate Scientific UI Kit profile, launched with `quantas-gui --ui-kit`;
+- controlled workspaces with opaque identifiers and atomic writes;
+- replaceable execution, cache, result-store and workspace contracts;
+- pinned Dash, Dash AG Grid, Plotly, Ruff and mypy baselines;
+- CI, packaging and cross-platform development tooling.
 
-- an installable `quantas-gui` package and `quantas-gui` launcher;
-- an application factory, health endpoint, URL-prefix support, and WSGI entry
-  point;
-- a responsive desktop and mobile application shell;
-- Quantas Dark, Quantas Light, and operating-system theme selection;
-- configurable typography, reduced motion, and table density;
-- a declarative scientific form system and Scientific UI Kit;
-- shared feedback components for progress, logs, warnings, errors, and results;
-- controlled local workspaces with opaque identifiers and atomic uploads;
-- replaceable execution, cache, result-store, and workspace interfaces;
-- packaging, CI, cross-platform support files, and Windows PowerShell tooling;
-- exact UI dependency baselines for Dash, Dash AG Grid, and Plotly;
-- exact code-quality baselines for Ruff and mypy, with an explicit project rule
-  set and the Python tree formatted under Ruff `0.16.0`;
-- runtime and static audits for the Dash components used by the project.
+## Result Explorer status
 
-## Current Result Explorer implementation
+The `0.2.9a4` Result Explorer uses the Quantas `2.0.0b7` public lifecycle API.
+Its current behaviour includes:
 
-The current `0.2.1a5` package includes an alpha Result Explorer with:
-
-- controlled upload of native `.h5`, `.hdf5`, and `.hdf` results;
-- result identification through `quantas.api.registry`;
-- lightweight overview, provenance, input, options, warning, event, and payload
-  inventory views;
-- reusable Dash AG Grid table rendering with CSV export;
-- Plotly rendering for Cartesian, contour, polar, surface, spherical, summary,
+- required backend compatibility checks at startup;
+- a non-scientific degraded mode when Quantas is missing or incompatible;
+- upload blocking before browser data are decoded if the backend is not ready;
+- result identification and reopening through `quantas.api.registry`;
+- lightweight overview, provenance, input, option, warning and event views;
+- report tables built through public module operations;
+- scientific plot inventories supplied by Quantas rather than hard-coded in the
+  GUI;
+- exact property and context selectors derived from those inventories;
+- lazy PlotSpec construction with selection-aware cache keys;
+- presentation-only controls that reuse cached scientific specifications;
+- AG Grid tables with raw numerical values and complete CSV downloads;
+- Plotly rendering for Cartesian, contour, polar, surface, spherical, summary
   and panel specifications;
-- module-aware result adapters for Elasticity, SEISMIC, HA, QHA, and
-  Thermoelasticity;
-- structural inspection of EOS archives without treating EOS as a standard
-  one-shot result;
-- lazy construction of report and plot families;
-- bounded server-side artifact caching;
-- plot-specific controls for presentation options such as colormap, hover,
-  legend, axes, contours, projection, opacity, and camera;
-- browser state limited to opaque identifiers and lightweight interface state.
+- adapters for Elasticity, SEISMIC, HA, QHA and Thermoelasticity;
+- read-only structural and fit-record inspection for EOS archives;
+- original-result, report, table and supported scientific downloads;
+- an opaque handoff contract that future workflows can use to open their result
+  directly in the shared Explorer.
 
-No executable scientific workflow is exposed through the GUI yet.
+The browser never stores complete results, HDF5 objects or large numerical
+arrays.
 
-## Verified evidence
+## Concurrency and file safety
 
-The following evidence has been obtained during development:
+The `0.2.9` hardening work added the safeguards needed before executable
+workflows are introduced:
 
-- the source package compiles and builds as both wheel and source distribution;
-- the application shell, landing page, Settings page, and Scientific UI Kit
-  have been exercised in a Windows Dash `4.4.1` environment;
-- the Windows runtime baseline has passed `63` pytest tests and all `81` Dash
-  component and page audits on the `0.2.1a2` source before the quality-source
-  correction;
-- the Result Explorer pipeline has been exercised with a native Elasticity
-  HDF5 result;
-- repeated report and plot-family requests reuse the artifact cache instead of
-  rebuilding the scientific collection;
-- component compatibility checks cover constructor and callback properties for
-  the pinned Dash, Dash AG Grid, and Plotly baseline;
-- the `0.2.1a5` source compiles and its available non-browser test suite passes
-  in the build environment.
+- workspace reads, writes and deletion are coordinated with cross-process file
+  locks;
+- uploads and exports are published atomically;
+- artifact construction is single-flight inside each application process;
+- closing a result invalidates its cache namespace;
+- an in-flight builder cannot put an artifact back after the result has been
+  closed;
+- a workspace cannot be removed while another process is still reading it;
+- long calculations have a deployment-neutral job, event, progress and
+  cancellation contract.
 
-Local Windows validation is green for Ruff, pytest, the Dash audit, package
-build, and `twine check`. The remaining maintenance evidence is a fully green
-GitHub Actions matrix after applying the NumPy stub-import correction in
-`0.2.1a5`.
+The current execution backend is intentionally disabled because no GUI workflow
+exists yet. Elasticity will provide the first process-backed local worker in
+`0.3`. A multi-worker server will later need a shared queue and persistent job
+store behind the same interface.
 
-## Work currently in progress
+## Changes in `0.2.9a4`
 
-The active work remains inside milestone `0.2`:
+This patch closes the complete Windows gate for `0.2.9a3`. Ruff lint and mypy
+were already green; the remaining issues were three formatter differences and
+a Windows-specific `fsync` failure during atomic export publication. Those
+issues are now fixed, and the full local Windows validator passes.
 
-1. obtain a fully green GitHub Actions matrix on `main` with the `0.2.1a5`
-   mypy configuration;
-2. review the Result Explorer visualizers separately for Elasticity, SEISMIC,
-   HA, QHA, Thermoelasticity, and EOS structure;
-3. define the final common Plotly control set and the module-specific plot
-   selections;
-4. validate tables, figures, units, masks, labels, and exports against
-   representative native Quantas results;
-5. profile large tables, dense grids, spherical maps, and 3D figures;
-6. close the `0.2` milestone only after visual, scientific, responsive, and
-   performance validation.
+The patch:
 
-## Immediate next operation
+- applies the exact Ruff `0.16.0` formatting reported by Windows;
+- reopens completed temporary exports with a writable descriptor before calling
+  `fsync`, which is required by Windows and leaves the file contents unchanged;
+- adds a regression test that fails if atomic publication returns to a
+  read-only descriptor;
+- documents how GitHub Actions obtains the Quantas backend independently of the
+  GUI repository.
 
-Remove any temporary repair scripts copied into the repository, reinstall the
-declared development environment, and run the complete validation baseline on
-Windows PowerShell:
+## Evidence available now
 
-```powershell
-python -m pip install --upgrade `
-    -c constraints\ui-baseline.txt `
-    -c constraints\quality-baseline.txt `
-    -e ".[dev,performance]"
-python tools\run_checks.py
-quantas-gui
+The following checks have been completed in the review environment:
+
+- Python compilation of `src`, `tests` and `tools`;
+- focused tests for cache concurrency, workspace locking, job contracts,
+  serialization, public error handling and quality configuration;
+- the complete Windows validator passes in the maintainer environment,
+  including Ruff lint and formatting, mypy, pytest, the Dash component audit,
+  package builds and `twine check`;
+- `173` tests pass against the supplied Quantas `2.0.0b7` source and `3`
+  Dash-dependent tests are skipped only in the reduced review environment,
+  where Dash is unavailable;
+- static inspection confirms that runtime scientific integration remains behind
+  the public `quantas.api` boundary;
+- `filelock` is present as a required runtime dependency in `pyproject.toml`.
+
+## What still needs sign-off before closing `0.2`
+
+1. Confirm the GitHub Actions gate on the same source.
+2. Open representative native results for every module.
+3. Compare Plotly output with the current Quantas Matplotlib reference where
+   equivalent figures exist.
+4. Check dark and light themes, keyboard use, disabled states and narrow mobile
+   layouts.
+5. Profile dense QHA tables, contours, spherical maps and 3D figures.
+6. Record any final defects, correct them, and then mark the Result Explorer
+   milestone complete.
+
+## Local validation and next operation
+
+The complete local gate is now green. The validator that avoids PowerShell
+signing restrictions remains:
+
+```cmd
+scripts\validate_windows.cmd "C:\path\to\quantas-dev-refactor"
 ```
 
-Push the maintenance commit only after all local checks pass, then confirm that
-all GitHub Actions matrix jobs are green. After the runtime baseline passes,
-inspect representative HDF5 files module by module and record defects or
-missing controls before implementing the Elasticity workflow.
+The PowerShell equivalent can still be used with a process-local policy:
 
-## Known limitations and open issues
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File `
+    .\scripts\validate_windows.ps1 `
+    -QuantasPath "C:\path\to\quantas-dev-refactor"
+```
 
-- the local quality and runtime gates are green; the Python 3.13 CI jobs still
-  require confirmation after the `follow_imports_for_stubs` correction;
-- module-specific Result Explorer views have not yet received systematic
-  scientific sign-off;
-- Plotly controls, annotations, comparison modes, export behaviour, and camera
-  policies still require module-by-module review;
-- performance has been improved through lazy construction and caching, but
-  large real datasets still require profiling;
-- the local execution backend for scientific workflows is not implemented;
-- background jobs, cancellation, recovery, and progress transport are not yet
-  connected to executable workflows;
-- Redis/Celery or another shared server execution stack has not been selected
-  or implemented;
-- authentication, quotas, workspace ownership, and public-service security are
-  outside the current local milestone;
-- EOS remains limited to structural archive inspection in the generic Result
-  Explorer;
-- the public GitHub repository is populated; the remaining CI failure was
-  isolated to mypy parsing NumPy stubs against the Python 3.10 target and is
-  addressed in `0.2.1a5`.
+The next operation is to push this source on a development branch, open a pull
+request against `main`, and confirm the complete GitHub Actions matrix. The two
+application profiles can still be checked manually with:
 
-## Open decisions
+```powershell
+quantas-gui
+quantas-gui --ui-kit
+```
 
-The following items remain deliberately undecided:
+Then audit representative files with:
 
-- representative validation datasets required to close milestone `0.2`;
-- final common and module-specific Plotly controls;
-- local background-job implementation;
-- shared cache and worker technology for multi-process deployment;
-- authentication and result-retention policy for a future public service;
-- whether interoperability will remain a guided sequence of explicit actions or
-  later justify a more general workflow editor;
-- final documentation hosting and release automation for `1.0`.
+```powershell
+python tools\audit_result_explorer.py <result-file>
+```
 
-These items must not be treated as accepted architecture until recorded in
-[ARCHITECTURAL_DECISIONS.md](ARCHITECTURAL_DECISIONS.md).
+## Known limitations
 
-## Runtime baseline
+- No scientific workflow can yet be submitted from the GUI.
+- The job contract exists, but the local process worker is reserved for `0.3`.
+- Artifact caches are process-local, even when workspaces are shared between
+  WSGI workers.
+- Authentication, user ownership, quotas, retention and public-service
+  isolation are not implemented.
+- HA, Thermoelasticity and EOS exports remain limited by the selectors exposed
+  by the current public backend contract.
+- EOS remains a read-only archive view in the generic Explorer.
+- Final module-by-module scientific and visual sign-off is still pending.
+- The public Elasticity documentation and typed `ElasticityInput` contract need
+  to be reconciled regarding optional density metadata before the `0.3` form is
+  finalised.
 
-The current package declares:
+## Decisions still open
 
-| Dependency | Baseline |
-|---|---|
-| Python | `>=3.10` |
-| Quantas | `>=2.0.0b6,<2.1` when installed through the optional extra |
-| Dash | `4.4.1` |
-| Dash AG Grid | `35.2.0` |
-| Plotly | `6.9.0` |
-| NumPy | `>=1.24,<3` |
-| Flask | `>=3.1.3,<3.2` |
-| Werkzeug | `>=3.1.6,<3.2` |
+The project has deliberately not selected:
 
-The exact Dash component properties used by the application must be checked
-against this declared baseline rather than assumed from another Dash release.
+- the shared server queue and worker technology;
+- a shared artifact cache;
+- authentication and account management;
+- per-user workspace ownership and retention rules;
+- object storage versus a shared filesystem;
+- a general visual workflow editor;
+- the final documentation and release-hosting stack.
 
-## Update policy
+These choices should remain behind the accepted interfaces until the relevant
+milestone needs them.
 
-Update this file whenever one of the following changes:
+## Updating this file
 
-- current package or backend baseline;
-- active milestone or milestone status;
-- completed capability;
-- known blocking issue;
-- verified platform or test evidence;
-- next operation;
-- source hierarchy.
-
-Do not turn this file into a changelog. Remove resolved operational details and
-keep the current state readable in one pass.
+Update `PROJECT_STATE.md` whenever the active version, backend baseline,
+completed capability, blocking issue, verified platform or immediate next step
+changes. Remove obsolete operational detail rather than letting this become a
+second changelog.

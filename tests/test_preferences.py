@@ -5,9 +5,9 @@ from __future__ import annotations
 from quantas_gui.models.preferences import UserPreferences
 
 
-def test_preference_defaults_use_quantas_dark() -> None:
+def test_preference_defaults_follow_the_operating_system() -> None:
     preferences = UserPreferences.defaults()
-    assert preferences.theme == "dark"
+    assert preferences.theme == "system"
     assert preferences.text_size == "standard"
     assert preferences.motion == "system"
     assert preferences.table_density == "comfortable"
@@ -23,7 +23,7 @@ def test_invalid_browser_preferences_fall_back_independently() -> None:
             "unknown": "ignored",
         }
     )
-    assert preferences.theme == "dark"
+    assert preferences.theme == "system"
     assert preferences.text_size == "comfortable"
     assert preferences.motion == "system"
     assert preferences.table_density == "compact"
