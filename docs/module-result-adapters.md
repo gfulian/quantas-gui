@@ -1,44 +1,45 @@
-# Module-aware Results Explorer adapters
+# Module result adapters
 
-The generic Results Explorer owns upload policy, opaque references, caching,
-tables, Plotly dispatch, messages, and bounded data views. Scientific selection
-belongs to small adapters under `quantas_gui.explorer.adapters`.
+Adapters give each scientific module room to organise its public reports, plots
+and exports without turning the shared Explorer into a collection of special
+cases.
 
-```text
-ResultExplorerService
-    ↓ cached ResultOverview / families / artifacts
-QuantasResultBackend
-    ↓ public quantas.api namespace only
-ResultModuleAdapter
-    ├── report families
-    ├── plot families
-    ├── module-specific builders
-    └── presentation grouping
-```
+An adapter may:
 
-Adapters never import `quantas.modules`, Click, Rich, Matplotlib, or internal
-renderers. They call only the namespace returned by the public registry.
+- group public report and plot families;
+- choose clear interface labels and descriptions;
+- expose selection fields from the public inventory;
+- validate that a selected combination is listed by Quantas;
+- describe valid scientific exports and downstream actions;
+- provide read-only structural handling for EOS archives.
 
-## Current scientific families
+An adapter may not:
 
-| Module | Report families | Plot families |
-|---|---|---|
-| Elasticity | neutral report | stored 2D polar; on-demand 3D directional surfaces |
-| SEISMIC | standard; extended; debug | spherical maps; extrema summary; 3D wave surfaces |
-| HA | neutral report | thermodynamic curves |
-| QHA | neutral report | one-dimensional curves; P-T contours when the archive contains a grid |
-| Thermoelasticity | standard; extended; debug | elastic-volume fits; P-T maps; calibration domain; profiles |
-| EOS | structural archive summary | none in the generic Explorer |
+- import private Quantas modules;
+- inspect HDF5 directly to discover scientific capability;
+- reproduce a formula or calculation;
+- invent properties or contexts missing from the public inventory;
+- alter values to make a renderer easier to implement.
 
-EOS remains session-oriented because a plot belongs to a selected dataset and
-accepted fit record rather than to the archive as a whole.
+## Current modules
+
+- **Elasticity** — report tables and directional property plots.
+- **SEISMIC** — velocity, anisotropy, projection, polarization and 3D families.
+- **HA** — temperature and optional volume-dependent thermodynamic views.
+- **QHA** — pressure, temperature, volume, slice and map contexts.
+- **Thermoelasticity** — fit diagnostics, P–T fields, profiles and component
+  layouts.
+- **EOS** — read-only archive datasets, records, parameters, quality and
+  diagnostic plots.
 
 ## Placement rule
 
-A feature belongs in the generic layer when its meaning does not depend on the
-scientific module: CSV generation, table virtualization, colormaps, hover,
-camera presets, visibility toggles, loading state, and cache policy.
+If behaviour has the same meaning for several modules, put it in a shared
+component, service or renderer. If it decides which scientific choice is valid
+for one module, keep it in that module's adapter or workflow package.
 
-A feature belongs in a module adapter when it chooses scientific content:
-which report level is meaningful, whether a P-T contour is available, which
-profile is selected, or whether a 3D surface must be calculated on demand.
+## Selection contract
+
+Adapters translate inventory entries into `PlotBuildSelection` values. These
+values are lightweight, serializable and stable enough to form a cache
+fingerprint. Presentation settings are deliberately excluded.

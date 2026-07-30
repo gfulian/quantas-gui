@@ -7,11 +7,12 @@ from quantas_gui.cli import build_parser, find_available_port
 
 def test_parser_accepts_server_safe_options() -> None:
     args = build_parser().parse_args(
-        ["--no-browser", "--port", "9000", "--url-prefix", "/quantas/"]
+        ["--no-browser", "--port", "9000", "--url-prefix", "/quantas/", "--ui-kit"]
     )
     assert args.no_browser is True
     assert args.port == 9000
     assert args.url_prefix == "/quantas/"
+    assert args.ui_kit is True
 
 
 def test_find_available_port_skips_occupied_port() -> None:

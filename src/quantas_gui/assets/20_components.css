@@ -586,3 +586,137 @@
 .q-mobile-nav {
   display: none;
 }
+
+/* Public-backend compatibility and degraded scientific mode. */
+.q-button.is-disabled,
+.q-nav-item.is-disabled,
+.q-mobile-nav-item.is-disabled,
+.q-module-link.is-disabled {
+  cursor: not-allowed;
+  opacity: 0.52;
+  filter: saturate(0.35);
+  user-select: none;
+}
+
+.q-button.is-disabled,
+.q-nav-item.is-disabled,
+.q-mobile-nav-item.is-disabled {
+  pointer-events: none;
+}
+
+.q-module-link {
+  display: block;
+  min-width: 0;
+}
+
+.q-module-link.is-disabled .q-module-card {
+  box-shadow: none;
+  transform: none;
+}
+
+.q-module-link.is-disabled .q-module-card:hover {
+  border-color: var(--q-border);
+  box-shadow: none;
+  transform: none;
+}
+
+.q-module-link.is-disabled .q-module-image,
+.q-module-link.is-disabled .q-module-card:hover .q-module-image {
+  opacity: 0.34;
+  transform: none;
+}
+
+.q-sidebar-footer {
+  position: relative;
+}
+
+.q-sidebar-footer.is-incompatible::before {
+  content: "";
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 7px;
+  height: 7px;
+  background: var(--q-danger);
+  border-radius: 50%;
+  box-shadow: 0 0 0 4px rgba(235, 110, 110, 0.10);
+}
+
+.q-backend-diagnostic {
+  display: grid;
+  gap: 14px;
+  margin: 20px 0;
+  padding: clamp(18px, 3vw, 30px);
+}
+
+.q-backend-diagnostic.is-ready {
+  border-color: color-mix(in srgb, var(--q-success) 38%, var(--q-border));
+}
+
+.q-backend-diagnostic.is-blocked {
+  border-color: color-mix(in srgb, var(--q-warning) 44%, var(--q-border));
+}
+
+.q-backend-diagnostic h2,
+.q-backend-diagnostic h3,
+.q-backend-diagnostic p,
+.q-backend-diagnostic ul {
+  margin: 0;
+}
+
+.q-backend-diagnostic-status {
+  width: fit-content;
+  padding: 5px 10px;
+  color: var(--q-text);
+  background: var(--q-blue-soft);
+  border: 1px solid var(--q-border);
+  border-radius: 999px;
+  font-size: calc(11px * var(--q-ui-scale));
+  font-weight: 750;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.q-backend-diagnostic.is-blocked .q-backend-diagnostic-status {
+  color: var(--q-warning);
+  background: rgba(240, 183, 90, 0.10);
+}
+
+.q-backend-diagnostic-grid {
+  display: grid;
+  grid-template-columns: minmax(110px, auto) minmax(0, 1fr);
+  gap: 7px 18px;
+  margin: 0;
+}
+
+.q-backend-diagnostic-grid dt {
+  color: var(--q-text-muted);
+  font-weight: 700;
+}
+
+.q-backend-diagnostic-grid dd {
+  min-width: 0;
+  margin: 0;
+  color: var(--q-text-soft);
+  overflow-wrap: anywhere;
+}
+
+.q-backend-recovery {
+  padding: 12px 14px;
+  color: var(--q-text-soft);
+  background: rgba(16, 40, 58, 0.54);
+  border: 1px solid var(--q-border);
+  border-radius: var(--q-radius-sm);
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 560px) {
+  .q-backend-diagnostic-grid {
+    grid-template-columns: 1fr;
+    gap: 2px;
+  }
+
+  .q-backend-diagnostic-grid dd {
+    margin-bottom: 8px;
+  }
+}

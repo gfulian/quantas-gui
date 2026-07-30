@@ -1,13 +1,34 @@
 # Security policy
 
-Quantas GUI currently targets trusted local use. It is not yet presented as a
-hardened public calculation service.
+Quantas GUI is still in alpha. Its supported use is local or within a controlled
+laboratory environment; it is not presented as an already hardened public
+service.
 
-Please report security vulnerabilities through GitHub private vulnerability
-reporting or a private draft security advisory for this repository. Do not put
-credentials, private datasets, exploit details, or sensitive server paths in a
-public issue.
+## Supported versions
 
-Public or multi-user deployments must add authentication, upload validation,
-resource limits, isolated workspaces, secure reverse-proxy configuration, and
-worker isolation as described in `docs/deployment-roadmap.md`.
+Security fixes are applied to the main branch and the newest alpha artifact.
+Older development snapshots are not maintained as supported release lines.
+
+## Reporting a vulnerability
+
+Use GitHub's private Security Advisory channel:
+
+https://github.com/gfulian/quantas-gui/security/advisories/new
+
+Do not open a public issue containing credentials, private data, tokens, exploit details or
+sensitive server paths.
+
+A useful report includes, where possible:
+
+- Quantas GUI and Quantas versions;
+- operating system and Python version;
+- affected component or workflow;
+- reproduction steps using non-sensitive data;
+- expected impact and any known workaround.
+
+## Deployment boundary
+
+A multi-user or public service needs authentication, workspace ownership and
+expiry, upload validation, quotas, secure reverse-proxy configuration and worker
+isolation. The planned path is described in `docs/deployment-roadmap.md` and
+`docs/server-deployment.md`.

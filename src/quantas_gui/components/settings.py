@@ -105,21 +105,21 @@ def settings_preview() -> html.Section:
     )
 
 
-def developer_tools_link() -> html.Div:
-    """Return a link to the reusable Scientific UI Kit."""
+def developer_mode_notice() -> html.Div:
+    """Return a notice shown only by the dedicated UI Kit profile."""
     return html.Div(
         [
             html.Div(
                 [
-                    html.Strong("Scientific UI Kit"),
+                    html.Strong("Scientific UI Kit mode"),
                     html.Span(
-                        "Inspect reusable inputs, matrices, tables, logs, and feedback components."
+                        "This process exposes the reusable component gallery and settings only."
                     ),
                 ]
             ),
             dcc.Link(
-                "Open UI Kit",
-                href=dash.get_relative_path("/ui-kit"),
+                "Return to UI Kit",
+                href=dash.get_relative_path("/"),
                 className="q-button",
             ),
         ],

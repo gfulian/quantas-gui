@@ -1,49 +1,40 @@
 # Interface settings
 
-Quantas GUI stores presentation preferences in the browser through a local
-`dcc.Store`. They are not part of the scientific request, are not passed to
-`quantas.api`, and are never written to native HDF5 results.
+GUI preferences are stored in the browser. They change presentation only: they
+are not part of a scientific request, are not passed to `quantas.api` and are
+never written into native HDF5 results.
 
-## Available preferences
+## Theme
 
-### Theme
+- **System** follows the operating-system light or dark preference;
+- **Quantas Dark** keeps the dark theme;
+- **Quantas Light** keeps the light theme.
 
-- **Quantas Dark** — default theme;
-- **Quantas Light** — light surfaces with the same blue and orange scientific
-  accents;
-- **System** — follows the operating-system colour preference.
+A small bootstrap script applies the theme before Dash finishes loading, which
+avoids a visible flash between modes. Plotly uses the effective theme for text,
+axes, hover labels and backgrounds without changing the data.
 
-The effective theme is applied client-side to avoid a server round trip and is
-also made available to the Result Explorer so Plotly figures use a compatible
-background and text palette.
+## Text size
 
-### Text size
+Four scales are available: compact, standard, comfortable and large. The choice
+changes the CSS variable `--q-ui-scale`; numeric precision, data formatting and
+CSV exports remain unchanged.
 
-The typography scale is applied through the inherited `--q-ui-scale` CSS
-variable:
-
-- compact: `0.90`;
-- standard: `1.00`;
-- comfortable: `1.12`;
-- large: `1.25`.
-
-Display scaling does not change numerical formatting, stored precision, or CSV
-exports.
-
-### Motion
+## Motion
 
 The default respects `prefers-reduced-motion`. The explicit reduced setting
-minimises transitions and non-essential movement regardless of the browser
-profile.
+further limits transitions and non-essential movement.
 
-### Table density
+## Table density
 
-The density preference changes shared AG Grid row and header heights. It does
-not remove rows or alter pagination, filtering, or exported data.
+Density changes AG Grid row and header heights. It does not remove data or
+change filtering, pagination or exported files.
 
-## Persistence and server deployment
+## Persistence
 
-Preferences are stored per browser profile. A future authenticated server may
-optionally synchronize user preferences, but the current local-storage contract
-should remain the fallback and must never contain scientific results, paths,
-credentials, or private server state.
+Preferences belong to the browser profile. A future authenticated server may
+optionally synchronize them, but browser preference storage must never contain
+scientific results, paths, credentials or private server state.
+
+The UI Kit uses the same preferences, but it starts only with
+`quantas-gui --ui-kit` and is not linked from the normal Settings page.

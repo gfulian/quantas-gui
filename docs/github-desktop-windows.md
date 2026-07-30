@@ -1,91 +1,59 @@
-# Populate the GitHub repository from Windows
+# Publishing the repository from Windows
 
-The remote repository already exists at `gfulian/quantas-gui`. The safest
-GitHub Desktop workflow is to clone that repository first and then copy the
-prepared source tree into the clone. This preserves the hidden `.git`
-directory and avoids publishing a nested repository.
+When the remote repository already exists, the safest GitHub Desktop workflow
+is to clone it first and copy the prepared source into that clone. This keeps
+the `.git` directory created by GitHub Desktop intact.
 
-## 1. Clone with GitHub Desktop
+## 1. Clone the repository
 
-1. Open **GitHub Desktop**.
-2. Choose **File → Clone repository**.
-3. Select `gfulian/quantas-gui`.
-4. Choose a local path, for example:
-
-   ```text
-   C:\Users\<name>\Documents\GitHub\quantas-gui
-   ```
-
-5. Complete the clone.
-
-The remote currently contains an initial README. It is expected to be replaced
-by the repository-ready README supplied with this source tree.
-
-## 2. Copy the prepared repository content
-
-Extract the Quantas GUI source archive to a temporary directory. Copy **the
-contents** of that directory into the GitHub Desktop clone, including:
+In GitHub Desktop choose **File → Clone repository**, select
+`gfulian/quantas-gui` and choose a local directory, for example:
 
 ```text
-.github
-constraints
-docs
-scripts
-src
-tests
-tools
-.editorconfig
-.env.example
-.gitignore
-CITATION.cff
-CHANGELOG.md
-CODE_OF_CONDUCT.md
-CONTRIBUTING.md
-LICENSE
-MANIFEST.in
-README.md
-ROADMAP.md
-SECURITY.md
-pyproject.toml
+C:\Users\<name>\Documents\GitHub\quantas-gui
 ```
 
-Do not copy a `.git` directory from another location and do not delete the
-`.git` directory created by GitHub Desktop.
+## 2. Copy the source
 
-## 3. Validate in PowerShell
+Extract the Quantas GUI archive to a temporary directory and copy **its
+contents** into the new clone. Do not copy another `.git` directory and do not
+delete the one created by GitHub Desktop.
 
-From the cloned repository:
+The copy should include source, tests, documentation, `.github` files,
+constraints, scripts and packaging metadata. Do not include `.venv`, caches,
+build directories or local output.
+
+## 3. Validate the checkout
+
+The recommended validator does not depend on PowerShell execution policy:
 
 ```powershell
-cd C:\Users\<name>\Documents\GitHub\quantas-gui
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-python -m pip install --upgrade pip
-python -m pip install -e ".[dev,performance]"
-python -m pip install -e "C:\path\to\quantas"
-python tools\audit_dash_components.py
-python -m pytest -q
-quantas-gui
-
-# Or run the repository helper:
-.\scripts\validate_windows.ps1 -QuantasPath "C:\\path\\to\\quantas"
+.\scripts\validate_windows.cmd "C:\path\to\quantas"
 ```
 
-The `.venv` directory is ignored by Git and must not be committed.
+It creates or updates `.venv`, reinstalls Quantas GUI with the current
+dependencies — including `filelock` — and runs the full quality gate.
 
-## 4. Commit and publish
+The PowerShell version remains available. On a machine that blocks unsigned
+scripts, invoke it with a policy limited to that process:
 
-In GitHub Desktop:
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File `
+    .\scripts\validate_windows.ps1 `
+    -QuantasPath "C:\path\to\quantas"
+```
 
-1. Review the complete change list.
-2. Use a commit message such as:
+There is no need to weaken the machine-wide policy.
 
-   ```text
-   Initialize Quantas GUI 0.2.1a5
-   ```
+After the automated gate, open both application profiles:
 
-3. Commit to `main`.
-4. Choose **Push origin**.
+```powershell
+quantas-gui
+quantas-gui --ui-kit
+```
 
-After the first CI run succeeds, enable branch protection for `main` and
-require the CI check before merging future pull requests.
+## 4. Commit and push
+
+Review the changed files in GitHub Desktop, create a descriptive commit and
+choose **Push origin**. Once CI is green, enable the protection rules described
+in [repository-hardening.md](repository-hardening.md).

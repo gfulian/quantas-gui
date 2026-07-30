@@ -16,11 +16,12 @@ def explorer_layout() -> html.Div:
     """Create the complete Results Explorer shell and lazy content region."""
     return html.Div(
         [
-            dcc.Store(id=ResultIds.SESSION, storage_type="session"),
             dcc.Store(id=ResultIds.PLOT_INVENTORY, storage_type="memory"),
+            dcc.Store(id=ResultIds.PLOT_SCIENCE_SELECTION, storage_type="memory"),
             dcc.Download(id=ResultIds.DOWNLOAD_ORIGINAL_PAYLOAD),
             dcc.Download(id=ResultIds.DOWNLOAD_REPORT_PAYLOAD),
             dcc.Download(id=ResultIds.TABLE_DOWNLOAD_PAYLOAD),
+            dcc.Download(id=ResultIds.SCIENTIFIC_EXPORT_PAYLOAD),
             html.Div(
                 [
                     html.Section(

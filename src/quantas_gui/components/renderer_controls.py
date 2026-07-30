@@ -8,8 +8,46 @@ from typing import Any
 from dash import dcc, html
 
 from quantas_gui.components.controls import labelled_dropdown
-from quantas_gui.explorer.models import PlotFamilyDescriptor, TableFamilyDescriptor
+from quantas_gui.explorer.models import (
+    PlotFamilyDescriptor,
+    ScientificExportDescriptor,
+    TableFamilyDescriptor,
+)
+from quantas_gui.presentation.scientific_labels import scientific_label_text
 from quantas_gui.renderers.plotly import COLORMAP_OPTIONS, PlotDescriptor
+
+PLOT_APPEARANCE_DEFAULTS: dict[str, Any] = {
+    "colormap": "source",
+    "visibility": ["legend", "grid", "axes"],
+    "hover": "closest",
+    "line_width": "source",
+    "line_color": "source",
+    "axis_label_mode": "cartesian",
+    "projection": "source",
+    "contour_options": ["isolines"],
+    "contour_levels": 0,
+    "polarization": ["polarization"],
+    "polarization_stride": 8,
+    "polarization_width": "source",
+    "polarization_scale": "source",
+    "polarization_color": "source",
+    "surface_opacity": 1.0,
+    "camera": "source",
+    "colorbar": ["colorbar"],
+}
+
+_LINE_COLOR_OPTIONS: tuple[tuple[str, str], ...] = (
+    ("From result", "source"),
+    ("Quantas blue", "#2994d1"),
+    ("Sky blue", "#69bce8"),
+    ("Orange", "#ed8a28"),
+    ("Teal", "#50c6a9"),
+    ("Red", "#f06c75"),
+    ("Violet", "#b79cff"),
+    ("Gold", "#f0b75a"),
+    ("Black", "#111111"),
+    ("White", "#f7fafc"),
+)
 
 
 def renderer_toolbar(controls: Sequence[Any], *, actions: Sequence[Any] = ()) -> html.Div:
@@ -70,7 +108,7 @@ def table_selector(
         label="Table",
         options=[
             {
-                "label": (
+                "label": scientific_label_text(
                     f"{groups[index]} · {table.title}"
                     if groups and index < len(groups)
                     else str(table.title)
@@ -81,6 +119,24 @@ def table_selector(
         ],
         value=value,
         clearable=False,
+        class_name="q-control--wide",
+    )
+
+
+def scientific_export_selector(
+    *,
+    component_id: str,
+    exports: Sequence[ScientificExportDescriptor],
+) -> html.Label:
+    """Create a selector for public Quantas scientific export operations."""
+    default = next((item.key for item in exports if item.enabled), None)
+    return labelled_dropdown(
+        component_id=component_id,
+        label="Scientific export",
+        options=[item.as_option() for item in exports],
+        value=default,
+        clearable=False,
+        searchable=False,
         class_name="q-control--wide",
     )
 
@@ -131,6 +187,47 @@ def hover_selector(*, component_id: str, value: str = "closest") -> html.Label:
             {"label": "Unified Y", "value": "y unified"},
         ],
         value=value,
+        clearable=False,
+        searchable=False,
+    )
+
+
+def line_width_selector(*, component_id: str) -> html.Label:
+    """Create a renderer-only line-width override."""
+    values = (0.5, 0.75, 1.0, 1.25, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0)
+    return labelled_dropdown(
+        component_id=component_id,
+        label="Line width",
+        options=[{"label": "From result", "value": "source"}]
+        + [{"label": f"{value:g} px", "value": value} for value in values],
+        value="source",
+        clearable=False,
+        searchable=False,
+    )
+
+
+def line_color_selector(*, component_id: str, label: str = "Line colour") -> html.Label:
+    """Create a portable line-colour override with a source-preserving default."""
+    return labelled_dropdown(
+        component_id=component_id,
+        label=label,
+        options=[{"label": title, "value": value} for title, value in _LINE_COLOR_OPTIONS],
+        value="source",
+        clearable=False,
+        searchable=False,
+    )
+
+
+def axis_label_mode_selector(*, component_id: str) -> html.Label:
+    """Create Cartesian or crystallographic directional-axis labels."""
+    return labelled_dropdown(
+        component_id=component_id,
+        label="Directional axes",
+        options=[
+            {"label": "Cartesian (x, y, z)", "value": "cartesian"},
+            {"label": "Crystallographic ([100], [010], [001])", "value": "crystal"},
+        ],
+        value="cartesian",
         clearable=False,
         searchable=False,
     )
@@ -191,6 +288,27 @@ def surface_opacity_control(*, component_id: str) -> html.Label:
                     1.0: "100%",
                 },
                 tooltip={"placement": "bottom", "always_visible": False},
+                className="q-slider",
+            ),
+        ],
+        className="q-control q-control--wide",
+    )
+
+
+def contour_level_control(*, component_id: str) -> html.Label:
+    """Create an isoline-count control; zero preserves the public specification."""
+    return html.Label(
+        [
+            html.Span("Number of isolines", className="q-control-label"),
+            dcc.Slider(
+                id=component_id,
+                min=0,
+                max=40,
+                step=1,
+                value=0,
+                marks={0: "Source", 8: "8", 16: "16", 24: "24", 32: "32", 40: "40"},
+                tooltip={"placement": "bottom", "always_visible": False},
+                className="q-slider",
             ),
         ],
         className="q-control q-control--wide",
@@ -238,6 +356,59 @@ def colorbar_toggle(*, component_id: str) -> dcc.Checklist:
         value=["colorbar"],
         inline=True,
         className="q-render-checklist",
+    )
+
+
+def polarization_toggle(*, component_id: str) -> dcc.Checklist:
+    """Create a visibility switch for public polarization-axis layers."""
+    return dcc.Checklist(
+        id=component_id,
+        options=[{"label": "Show polarizations", "value": "polarization"}],
+        value=["polarization"],
+        inline=True,
+        className="q-render-checklist",
+    )
+
+
+def polarization_stride_selector(*, component_id: str) -> html.Label:
+    """Create the visual sampling stride for dense polarization overlays."""
+    return labelled_dropdown(
+        component_id=component_id,
+        label="Polarization stride",
+        options=[
+            {"label": f"Every {value}", "value": value} for value in (1, 2, 4, 6, 8, 10, 12, 16, 20)
+        ],
+        value=8,
+        clearable=False,
+        searchable=False,
+    )
+
+
+def polarization_line_width_selector(*, component_id: str) -> html.Label:
+    """Create a display-only polarization line-width override."""
+    values = (0.5, 0.75, 1.0, 1.25, 1.5, 2.0, 2.5, 3.0)
+    return labelled_dropdown(
+        component_id=component_id,
+        label="Polarization width",
+        options=[{"label": "From result", "value": "source"}]
+        + [{"label": f"{value:g} px", "value": value} for value in values],
+        value="source",
+        clearable=False,
+        searchable=False,
+    )
+
+
+def polarization_scale_selector(*, component_id: str) -> html.Label:
+    """Create a display-only polarization-axis length override."""
+    values = (0.04, 0.05, 0.065, 0.08, 0.10, 0.12, 0.16)
+    return labelled_dropdown(
+        component_id=component_id,
+        label="Polarization length",
+        options=[{"label": "From result", "value": "source"}]
+        + [{"label": f"{100.0 * value:g}%", "value": value} for value in values],
+        value="source",
+        clearable=False,
+        searchable=False,
     )
 
 

@@ -7,7 +7,9 @@ from collections.abc import Sequence
 import dash
 from dash import ALL, Input, Output, State
 
-_BREADCRUMBS = {
+from quantas_gui.profile import ApplicationProfile
+
+_STANDARD_BREADCRUMBS = {
     "": "Overview",
     "results": "Results Explorer",
     "workflows": "Workflows",
@@ -19,13 +21,25 @@ _BREADCRUMBS = {
     "eos": "Equation of state",
     "thermoelasticity": "Thermoelasticity",
     "settings": "Settings",
-    "ui-kit": "Scientific UI Kit",
+    "about": "About",
+}
+
+_UI_KIT_BREADCRUMBS = {
+    "": "Scientific UI Kit",
+    "settings": "Settings",
     "about": "About",
 }
 
 
-def register_navigation_callbacks(app: dash.Dash) -> None:
+def register_navigation_callbacks(
+    app: dash.Dash,
+    *,
+    profile: ApplicationProfile = ApplicationProfile.STANDARD,
+) -> None:
     """Register active-link and breadcrumb callbacks on an app instance."""
+    breadcrumbs = (
+        _UI_KIT_BREADCRUMBS if profile is ApplicationProfile.UI_KIT else _STANDARD_BREADCRUMBS
+    )
 
     @app.callback(
         Output({"type": "q-nav-link", "path": ALL}, "className"),
@@ -44,7 +58,7 @@ def register_navigation_callbacks(app: dash.Dash) -> None:
         normalised = f"/{stripped}" if stripped else "/"
         desktop = _classes(desktop_ids, normalised, "q-nav-item")
         mobile = _classes(mobile_ids, normalised, "q-mobile-nav-item")
-        breadcrumb = _BREADCRUMBS.get(stripped, "Workspace")
+        breadcrumb = breadcrumbs.get(stripped, profile.root_breadcrumb)
         return desktop, mobile, breadcrumb
 
 

@@ -1,295 +1,275 @@
 # Quantas GUI roadmap
 
-This roadmap defines the public development milestones of Quantas GUI from the
-initial application foundation to the first stable release.
+This roadmap follows usable scientific capabilities rather than calendar dates.
+A milestone is complete only when the feature works from input to persisted
+result, has suitable tests and documentation, and agrees numerically with the
+corresponding Quantas API and command-line workflow.
 
-The milestones are based on complete, user-visible capabilities rather than on
-calendar dates. A version is considered complete when its workflow can be used
-from input to persisted result, has appropriate tests, and produces scientific
-results equivalent to the corresponding Quantas API and command-line workflow.
+Alpha releases may add patch and pre-release identifiers while a milestone is
+still being completed, for example `0.2.9a4`.
 
-## Development status
+## Milestones at a glance
 
-| Version | Milestone | Status |
+| Version | Main capability | Status |
 |---|---|---|
 | `0.1` | Application foundation | Complete |
-| `0.2` | Result Explorer | **Current development stage** |
-| `0.3` | Elasticity workflow | Planned |
+| `0.2` | Result Explorer | Current, final hardening |
+| `0.3` | Elasticity workflow | Next |
 | `0.4` | SEISMIC workflow | Planned |
 | `0.5` | HA/QHA workflow | Planned |
 | `0.6` | Thermoelasticity workflow | Planned |
 | `0.7` | EOS workflow | Planned |
 | `0.8` | Interoperability | Planned |
-| `0.9` | Integration, testing, and beta validation | Planned |
+| `0.9` | Integrated beta validation | Planned |
 | `1.0` | First stable release | Planned |
-
-Development releases may use additional patch and pre-release identifiers, for
-example `0.2.1a5`, while work remains within a milestone.
 
 ---
 
 ## 0.1 — Application foundation
 
-**Goal:** establish an installable, maintainable Dash application that can grow
-from local use to a server deployment without changing the scientific backend.
+The first milestone established a package that could grow without tying the
+scientific code to Dash or to a particular deployment model.
 
-### Delivered capability
+It delivered:
 
-- installable `quantas-gui` Python package and command-line launcher;
-- responsive application shell, navigation, landing page, and shared styling;
-- local browser launch on a controlled loopback address;
-- application factory and WSGI entry point;
-- dark, light, and system themes;
-- configurable typography, reduced motion, and table density;
-- reusable scientific form controls and runtime feedback components;
-- controlled local workspaces and opaque browser references;
-- replaceable execution, cache, and result-store interfaces;
-- cross-platform packaging, tests, CI, and repository support files.
+- the installable `quantas-gui` package and launcher;
+- an application factory and WSGI entry point;
+- responsive desktop and mobile navigation;
+- dark, light and operating-system themes;
+- browser-local appearance settings;
+- reusable scientific controls and declarative form schemas;
+- progress, log, warning, error and result components;
+- controlled local workspaces;
+- replaceable execution, cache, result-store and workspace interfaces;
+- packaging, CI and cross-platform development tools;
+- an isolated Scientific UI Kit for component development.
 
-### Completion criterion
-
-The application installs and opens reliably on supported platforms, exposes the
-shared user-interface components, and remains independent from private Quantas
-implementation details.
+**Status:** complete.
 
 ---
 
 ## 0.2 — Result Explorer
 
-**Goal:** create the common result-inspection layer on which every later
-workflow will rely.
+The Result Explorer is the common destination for every Quantas result,
+regardless of whether it was uploaded by the user or produced by a future GUI
+workflow.
 
-### Expected capability
+The milestone includes:
 
-- open and identify native Quantas HDF5 results through `quantas.api`;
-- display metadata, provenance, normalized input, options, warnings, and events;
-- render frontend-neutral `ReportTable` objects as interactive data grids;
-- export unmodified numerical table values to CSV and reports to plain text;
-- render Quantas plot specifications with Plotly;
-- support line, contour, polar, 3D surface, spherical, summary, and panel plots;
-- provide plot-specific controls for colormaps, contours, legends, axes,
-  projection, opacity, hover, and camera;
-- separate shared rendering logic from module-specific scientific selection;
-- construct expensive reports and figures lazily and cache them server-side;
-- provide structural inspection of EOS archives without forcing them into the
-  standard result model.
+- controlled upload of native Quantas HDF5 files;
+- backend compatibility diagnostics and degraded startup;
+- result identification through the public registry;
+- overview, provenance, inputs, options, warnings and events;
+- public report tables rendered with Dash AG Grid;
+- complete table and report downloads;
+- public plot inventories and explicit scientific selectors;
+- lazy PlotSpec construction and server-side caching;
+- Plotly rendering for all currently exposed specification families;
+- module-aware presentation for Elasticity, SEISMIC, HA, QHA and
+  Thermoelasticity;
+- read-only structural and fit-record inspection for EOS archives;
+- safe concurrent access, atomic publication and controlled close behaviour;
+- an opaque result handoff for future workflows.
 
-### Completion criterion
+The milestone is complete when representative results from every module can be
+opened, inspected and exported reliably, with scientifically faithful figures,
+acceptable performance and verified behaviour on supported platforms and
+viewports.
 
-Representative results from Elasticity, SEISMIC, HA, QHA,
-Thermoelasticity, and EOS can be opened and inspected consistently. Tables and
-figures are scientifically faithful, responsive, and sufficiently performant
-for routine use.
-
-**Current position:** `0.2.1a5` is an alpha implementation of this milestone.
-The remaining work is systematic visual, scientific, and performance validation
-against representative native result files.
+**Current position:** `0.2.9a4` contains the final code-quality and Windows
+validation corrections after the first `0.2.9a2` run. The remaining work is the
+full pinned Windows and CI gate, followed by final module-by-module visual,
+scientific, accessibility and performance sign-off.
 
 ---
 
 ## 0.3 — Elasticity workflow
 
-**Goal:** implement the first complete executable workflow using the simplest
-scientific module as the reference pattern for later calculators.
+Elasticity will be the first complete executable workflow and the reference
+implementation for later calculators.
 
-### Expected capability
+The workflow will allow the user to:
 
-- load or enter an elastic tensor, density, symmetry, and calculation options;
-- validate tensor shape, symmetry, units, and required metadata;
-- run the Elasticity calculator through `quantas.api`;
-- display progress, messages, warnings, errors, and structured results;
-- inspect stiffness, compliance, stability, and Voigt–Reuss–Hill properties;
-- render directional 2D polar plots and 3D property surfaces with Plotly;
-- support tensor rotations and relevant plotting options;
-- save native HDF5 results and export supported tables and data products;
-- reopen the generated file in the Result Explorer.
+- load or enter an elastic stiffness tensor and job information;
+- configure the options exposed by `quantas.api.elasticity`;
+- validate matrix shape, units and cross-field requirements;
+- see the elastic symmetry inferred by Quantas;
+- submit the calculation to a background process rather than an HTTP callback;
+- follow progress, logs, warnings and errors;
+- inspect stiffness, compliance, stability and Voigt–Reuss–Hill properties;
+- render supported 2D polar and 3D directional views;
+- apply physical tensor rotations only through the public Quantas contract;
+- save the native HDF5 result;
+- open the completed result directly in the shared Result Explorer.
 
-### Completion criterion
+The form will follow the typed public backend contract. Density or manually
+selected symmetry will not be added merely because older text mentions them;
+those fields must first be supported consistently by Quantas.
 
-A complete Elasticity calculation can be performed from the GUI and produces
-the same numerical result as the equivalent Quantas API and CLI workflow.
+**Completion test:** the GUI result must match the equivalent Quantas API and
+CLI calculation within the documented numerical tolerances.
 
 ---
 
 ## 0.4 — SEISMIC workflow
 
-**Goal:** expose the full Christoffel and seismic-wave analysis through an
+This milestone will expose the Christoffel and seismic-wave analysis as an
 interactive workflow.
 
-### Expected capability
+Planned capabilities include:
 
-- load elastic tensors and density from files, manual input, or compatible
+- loading elastic tensors and density from files, manual input or compatible
   Quantas results;
-- configure angular sampling, physical conventions, tolerances, and output;
-- calculate phase and group velocities, polarization, degeneracies,
-  enhancement, extrema, and anisotropy;
-- inspect standard, extended, and diagnostic reports;
-- render 2D maps, spherical projections, polarization overlays, summaries, and
-  interactive 3D wave surfaces;
-- export native results and supported downstream data products.
+- configuring angular sampling, calculation level, tolerances and output;
+- phase and group velocities, polarizations, degeneracies, enhancement,
+  extrema and anisotropy;
+- standard, extended and diagnostic reports;
+- 2D maps, spherical projections, polarization overlays, summaries and 3D wave
+  surfaces;
+- native persistence and supported downstream exports.
 
-### Completion criterion
-
-The GUI reproduces the complete supported SEISMIC workflow and its numerical
-results, including interactive inspection of directional and polarization data.
+**Completion test:** all supported numerical and directional results agree with
+the public SEISMIC API and CLI workflow.
 
 ---
 
 ## 0.5 — HA/QHA workflow
 
-**Goal:** provide one coherent thermodynamic calculator in which the user
-selects harmonic or quasi-harmonic treatment.
+HA and QHA will share one calculator where that improves the user experience,
+while keeping their scientific options and results distinct.
 
-### Expected capability
+The milestone will cover:
 
-- select **Harmonic Approximation** or **Quasi-Harmonic Approximation** within a
-  shared workflow;
-- load and inspect supported phonon and volume-dependent input data;
-- configure temperature, pressure, fitting, interpolation, and diagnostic
-  options appropriate to the selected method;
-- preview data coverage and validate required thermodynamic inputs;
-- calculate thermodynamic functions in HA mode;
-- calculate equilibrium volume and pressure-dependent thermodynamic properties
-  in QHA mode;
-- display fitting diagnostics, warnings, equation-of-state behaviour, and
-  thermodynamic tables;
-- render temperature curves, volume-dependent fits, pressure–temperature maps,
-  and other supported Plotly views;
-- save native HDF5 results and supported exports.
+- selection of Harmonic or Quasi-Harmonic treatment;
+- supported phonon and volume-dependent inputs;
+- temperature and pressure domains;
+- fitting, interpolation, uncertainty and diagnostic options;
+- thermodynamic functions in HA mode;
+- equilibrium volume and pressure-dependent properties in QHA mode;
+- fitting diagnostics, warnings and equation-of-state behaviour;
+- temperature curves, volume fits, pressure–temperature maps and slices;
+- native HDF5 results and supported exports.
 
-### Completion criterion
-
-Both HA and QHA calculations can be completed through the same calculator while
-preserving their distinct scientific options, diagnostics, and result models.
+**Completion test:** both modes can be completed from the GUI and reproduce the
+corresponding backend workflows.
 
 ---
 
 ## 0.6 — Thermoelasticity workflow
 
-**Goal:** implement the more complex quasi-static thermoelastic workflow by
-combining volume-dependent elastic data with thermodynamic results.
+Thermoelasticity combines volume-dependent elastic data with a compatible QHA
+result and therefore exercises the interoperability and long-job architecture
+more heavily.
 
-### Expected capability
+The workflow will provide:
 
-- load elastic-volume series and a compatible QHA result;
-- validate composition, volume coverage, units, tensor conventions, and
-  pressure–temperature domain compatibility;
-- configure calibration, fitting, extrapolation, and analysis options;
-- perform Point, Grid, and Profile analyses;
-- inspect volume fits, elastic constants, moduli, density, and derived seismic
-  properties as functions of pressure and temperature;
-- render elastic-volume fits, P–T maps, surfaces, and depth profiles;
-- save native results and export valid SEISMIC inputs at selected conditions.
+- elastic-volume series and QHA result selection;
+- checks for composition, volume coverage, units and P–T domain compatibility;
+- calibration, fitting, quality, uncertainty and extrapolation options;
+- Point, Grid and Profile analyses;
+- elastic constants, moduli, density and derived seismic properties across
+  pressure and temperature;
+- fit diagnostics, P–T maps, surfaces and depth profiles;
+- native persistence and valid SEISMIC input export.
 
-### Completion criterion
-
-The complete supported Thermoelasticity workflow can be executed and inspected
-without manually reconstructing intermediate data outside the application.
+**Completion test:** the supported quasi-static workflow can be performed
+without reconstructing intermediate data outside the application.
 
 ---
 
 ## 0.7 — EOS workflow
 
-**Goal:** provide the dedicated interactive equation-of-state calculator and
-archive interface required by the EOS session model.
+EOS needs a dedicated interface because it is a persistent fitting session, not
+a simple one-input/one-result calculation.
 
-### Expected capability
+The milestone will include:
 
-- import and edit P–V, V–T, P–V–T, energy–volume, and supported linear data;
-- select datasets, exclude or restore observations, and inspect uncertainties;
-- configure model, order, solver, weighting, initial values, fixed parameters,
-  and bounds;
-- support OLS, WLS, and ODR where available in Quantas;
-- fit P–V, V–T, and P–V–T models and calculate derived properties;
-- compare fit attempts and explicitly accept or reject candidates;
-- preserve EOS sessions, diagnostics, covariance, warnings, and accepted records
-  in the native archive;
-- integrate data, fitted curves, residuals, normalized-pressure diagnostics,
-  confidence information, and P–V–T surfaces in the workflow;
-- export tables, parameters, diagnostics, and supported data products.
+- import and editing of supported P–V, V–T, P–V–T, energy–volume and linear
+  datasets;
+- observation inclusion and exclusion;
+- model, order, solver, weighting, initial-value, fixed-parameter and bound
+  controls;
+- OLS, WLS and ODR where supported by Quantas;
+- fit attempts, diagnostics and derived-property calculations;
+- explicit acceptance or rejection of candidate fits;
+- archive history, covariance, warnings and accepted records;
+- data, fit, residual, normalized-pressure and P–V–T surface views;
+- tables, parameters, diagnostics and supported exports.
 
-### Completion criterion
-
-EOS fitting and calculation can be performed as a persistent, interactive
-session with integrated graphics, rather than as a generic one-shot form.
+**Completion test:** an EOS analysis can be resumed and managed as a persistent
+session without forcing it into the generic workflow model.
 
 ---
 
 ## 0.8 — Interoperability
 
-**Goal:** make the relationships between Quantas modules explicit and usable
-without duplicating scientific data entry.
+This milestone will make supported relationships between modules visible and
+safe to use.
 
-### Expected capability
+The first target is the chain:
 
-- pass compatible results between workflows through public Quantas
-  interoperability contracts;
-- support at least the QHA → Thermoelasticity → SEISMIC chain;
-- validate compatibility before a downstream workflow is created;
-- preserve provenance, source result identifiers, options, and units;
-- allow the user to select the relevant record, pressure, temperature, tensor,
-  or analysis context for the next workflow;
-- manage related results within a shared local workspace;
-- present interoperability as clear scientific actions rather than hidden file
-  conversions.
+```text
+QHA → Thermoelasticity → SEISMIC
+```
 
-A general visual workflow editor will be considered only if it improves real
-scientific use. The first implementation will favour explicit, validated
-transitions between known module contracts.
+The GUI will:
 
-### Completion criterion
+- use public Quantas interoperability operations;
+- check compatibility before creating a downstream workflow;
+- preserve provenance, units, source identifiers and selected records;
+- let the user choose the relevant pressure, temperature, tensor or analysis
+  context;
+- keep related results within a controlled workspace;
+- present clear scientific actions rather than hidden file conversions.
 
-A supported multi-module analysis can be completed within Quantas GUI without
-manual copying, reformatting, or loss of provenance between stages.
+A general node editor will be considered only if explicit, validated transitions
+prove too limiting for real use.
+
+**Completion test:** a supported multi-module analysis can be completed without
+manual copying, reformatting or loss of provenance.
 
 ---
 
-## 0.9 — Integration, testing, and beta validation
+## 0.9 — Integrated beta validation
 
-**Goal:** integrate all workflows into a coherent beta release and validate the
-application as a complete scientific frontend.
+Version `0.9` brings the separate workflows together and tests the application
+as one scientific product.
 
-### Expected capability
+The beta milestone requires:
 
-- consistent navigation, forms, progress, messages, tables, figures, downloads,
-  and error handling across every module;
-- end-to-end regression tests for all workflows;
-- numerical comparison against Quantas API and CLI reference results;
-- validation with representative native datasets and HDF5 files;
-- Windows, Linux, and macOS installation and runtime testing;
-- performance profiling for large tables, dense grids, and 3D figures;
-- accessibility, responsive-layout, and light/dark-theme review;
-- local background execution, cancellation, and recovery where required;
-- deployment validation with a production WSGI server and replaceable queued
-  worker/cache infrastructure;
-- complete user documentation, examples, tutorials, and release checklist.
+- consistent forms, progress, messages, tables, figures and downloads;
+- end-to-end tests for every workflow;
+- numerical comparison with API and CLI references;
+- representative native datasets and HDF5 files;
+- Windows, Linux and macOS installation and runtime checks;
+- performance profiling for large tables, grids and 3D figures;
+- accessibility, responsive layout and theme review;
+- background execution, cancellation and recovery where required;
+- production WSGI validation and replaceable shared worker/cache services;
+- complete user and developer documentation.
 
-### Completion criterion
-
-Version `0.9` is released as the public beta. All planned workflows are present,
-scientifically validated, and suitable for broad user testing. Remaining work
-is limited to release-blocking defects, documentation gaps, and final
-compatibility hardening.
+**Completion test:** all planned workflows are present and scientifically
+validated, with only release-blocking defects and final documentation work left.
 
 ---
 
 ## 1.0 — First stable release
 
-**Goal:** publish the first supported release of Quantas GUI.
+The first stable release will be published only after the beta blockers are
+closed.
 
-### Release requirements
+Release requirements include:
 
-- all `0.9` beta blockers resolved;
-- stable application configuration and public integration boundary with
-  compatible Quantas releases;
-- reproducible builds and signed/tagged release artifacts;
+- a stable configuration and public integration boundary with supported Quantas
+  versions;
+- reproducible wheel and source builds;
 - tested installation on supported Python versions and operating systems;
-- complete documentation, examples, citation metadata, and changelog;
-- published source distribution and wheel on PyPI;
-- documented local use and server deployment procedures;
-- no known critical defects affecting scientific correctness, persistence, or
-  result provenance.
+- complete documentation, examples, citation metadata and changelog;
+- publication on PyPI;
+- documented local and server deployment procedures;
+- no known critical defect affecting scientific correctness, persistence or
+  provenance.
 
-Version `1.0` will mark the first stable, user-facing release. Later versions
-will extend workflows and deployment capabilities without weakening the
-separation between Quantas scientific code and the Dash/Plotly frontend.
+Later releases may expand workflows and deployment options, but they should not
+weaken the separation between the Quantas scientific backend and the Dash/Plotly
+frontend.

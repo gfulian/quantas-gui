@@ -1,4 +1,4 @@
-"""Local command-line launcher for Quantas GUI."""
+"""Safe local command-line launcher for Quantas GUI."""
 
 from __future__ import annotations
 
@@ -8,6 +8,7 @@ import webbrowser
 from threading import Timer
 
 from quantas_gui.config import Settings
+from quantas_gui.profile import ApplicationProfile
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -32,6 +33,11 @@ def build_parser() -> argparse.ArgumentParser:
         "--url-prefix",
         help="Mount the app below a URL prefix, for example /quantas/.",
     )
+    parser.add_argument(
+        "--ui-kit",
+        action="store_true",
+        help="Open the isolated Scientific UI Kit developer profile.",
+    )
     return parser
 
 
@@ -48,27 +54,37 @@ def find_available_port(host: str, preferred: int, *, attempts: int = 50) -> int
 
 
 def main(argv: list[str] | None = None) -> int:
-    """Start the safe local server and optionally open a browser."""
-    args = build_parser().parse_args(argv)
-    settings = Settings.from_environment().with_overrides(
+    """Start the local Dash server and optionally open a browser."""
+    parser = build_parser()
+    args = parser.parse_args(argv)
+    settings = Settings.from_environment(defaults=Settings.local_defaults()).with_overrides(
         host=args.host,
         port=args.port,
         url_prefix=args.url_prefix,
         open_browser=False if args.no_browser else None,
         debug=True if args.debug else None,
     )
+    if settings.mode != "local":
+        parser.error(
+            "quantas-gui is the local launcher. Use quantas_gui.wsgi:server with "
+            "Waitress or Gunicorn for QUANTAS_GUI_MODE=server."
+        )
     settings = settings.with_overrides(port=find_available_port(settings.host, settings.port))
 
     from quantas_gui.app import create_app
 
-    app = create_app(settings)
+    profile = ApplicationProfile.UI_KIT if args.ui_kit else ApplicationProfile.STANDARD
+    app = create_app(settings, profile=profile)
     url = f"http://{settings.host}:{settings.port}{settings.url_prefix}"
     if settings.open_browser:
         timer = Timer(0.8, webbrowser.open, args=(url,))
         timer.daemon = True
         timer.start()
     print(f"Quantas GUI: {url}")
+    print(f"Profile: {profile.value}")
     print(f"Workspace: {settings.workspace_root}")
+    if settings.host not in {"127.0.0.1", "localhost", "::1"}:
+        print("Warning: the local Dash server is listening beyond the loopback interface.")
     app.run(
         host=settings.host,
         port=settings.port,

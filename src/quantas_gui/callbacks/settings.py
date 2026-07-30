@@ -72,9 +72,9 @@ def register_settings_callbacks(app: dash.Dash) -> None:
 
     app.clientside_callback(
         """
-        function(data) {
+        function(data, _nIntervals, currentEffectiveTheme) {
             const defaults = {
-                theme: "dark",
+                theme: "system",
                 text_size: "standard",
                 motion: "system",
                 table_density: "comfortable"
@@ -106,12 +106,18 @@ def register_settings_callbacks(app: dash.Dash) -> None:
             root.style.setProperty("--q-ui-scale", scale);
             const themeMeta = document.querySelector('meta[name="theme-color"]');
             if (themeMeta) {
-                themeMeta.setAttribute("content", effectiveTheme === "light" ? "#f3f7fa" : "#071522");
+                const themeColor = effectiveTheme === "light" ? "#f3f7fa" : "#071522";
+                themeMeta.setAttribute("content", themeColor);
             }
-            return [JSON.stringify(preferences), effectiveTheme];
+            const effectiveOutput = effectiveTheme === currentEffectiveTheme
+                ? window.dash_clientside.no_update
+                : effectiveTheme;
+            return [JSON.stringify(preferences), effectiveOutput];
         }
         """,
         Output("q-settings-applied", "children"),
         Output(_EFFECTIVE_THEME_ID, "data"),
         Input(_STORE_ID, "data"),
+        Input("q-system-theme-watch", "n_intervals"),
+        State(_EFFECTIVE_THEME_ID, "data"),
     )

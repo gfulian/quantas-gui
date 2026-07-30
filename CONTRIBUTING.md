@@ -1,12 +1,29 @@
 # Contributing to Quantas GUI
 
-Contributions are welcome in the form of code, tests, documentation,
-scientific feedback, interface review, and reproducible bug reports.
+Code, tests, documentation, scientific review and reproducible bug reports are
+welcome. Quantas GUI is a scientific frontend, so every change must preserve
+the boundary with Quantas and leave formulas, units, precision and native
+persistence in the backend.
 
-Quantas GUI is a scientific frontend. Changes must preserve the boundary
-between presentation and the Quantas numerical library.
+## Preparing the environment
 
-## Development setup
+On Windows, the recommended path is:
+
+```powershell
+.\scripts\validate_windows.cmd "C:\path\to\quantas"
+```
+
+The command creates `.venv`, reinstalls the declared dependencies and runs the
+complete gate. The PowerShell version can be invoked with a process-local
+policy:
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File `
+    .\scripts\validate_windows.ps1 `
+    -QuantasPath "C:\path\to\quantas"
+```
+
+On Linux or macOS:
 
 ```bash
 python -m venv .venv
@@ -14,93 +31,62 @@ source .venv/bin/activate
 python -m pip install --upgrade pip
 python -m pip install -e /path/to/quantas
 python -m pip install -c constraints/ui-baseline.txt \
-    -c constraints/quality-baseline.txt -e ".[dev,performance]"
+    -c constraints/quality-baseline.txt \
+    -c constraints/backend-baseline.txt -e ".[dev,performance]"
 python tools/run_checks.py
 ```
 
-On Windows PowerShell:
+When `pyproject.toml` changes, reinstall the project. An editable checkout does
+not add new runtime dependencies automatically.
 
-```powershell
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-python -m pip install --upgrade pip
-python -m pip install -e "C:\path\to\quantas"
-python -m pip install -c constraints\ui-baseline.txt `
-    -c constraints\quality-baseline.txt -e ".[dev,performance]"
-python tools\run_checks.py
-```
+## Reproducible tool baseline
 
-## Reproducible quality baseline
+The exact Ruff and mypy versions are listed in
+`constraints/quality-baseline.txt`. Tool upgrades should be focused maintenance
+changes that update configuration, source, tests and changelog together.
 
-The exact Ruff and mypy versions used by CI are declared in
-`constraints/quality-baseline.txt`. Install development dependencies through
-both constraint files and do not rely on whatever tool release happens to be
-current on the day of validation.
-
-Ruff is intentionally limited to `src`, `tests`, and `tools`. Ruff 0.16 can
-format Python code blocks embedded in Markdown; documentation formatting is not
-part of the Python formatter contract for this project.
-
-Upgrade Ruff or mypy only in a focused maintenance change that updates the
-constraints, configuration, affected source, tests, and changelog together.
+Ruff checks only `src`, `tests` and `tools`; Markdown prose is reviewed as
+documentation rather than formatted as Python.
 
 ## Architectural rules
 
-- import scientific functionality only from `quantas.api`;
-- never make Quantas depend on Dash, Plotly, browser state, or deployment
-  infrastructure;
-- do not call Click commands or parse terminal output from the GUI;
-- keep numerical arrays, HDF5 files, and active scientific objects server-side;
-- keep browser stores limited to identifiers and lightweight interface state;
-- preserve raw numerical values and apply rounding only in renderers;
-- keep reusable components and renderers general;
-- keep unique scientific selection and behaviour in the corresponding module
-  adapter or workflow package;
-- use replaceable execution, workspace, cache, and result-store contracts;
-- preserve responsive behaviour, keyboard focus, and theme compatibility.
+- Use only the public `quantas.api` surface for scientific work.
+- Do not import the CLI, internal modules, Rich or Matplotlib into the GUI.
+- Keep large arrays, HDF5 files and scientific objects server-side.
+- Store only identifiers and lightweight state in the browser.
+- Round values in renderers, never in the underlying data.
+- Keep shared components and services genuinely generic.
+- Put module-specific scientific choices in the module adapter.
+- Depend on replaceable job, workspace, cache and result contracts.
+- Check themes, keyboard use, disabled states and narrow viewports.
 
 ## Scientific changes
 
-A renderer or workflow must not silently alter:
+The GUI must not alter formulas, units, tensor conventions, array shapes,
+masks, tolerances or stored precision. A workflow change should name the public
+Quantas contract it uses and compare results with an API or CLI reference.
 
-- formulas or numerical methods;
-- units or tensor conventions;
-- array shapes or branch identity;
-- masks, tolerances, or interpolation policy;
-- stored precision or HDF5 values.
+Plotly changes follow
+[docs/plotly-fidelity.md](docs/plotly-fidelity.md) and are compared with the
+Matplotlib rendering of the same public specification.
 
-Scientific workflow changes should identify the corresponding public Quantas
-contract and include a comparison with API or CLI reference results.
+## Tests and visual review
 
-## Testing
-
-Run the standard checks before submitting a pull request:
+Before opening a pull request, run:
 
 ```bash
 python tools/run_checks.py
 ```
 
-Visual changes should be checked in:
-
-- Quantas Dark and Quantas Light;
-- standard and large typography;
-- desktop and narrow/mobile viewports;
-- representative empty, normal, warning, and error states.
-
-Large-result changes should include a performance check and must not transfer
-complete numerical payloads into browser storage.
+Visual changes should be reviewed in Quantas Dark and Light, on desktop and
+mobile, and in empty, normal, warning and error states. Changes affecting large
+results also need a performance check.
 
 ## Pull requests
 
-Keep pull requests focused on one milestone or problem. Describe:
+Work on a short-lived branch and open a pull request into `main`. Describe the
+visible behaviour, architectural layer, scientific contract, tests and any
+compatibility or deployment effects.
 
-- the user-visible change;
-- the architectural layer affected;
-- the scientific contract used;
-- tests and reference data;
-- screenshots for visual changes;
-- any compatibility or deployment implications.
-
-The current development sequence is defined in [ROADMAP.md](ROADMAP.md). New
-features should normally be associated with the milestone in which their full
-workflow is scheduled.
+Merge after the `CI gate`, preferably with squash. Update `CHANGELOG.md` and
+`PROJECT_STATE.md` whenever the change alters the real project state.

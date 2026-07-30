@@ -1,18 +1,17 @@
-"""Explicit Dash page registration.
-
-Pages are registered after the :class:`dash.Dash` instance exists. This avoids
-import-time coupling and lets the packaged application use an application
-factory with an absolute assets directory.
-"""
+"""Explicit Dash page registration for standard and developer profiles."""
 
 from __future__ import annotations
 
+from functools import partial
 from importlib import import_module
 from types import ModuleType
 
 import dash
 
-_PAGE_MODULES = (
+from quantas_gui.profile import ApplicationProfile
+from quantas_gui.services.backend_info import BackendCompatibility
+
+_STANDARD_PAGE_MODULES = (
     "quantas_gui.pages.home",
     "quantas_gui.pages.results",
     "quantas_gui.pages.workflows",
@@ -24,21 +23,46 @@ _PAGE_MODULES = (
     "quantas_gui.pages.eos",
     "quantas_gui.pages.thermoelasticity",
     "quantas_gui.pages.settings",
+    "quantas_gui.pages.about",
+)
+
+_UI_KIT_PAGE_MODULES = (
     "quantas_gui.pages.ui_kit",
+    "quantas_gui.pages.settings",
     "quantas_gui.pages.about",
 )
 
 
-def register_pages() -> tuple[ModuleType, ...]:
-    """Register all packaged pages and return their imported modules."""
-    modules = tuple(import_module(name) for name in _PAGE_MODULES)
+def register_pages(
+    backend: BackendCompatibility,
+    *,
+    profile: ApplicationProfile = ApplicationProfile.STANDARD,
+) -> tuple[ModuleType, ...]:
+    """Register only the pages exposed by the selected application profile."""
+    module_names = (
+        _UI_KIT_PAGE_MODULES if profile is ApplicationProfile.UI_KIT else _STANDARD_PAGE_MODULES
+    )
+    modules = tuple(import_module(name) for name in module_names)
     for module in modules:
+        layout = module.layout
+        if bool(getattr(module, "USES_BACKEND_STATUS", False)):
+            layout = partial(layout, backend=backend)
+        elif module.__name__ == "quantas_gui.pages.settings":
+            layout = partial(
+                layout,
+                developer_mode=profile is ApplicationProfile.UI_KIT,
+            )
+        path = module.PATH
+        order = module.ORDER
+        if profile is ApplicationProfile.UI_KIT and module.__name__ == "quantas_gui.pages.ui_kit":
+            path = "/"
+            order = 0
         dash.register_page(
             module.__name__,
-            path=module.PATH,
+            path=path,
             name=module.NAME,
             title=module.TITLE,
-            order=module.ORDER,
-            layout=module.layout,
+            order=order,
+            layout=layout,
         )
     return modules

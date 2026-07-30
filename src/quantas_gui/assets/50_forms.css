@@ -353,8 +353,34 @@
 }
 
 .q-slider .rc-slider-mark-text {
-  color: var(--q-text-muted);
-  font-size: calc(10px * var(--q-ui-scale));
+  color: var(--q-text-soft);
+  font-size: calc(11px * var(--q-ui-scale));
+  font-weight: 650;
+}
+
+.q-slider .rc-slider-mark-text-active {
+  color: var(--q-text);
+}
+
+.q-slider .rc-slider-tooltip-inner {
+  min-width: 42px;
+  padding: 6px 9px;
+  color: var(--q-text);
+  background: var(--q-surface-3);
+  border: 1px solid var(--q-border-strong);
+  border-radius: 8px;
+  box-shadow: var(--q-shadow-sm);
+  font-family: var(--q-font-mono);
+  font-size: calc(11px * var(--q-ui-scale));
+  font-weight: 700;
+}
+
+.q-slider .rc-slider-tooltip-placement-top .rc-slider-tooltip-arrow {
+  border-top-color: var(--q-surface-3);
+}
+
+.q-slider .rc-slider-tooltip-placement-bottom .rc-slider-tooltip-arrow {
+  border-bottom-color: var(--q-surface-3);
 }
 
 .q-composite {
@@ -779,4 +805,66 @@
   .q-form-actions {
     bottom: 72px;
   }
+}
+
+
+/* Dash 4 native DCC components use design tokens and ARIA roles rather than
+   only the legacy React-Select class tree. These rules keep both generations
+   readable in Quantas Dark and Quantas Light. */
+.q-dropdown,
+.q-dropdown [role="combobox"],
+.q-dropdown [role="listbox"],
+.q-dropdown [role="option"],
+.q-dropdown input {
+  color: var(--q-text) !important;
+}
+
+.q-dropdown [role="combobox"],
+.q-dropdown [role="listbox"] {
+  background: var(--q-bg-deep) !important;
+  border-color: var(--q-border-strong) !important;
+}
+
+.q-dropdown [role="option"] {
+  background: var(--q-bg-deep) !important;
+}
+
+.q-dropdown [role="option"]:hover,
+.q-dropdown [role="option"][aria-selected="true"] {
+  color: var(--q-text) !important;
+  background: var(--q-surface-3) !important;
+}
+
+.q-render-checklist,
+.q-render-checklist label,
+.q-render-checklist label span {
+  color: var(--q-text-soft) !important;
+}
+
+.q-render-checklist input:disabled + span,
+.q-render-checklist input:disabled ~ span {
+  color: var(--q-text-muted) !important;
+}
+
+.q-slider,
+.q-slider .rc-slider-mark-text,
+.q-slider .rc-slider-mark-text-active,
+.q-slider input {
+  color: var(--q-text-soft) !important;
+}
+
+.q-slider .rc-slider-mark-text-active {
+  color: var(--q-text) !important;
+}
+
+:root[data-q-effective-theme="light"] .q-dropdown [role="combobox"],
+:root[data-q-effective-theme="light"] .q-dropdown [role="listbox"],
+:root[data-q-effective-theme="light"] .q-dropdown [role="option"] {
+  color: var(--q-text) !important;
+  background: var(--q-surface) !important;
+}
+
+:root[data-q-effective-theme="light"] .q-dropdown [role="option"]:hover,
+:root[data-q-effective-theme="light"] .q-dropdown [role="option"][aria-selected="true"] {
+  background: var(--q-surface-3) !important;
 }

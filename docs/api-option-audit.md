@@ -1,75 +1,70 @@
-# Public Quantas API option audit
+# Audit of the public Quantas API options
 
-The CLI inventory is checked against the passive option classes exported by
-`quantas.api`. These public dataclasses are the authoritative objects that GUI
-workflow adapters must construct.
+This document maps the public Quantas options to the controls that will be
+needed in the GUI. The CLI remains useful as a completeness check, but workflow
+forms must ultimately construct objects from `quantas.api`: that is the real
+runtime contract with the backend.
 
 ## Elasticity
 
-- calculation toggles for 2D and 3D data;
-- angular sampling counts;
-- nested 3D surface options with property selection and batch size;
-- optional physical tensor rotation.
+The current contract covers 2D and 3D result generation, angular sampling,
+three-dimensional surface options and optional physical rotation of the elastic
+tensor.
 
-Recommended controls: switches, integer inputs, checklist or multi-select,
-advanced batch-size input, and a three-angle/vector rotation editor.
+These choices map naturally to switches, exact integer fields, a property
+selection and an explicit rotation editor. Physical tensor rotation must remain
+clearly separate from moving the Plotly camera.
 
 ## SEISMIC
 
-- spherical grid and hemisphere;
-- calculation level from phase through enhancement;
-- polarization tracking;
-- several relative and absolute numerical tolerances;
-- plot properties, projection, colormap, contour levels, surface geometry,
-  wave modes, surface families, and polarization presentation.
+SEISMIC exposes a broader configuration surface: spherical grid, hemisphere,
+calculation level, polarization tracking, numerical tolerances and several
+presentation choices.
 
-Recommended controls: radio or select for hemisphere/level, exact integer
-inputs for grid size, scientific-number inputs for tolerances, grouped advanced
-sections, and reusable plotting selectors.
+Discrete choices can use radio buttons or dropdowns. Grid sizes and tolerances
+need exact numeric fields. Less common settings should be collected in an
+advanced section without hiding their scientific meaning.
 
 ## HA and QHA
 
-- exact temperature and pressure domains;
-- energy, volume, frequency, temperature, and pressure units;
-- polynomial and EOS choices;
-- numerical derivative controls;
-- diagnostics, uncertainty estimation, Monte Carlo settings, failure policies,
-  extrapolation policies, Grüneisen options, and thermal-expansion method;
-- contour and Dulong–Petit plotting controls.
+HA and QHA require exact temperature and pressure domains, units, fitting or
+interpolation methods, diagnostics, failure policies and optional uncertainty
+propagation.
 
-Recommended controls: range-triplet composites for state domains, unit
-selectors, policy selectors with explanations, nested advanced sections, exact
-scientific-number inputs, and dependency rules that reveal uncertainty controls
-only when uncertainty estimation is enabled.
+The most useful shared controls are:
+
+- exact `start / stop / step` fields for temperature and pressure;
+- unit and method selectors;
+- advanced sections for diagnostics and Monte Carlo settings;
+- dependency rules that reveal uncertainty controls only when uncertainty
+  estimation is enabled.
 
 ## EOS
 
-EOS is session-oriented. Its public surface includes fit requests, solver
-options, parameter constraints, plotting options, reporting options, archive
-record selection, calculation coordinates, and uncertainty propagation.
+EOS is not one form followed by one calculation. Its public surface includes
+persistent datasets, fitting attempts, parameter constraints, accepted and
+rejected records, diagnostics and resuming a previous session.
 
-Recommended controls: dataset/record selectors, model and solver selectors,
-editable parameter and bounds grids, repeatable P/T curve lists, checkboxes for
-excluded data and uncertainty presentation, and a dedicated session state
-rather than one flat form.
+Its GUI therefore needs a dedicated workspace with editable tables, model and
+solver selectors, parameter and bounds editors, fit history and persistent
+session state. Forcing all of this into the generic workflow form would make the
+interface less clear and less faithful to the backend.
 
 ## Thermoelasticity
 
-- reference EOS and finite-strain order;
-- fitting method and iteration limits;
-- extrapolation, fit-failure, quality, and stability policies;
-- several quality thresholds;
-- reference-EOS, volume, and adiabatic uncertainty propagation;
-- P–T, profile, domain, fit-diagnostic, and comparison plot options;
-- exactly-one fixed pressure/fixed temperature comparison coordinates.
+Thermoelasticity combines fitting choices, quality and stability policies,
+uncertainty propagation and several P-T analysis or comparison modes. Some
+fields have strict relationships; for example, a comparison may require exactly
+one fixed coordinate between pressure and temperature.
 
-Recommended controls: grouped policy selectors, scientific-number threshold
-inputs, switches for propagation choices, component selectors, contour and
-layout controls, and explicit cross-field validation.
+The GUI should use thematic sections, numeric fields with clear units and
+explicit cross-field validation. Final scientific validation still belongs to
+Quantas.
 
-## Consequence for the GUI
+## Implementation consequence
 
-No module page should manually construct a wall of Dash components. Each page
-should define a `FormSchema`, then use a small workflow adapter to translate the
-validated values into the relevant public API dataclasses. Nested API option
-objects become nested or collapsible form sections rather than flattened names.
+Workflow pages should not hand-build a wall of Dash components. Each workflow
+defines a `FormSchema`, reuses the common field catalogue and gives a small
+adapter responsibility for constructing the relevant public Quantas
+dataclasses. Nested API objects become nested or collapsible form sections
+rather than flattened, hard-to-read field names.

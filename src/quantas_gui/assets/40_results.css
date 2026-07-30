@@ -360,7 +360,7 @@
 
 .q-result-metrics {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(165px, 1fr));
   gap: 12px;
 }
 
@@ -684,6 +684,64 @@
   text-transform: uppercase;
 }
 
+.q-table-family-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.q-table-export-note {
+  max-width: 760px;
+  color: var(--q-text-muted);
+  font-size: calc(9px * var(--q-ui-scale));
+  line-height: 1.55;
+  text-align: right;
+}
+
+.q-scientific-export-panel {
+  overflow: visible;
+}
+
+.q-scientific-export-panel > summary {
+  display: flex;
+  align-items: center;
+  min-height: 49px;
+  padding: 0 16px;
+  cursor: pointer;
+  list-style: none;
+  color: var(--q-text-soft);
+  font-weight: 700;
+}
+
+.q-scientific-export-panel > summary::-webkit-details-marker { display: none; }
+.q-scientific-export-panel > summary::after { content: "⌄"; margin-left: 12px; color: var(--q-blue); }
+.q-scientific-export-panel[open] > summary::after { content: "⌃"; }
+.q-scientific-export-panel > summary small { margin-left: auto; color: var(--q-text-muted); font-weight: 500; }
+.q-scientific-export-panel[open] > summary { border-bottom: 1px solid var(--q-border); }
+
+.q-scientific-export-status:empty { display: none; }
+.q-scientific-export-status { padding: 0 16px 12px; }
+
+.q-scientific-export-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 10px;
+  padding: 0 16px 16px;
+}
+
+.q-scientific-export-item {
+  padding: 12px 14px;
+  background: rgba(4, 16, 26, 0.34);
+  border: 1px solid var(--q-border);
+  border-radius: 10px;
+}
+
+.q-scientific-export-item strong { color: var(--q-text); }
+.q-scientific-export-item p { margin: 5px 0; color: var(--q-text-muted); font-size: calc(9px * var(--q-ui-scale)); }
+.q-scientific-export-item small { color: var(--q-warning); }
+.q-scientific-export-item.is-ready small { color: var(--q-success); }
+
 .q-table-panel .dash-filter input {
   color: var(--q-text-soft) !important;
   background: rgba(4, 16, 26, 0.68) !important;
@@ -699,16 +757,18 @@
 
 .q-plot-panel {
   overflow: hidden;
-  min-height: 560px;
+  min-height: 680px;
 }
 
 .q-plotly-graph {
-  min-height: 560px;
+  width: 100%;
+  min-height: 680px;
 }
 
 .q-plotly-graph .js-plotly-plot,
-.q-plotly-graph .plot-container {
-  min-height: 560px;
+.q-plotly-graph .plot-container,
+.q-plotly-graph .svg-container {
+  min-height: 680px;
 }
 
 .q-event-row {
@@ -854,7 +914,7 @@
 }
 
 .q-data-policy {
-  grid-column: 1 / -1;
+  grid-column: span 2;
   padding: 17px 19px;
   border-color: rgba(80, 198, 169, 0.16);
 }
@@ -965,8 +1025,9 @@
   .q-plot-panel,
   .q-plotly-graph,
   .q-plotly-graph .js-plotly-plot,
-  .q-plotly-graph .plot-container {
-    min-height: 460px;
+  .q-plotly-graph .plot-container,
+  .q-plotly-graph .svg-container {
+    min-height: 540px;
   }
 }
 
@@ -1059,6 +1120,16 @@
 .q-plot-description span { color: var(--q-text-muted); font-size: calc(10px * var(--q-ui-scale)); }
 .q-plot-description small { color: var(--q-blue); font-family: var(--q-font-mono); font-size: calc(8px * var(--q-ui-scale)); }
 
+.q-plot-workbench {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
+
+.q-plot-workbench > .q-plot-panel {
+  min-width: 0;
+}
+
 .q-plot-control-drawer {
   overflow: visible;
 }
@@ -1078,21 +1149,61 @@
 .q-plot-control-drawer > summary::-webkit-details-marker { display: none; }
 .q-plot-control-drawer > summary::after { content: "⌄"; color: var(--q-blue); }
 .q-plot-control-drawer[open] > summary::after { content: "⌃"; }
-.q-plot-control-drawer > summary small { margin-left: auto; margin-right: 12px; color: var(--q-text-muted); font-weight: 500; }
+.q-plot-control-drawer > summary small {
+  margin-left: auto;
+  margin-right: 12px;
+  color: var(--q-text-muted);
+  font-weight: 500;
+}
 .q-plot-control-drawer[open] > summary { border-bottom: 1px solid var(--q-border); }
 
-.q-plot-controls-grid {
+.q-plot-control-sections {
   display: grid;
-  grid-template-columns: repeat(3, minmax(180px, 1fr));
-  gap: 14px;
-  padding: 15px;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+  align-items: start;
+  gap: 10px;
+  max-height: min(54vh, 560px);
+  overflow: auto;
+  padding: 13px;
 }
 
-.q-plot-control { min-width: 0; }
-.q-plot-surface-controls { display: grid; grid-column: 1 / -1; grid-template-columns: 2fr 1fr auto; gap: 14px; align-items: end; }
-.q-plot-control--toggles { display: flex; align-items: end; }
+.q-plot-control-section {
+  min-width: 0;
+  padding: 12px;
+  background: rgba(4, 16, 26, 0.32);
+  border: 1px solid var(--q-border);
+  border-radius: 10px;
+}
 
-.q-results-grid {
+.q-plot-control-section h4 {
+  margin: 0 0 10px;
+  color: var(--q-text-muted);
+  font-size: calc(8px * var(--q-ui-scale));
+  font-weight: 780;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.q-plot-control-content {
+  display: grid;
+  gap: 12px;
+  align-items: end;
+}
+
+.q-plot-control-section.q-plot-surface-controls,
+.q-plot-control-section.q-plot-polarization-controls {
+  grid-column: 1 / -1;
+}
+
+.q-plot-surface-controls .q-plot-control-content {
+  grid-template-columns: 2fr 1fr;
+}
+
+.q-plot-polarization-controls .q-plot-control-content {
+  grid-template-columns: repeat(auto-fit, minmax(165px, 1fr));
+}
+
+.q-report-grid {
   --ag-background-color: rgba(13, 32, 48, 0.82);
   --ag-foreground-color: var(--q-text-soft);
   --ag-header-background-color: #10283a;
@@ -1107,16 +1218,264 @@
   --ag-header-height: 44px;
 }
 
+
+@media (min-width: 1180px) {
+  .q-plot-workbench {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+
+  .q-plot-workbench > .q-plot-control-drawer {
+    flex: 1 0 100%;
+  }
+
+  .q-plot-workbench > .q-plot-control-drawer[open] {
+    flex: 0 0 clamp(320px, 27vw, 420px);
+  }
+
+  .q-plot-workbench > .q-plot-control-drawer[open] .q-plot-control-sections {
+    grid-template-columns: 1fr;
+    max-height: min(72vh, 760px);
+  }
+
+  .q-plot-workbench > .q-plot-panel {
+    flex: 1 1 720px;
+  }
+}
+
 @media (max-width: 900px) {
-  .q-plot-controls-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .q-plot-surface-controls { grid-template-columns: 1fr 1fr; }
+  .q-plot-control-section.q-plot-surface-controls,
+  .q-plot-control-section.q-plot-polarization-controls { grid-column: 1 / -1; }
+  .q-plot-surface-controls .q-plot-control-content { grid-template-columns: 1fr 1fr; }
+  .q-plot-polarization-controls .q-plot-control-content {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 620px) {
+  .q-table-family-row { align-items: flex-start; flex-direction: column; }
+  .q-table-export-note { text-align: left; }
+  .q-scientific-export-panel > summary { align-items: flex-start; flex-direction: column; justify-content: center; gap: 2px; padding-block: 10px; }
+  .q-scientific-export-panel > summary small { margin: 0; }
   .q-plot-control-drawer > summary { align-items: flex-start; flex-direction: column; justify-content: center; gap: 2px; padding-block: 10px; }
   .q-plot-control-drawer > summary small { margin: 0; }
-  .q-plot-controls-grid,
-  .q-plot-surface-controls { grid-template-columns: 1fr; }
+  .q-plot-control-section.q-plot-surface-controls,
+  .q-plot-control-section.q-plot-polarization-controls { grid-column: 1; }
+  .q-plot-control-sections,
+  .q-plot-surface-controls .q-plot-control-content,
+  .q-plot-polarization-controls .q-plot-control-content { grid-template-columns: 1fr; }
   .q-plot-description > div { grid-template-columns: 1fr; gap: 4px; }
-  .q-results-grid { --ag-font-size: calc(10px * var(--q-ui-scale)); }
+  .q-report-grid { --ag-font-size: calc(10px * var(--q-ui-scale)); }
+}
+
+
+/* Scientific builder controls are intentionally separate from Plotly display controls. */
+.q-scientific-selection-panel {
+  display: grid;
+  gap: 16px;
+  padding: 18px 20px;
+  border-color: rgba(105, 188, 232, 0.22);
+}
+
+.q-scientific-selection-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.q-scientific-selection-heading h3 {
+  margin: 3px 0 4px;
+  font-size: calc(17px * var(--q-ui-scale));
+}
+
+.q-scientific-selection-heading p,
+.q-scientific-selection-empty {
+  margin: 0;
+  color: var(--q-text-muted);
+  font-size: calc(11px * var(--q-ui-scale));
+  line-height: 1.45;
+}
+
+.q-scientific-selection-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 12px;
+  align-items: start;
+}
+
+.q-scientific-selection-field {
+  min-width: 0;
+  padding: 12px;
+  background: rgba(16, 40, 58, 0.38);
+  border: 1px solid var(--q-border);
+  border-radius: 11px;
+}
+
+.q-scientific-selection-field > small {
+  display: block;
+  margin-top: 7px;
+  color: var(--q-text-muted);
+  font-size: calc(9px * var(--q-ui-scale));
+  line-height: 1.4;
+}
+
+.q-scientific-context-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.q-scientific-context-chip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 7px;
+  padding: 6px 9px;
+  color: var(--q-text-soft);
+  background: var(--q-surface-2);
+  border: 1px solid var(--q-border);
+  border-radius: 999px;
+  font-size: calc(9px * var(--q-ui-scale));
+}
+
+.q-scientific-context-chip strong {
+  color: var(--q-blue);
+}
+
+.q-scientific-selection-notes {
+  color: var(--q-text-muted);
+  font-size: calc(10px * var(--q-ui-scale));
+}
+
+.q-scientific-selection-notes > summary {
+  cursor: pointer;
+  color: var(--q-text-soft);
+  font-weight: 700;
+}
+
+.q-scientific-selection-notes ul {
+  margin: 9px 0 0;
+  padding-left: 20px;
+}
+
+:root[data-q-effective-theme="light"] .q-scientific-selection-field {
+  background: rgba(237, 244, 248, 0.72);
+}
+
+@media (max-width: 620px) {
+  .q-scientific-selection-heading {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .q-scientific-selection-heading .q-button {
+    width: 100%;
+  }
+
+  .q-scientific-selection-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Active scientific state and explicit reset actions */
+.q-scientific-selection-actions,
+.q-plot-appearance-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 9px;
+  flex-wrap: wrap;
+}
+
+.q-scientific-selection-status {
+  width: fit-content;
+  margin: 2px 0 12px;
+  padding: 5px 9px;
+  border: 1px solid var(--q-border);
+  border-radius: 999px;
+  color: var(--q-text-muted);
+  background: rgba(13, 32, 48, 0.42);
+  font-size: calc(9px * var(--q-ui-scale));
+  font-weight: 680;
+}
+
+.q-scientific-selection-status.is-dirty {
+  color: var(--q-warning);
+  border-color: rgba(240, 183, 90, 0.34);
+  background: rgba(240, 183, 90, 0.10);
+}
+
+.q-scientific-selection-status.is-current {
+  color: var(--q-success);
+  border-color: rgba(80, 198, 169, 0.30);
+  background: rgba(80, 198, 169, 0.09);
+}
+
+.q-active-scientific-summary:empty { display: none; }
+
+.q-active-scientific-summary-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 13px;
+  color: var(--q-text-muted);
+  background: rgba(13, 32, 48, 0.42);
+  border: 1px solid var(--q-border);
+  border-radius: var(--q-radius-sm);
+}
+
+.q-active-scientific-summary-content > strong {
+  flex: 0 0 auto;
+  color: var(--q-text-soft);
+  font-size: calc(9px * var(--q-ui-scale));
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+
+.q-active-scientific-summary-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.q-active-scientific-summary-items > span {
+  padding: 3px 8px;
+  color: var(--q-blue);
+  background: rgba(105, 188, 232, 0.09);
+  border-radius: 999px;
+  font-size: calc(9px * var(--q-ui-scale));
+}
+
+.q-plot-appearance-actions {
+  grid-column: 1 / -1;
+  justify-content: space-between;
+  padding: 2px 2px 4px;
+}
+
+.q-plot-appearance-actions > small {
+  color: var(--q-text-muted);
+  font-size: calc(9px * var(--q-ui-scale));
+}
+
+:root[data-q-effective-theme="light"] .q-scientific-selection-status,
+:root[data-q-effective-theme="light"] .q-active-scientific-summary-content {
+  background: rgba(232, 241, 247, 0.72);
+}
+
+@media (max-width: 760px) {
+  .q-scientific-selection-actions,
+  .q-plot-appearance-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .q-scientific-selection-actions .q-button,
+  .q-plot-appearance-actions .q-button {
+    width: 100%;
+  }
+
+  .q-active-scientific-summary-content {
+    flex-direction: column;
+  }
 }

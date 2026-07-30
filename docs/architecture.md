@@ -1,71 +1,86 @@
 # Architecture
 
-## Dependency rule
+Quantas GUI is deliberately thin in scientific terms. It coordinates the user
+experience, but it does not reimplement Quantas.
+
+## Dependency direction
 
 ```text
-quantas_gui.pages / callbacks / components / renderers
-                         ↓
-                quantas_gui.services
-                         ↓
-                    quantas.api
+pages / callbacks / components / renderers
+                     ↓
+                 services
+                     ↓
+                 quantas.api
 ```
 
-Quantas GUI must never drive the Click CLI, parse Rich output, consume
-Matplotlib figures, or import private scientific implementations.
+The GUI never drives the Click CLI, parses Rich output, consumes Matplotlib
+figures as data, or imports private scientific modules. A missing capability is
+a backend API problem to solve explicitly, not a reason to bypass the public
+boundary.
 
-## Frontend-neutral scientific flow
+## Scientific data flow
 
 ```text
-Quantas input/options
-        ↓
-quantas.api workflow
-        ↓
-ResultData + events + HDF5
-        ↓
-ReportTable / PlotCollection
-        ↓
-Dash table renderer / Plotly renderer
+public Quantas Input and Options
+               ↓
+       quantas.api workflow
+               ↓
+ result object + events + native HDF5
+               ↓
+ ReportTable / PlotCollection / exports
+               ↓
+       AG Grid / Plotly / downloads
 ```
 
-The GUI may control presentation such as colormaps, hover templates, camera,
-visibility, layout, and export. It must not change formulas, units, numerical
-precision, masks, branch identity, or scientific conventions.
+The GUI may change presentation: colormaps, hover behaviour, camera position,
+visible traces, layout and export format. It may not change formulas, units,
+precision, masks, branch identity or scientific conventions.
 
-## Results Explorer layers
+## Result Explorer layers
 
-```text
-pages/results.py
-      ↓
-components/result_shell.py
-components/result_overview.py
-components/result_renderers.py
-components/renderer_controls.py
-      ↓
-callbacks/results.py
-      ↓
-services/results.py
-services/result_backend.py
-services/workspaces.py
-      ↓
-quantas.api.registry / quantas.api.rendering
-```
+The Explorer is split by responsibility:
 
-The browser stores only a `ResultReference` and `ResultSummary`. Tables, plot
-collections, native results, and HDF5 resources remain server-side and are
-reconstructed lazily.
+- `pages/results.py` exposes the route;
+- `components/` builds passive interface sections;
+- `callbacks/result_*.py` connects Dash events;
+- `services/results.py` coordinates the result lifecycle;
+- `services/result_backend.py` talks to public Quantas operations;
+- `explorer/adapters/` organises module-specific scientific choices;
+- `renderers/` translates neutral tables and PlotSpecs;
+- `services/workspaces.py` controls files and concurrent access.
 
-## Local-to-server seam
+The browser stores only an opaque result reference and lightweight summary.
+Tables, plots, native results and HDF5 resources remain server-side and are
+built when requested.
 
-Pages submit opaque request identifiers to an `ExecutionBackend` and retain
-only lightweight job and result identifiers in browser state. A local backend
-can later be replaced by Celery/Redis without changing page workflows.
+## From local use to a server
 
-Large arrays, open HDF5 objects, active EOS sessions, and calculators must not
-be serialized into `dcc.Store` or process-global variables.
+Pages and callbacks depend on service protocols rather than on one process or
+one filesystem implementation. Long calculations are represented by job
+handles and events and will run outside HTTP callbacks.
 
-## Workspace security
+The current `0.2.9a4` execution backend is disabled because the GUI does not yet
+submit calculations. Elasticity in `0.3` will add the first process-backed local
+worker. A multi-worker server will use the same interface with a shared queue
+and persistent job store.
 
-All uploaded and generated files live beneath a controlled workspace root.
-Browser input must never be treated as a direct filesystem path. The initial
-`LocalWorkspaceStore` validates opaque identifiers, prevents traversal, and
-writes uploads atomically before Quantas attempts to inspect them.
+## Workspace safety
+
+All files live below a controlled workspace root. Browser values are never used
+as arbitrary server paths. The local workspace implementation validates
+identifiers, prevents traversal, writes atomically and coordinates reads,
+exports and deletion with cross-process locks.
+
+Artifact construction is single-flight within each process. Closing a result
+invalidates its cache generation, so a late builder cannot restore an artifact
+that belongs to a closed result.
+
+## Backend compatibility
+
+Startup checks the required Quantas version and the public capabilities needed
+by the current GUI. If the backend is absent or incomplete, the application
+starts in a clear shell-only mode and disables scientific navigation.
+
+Available reports, plots, exports and contexts come from public lifecycle
+inventories. Adapters may improve grouping and labels, but they do not infer
+scientific availability from private payloads.

@@ -13,7 +13,7 @@
 
   --q-text: #142b3a;
   --q-text-soft: #365365;
-  --q-text-muted: #667f8e;
+  --q-text-muted: #58717f;
 
   --q-blue: #167cad;
   --q-blue-strong: #0b6f9f;
@@ -107,11 +107,17 @@
 :root[data-q-effective-theme="light"] .q-log-viewer,
 :root[data-q-effective-theme="light"] .q-json-block,
 :root[data-q-effective-theme="light"] .q-renderer-toolbar,
-:root[data-q-effective-theme="light"] .q-plot-controls-drawer,
+:root[data-q-effective-theme="light"] .q-plot-control-drawer,
+:root[data-q-effective-theme="light"] .q-scientific-export-panel,
 :root[data-q-effective-theme="light"] .q-result-toolbar,
 :root[data-q-effective-theme="light"] .q-result-selector-shell {
   background: rgba(255, 255, 255, 0.92) !important;
   color: var(--q-text) !important;
+}
+
+:root[data-q-effective-theme="light"] .q-plot-control-section,
+:root[data-q-effective-theme="light"] .q-scientific-export-item {
+  background: rgba(255, 255, 255, 0.72);
 }
 
 :root[data-q-effective-theme="light"] .q-form-control .Select-value-label,
@@ -132,12 +138,24 @@
   --ag-input-focus-border-color: var(--q-blue);
 }
 
-.q-results-grid,
+.q-report-grid,
 .q-matrix-grid,
 .q-list-grid,
 .q-key-value-grid {
   --ag-row-height: var(--q-grid-row-height);
   --ag-header-height: var(--q-grid-header-height);
+}
+
+:root[data-q-effective-theme="light"] .q-event-data,
+:root[data-q-effective-theme="light"] .q-json-panel pre {
+  color: var(--q-text-soft);
+  background: var(--q-surface-2);
+  border-color: var(--q-border);
+}
+
+:root[data-q-effective-theme="light"] .q-event-row p,
+:root[data-q-effective-theme="light"] .q-event-meta time {
+  color: var(--q-text-soft);
 }
 
 .q-settings-page-header {
