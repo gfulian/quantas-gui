@@ -42,6 +42,20 @@ def _link_hrefs(component: object) -> tuple[str, ...]:
     return tuple(hrefs)
 
 
+def _child_text(component: object) -> tuple[str, ...]:
+    if isinstance(component, str):
+        return (component,)
+
+    values: list[str] = []
+    children = getattr(component, "children", None)
+    if isinstance(children, (list, tuple)):
+        for child in children:
+            values.extend(_child_text(child))
+    elif children is not None:
+        values.extend(_child_text(children))
+    return tuple(values)
+
+
 def test_workflow_catalogue_distinguishes_gui_and_backend_availability(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -50,8 +64,8 @@ def test_workflow_catalogue_distinguishes_gui_and_backend_availability(
         lambda path: f"/quantas{path}",
     )
     page = layout(backend=_backend())
-    payload = to_json(page)
     hrefs = _link_hrefs(page)
+    text_values = _child_text(page)
 
     assert len(WORKFLOWS) == 6
     for title in (
@@ -62,15 +76,15 @@ def test_workflow_catalogue_distinguishes_gui_and_backend_availability(
         "Thermoelasticity",
         "Equation of state",
     ):
-        assert title in payload
+        assert title in text_values
 
-    assert "Start workflow" in payload
+    assert "Start workflow" in text_values
     assert "/quantas/elasticity" in hrefs
     assert not any(href.rstrip("/").endswith("/seismic") for href in hrefs)
-    assert "Next · 0.4" in payload
-    assert "Elastic stiffness tensor in GPa and density" in payload
-    assert "Native Quantas Elasticity HDF5" in payload
-    assert "Native Quantas EOS archive" in payload
+    assert "Next · 0.4" in text_values
+    assert "Elastic stiffness tensor in GPa and density" in text_values
+    assert "Native Quantas Elasticity HDF5" in text_values
+    assert "Native Quantas EOS archive" in text_values
 
 
 def test_elasticity_action_is_disabled_when_its_public_lifecycle_is_incomplete() -> None:
