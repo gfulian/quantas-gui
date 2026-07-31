@@ -85,8 +85,11 @@ def register_result_session_callbacks(
         Output(ResultIds.WORKSPACE, "className"),
         Output(ResultIds.HEADER, "children"),
         Input(ResultIds.SESSION, "data"),
+        Input("q-location", "pathname"),
+        Input(ResultIds.HYDRATE, "n_intervals", allow_optional=True),
     )
-    def render_session_shell(session):
+    def render_session_shell(session, pathname, hydrate_count):
+        del pathname, hydrate_count
         if not session:
             return "q-panel q-result-open-panel", "q-result-workspace is-hidden", None
         return (

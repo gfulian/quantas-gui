@@ -33,8 +33,10 @@ def register_result_tab_callbacks(
         Output(ResultIds.TAB_CONTENT, "children"),
         Input(ResultIds.TABS, "value"),
         Input(ResultIds.SESSION, "data"),
+        Input(ResultIds.HYDRATE, "n_intervals", allow_optional=True),
     )
-    def render_tab(tab, session):
+    def render_tab(tab, session, hydrate_count):
+        del hydrate_count
         if not session:
             return None
         reference = reference_from_session(session)

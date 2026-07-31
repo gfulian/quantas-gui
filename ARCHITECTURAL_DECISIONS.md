@@ -443,9 +443,15 @@ Browser state keeps only a job handle and event cursor, while status, progress,
 messages, cancellation state and the result identifier live in a persistent job
 store.
 
-The first local implementation will use a separate process. Server deployments
-must provide a queue and store shared by all WSGI workers behind the same
-contract.
+The local implementation uses the portable `spawn` process context, persists
+status and ordered events beneath the controlled workspace, performs
+cooperative cancellation through worker checkpoints and publishes the final
+native HDF5 result atomically. It is enabled only in local mode and does not
+claim shared process ownership or restart recovery.
+
+Server deployments must provide a queue and store shared by all WSGI workers
+behind the same contract. No specific distributed worker product is selected by
+this decision.
 
 ## ADR-031 — The Scientific UI Kit is an isolated application profile
 

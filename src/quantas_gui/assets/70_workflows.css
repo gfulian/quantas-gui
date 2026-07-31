@@ -1,0 +1,227 @@
+.q-workflow-page {
+  display: grid;
+  gap: var(--q-space-5);
+  align-content: start;
+}
+
+.q-workflow-form-host,
+.q-workflow-runtime,
+.q-workflow-activity,
+.q-workflow-summary {
+  min-width: 0;
+}
+
+.q-workflow-import-status:empty {
+  display: none;
+}
+
+.q-workflow-runtime-stack,
+.q-workflow-summary-stack,
+.q-workflow-summary-tables {
+  display: grid;
+  gap: var(--q-space-4);
+}
+
+.q-workflow-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--q-space-3);
+  align-items: center;
+}
+
+.q-workflow-activity {
+  display: grid;
+  gap: var(--q-space-3);
+}
+
+.q-workflow-activity-tabs {
+  border-bottom: 1px solid var(--q-border);
+}
+
+.q-workflow-activity-tabs .tab {
+  min-height: 44px;
+}
+
+.q-workflow-report-details {
+  padding: 0;
+  overflow: hidden;
+}
+
+.q-workflow-report-details > summary {
+  cursor: pointer;
+  padding: var(--q-space-4);
+  font-weight: 700;
+}
+
+.q-workflow-report-details > .q-workflow-summary-tables {
+  padding: 0 var(--q-space-4) var(--q-space-4);
+}
+
+.q-elasticity-page .q-field--textarea textarea {
+  min-height: 14rem;
+  font-family: var(--q-font-mono);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.55;
+  white-space: pre;
+  overflow-x: auto;
+}
+
+@media (max-width: 720px) {
+  .q-workflow-actions {
+    align-items: stretch;
+  }
+
+  .q-workflow-actions .q-button {
+    flex: 1 1 100%;
+    justify-content: center;
+  }
+
+  .q-workflow-activity-tabs .tab {
+    padding-inline: var(--q-space-2);
+  }
+}
+
+/* Scientific workflow catalogue. */
+.q-workflow-catalogue {
+  display: grid;
+  gap: var(--q-space-5);
+  align-content: start;
+}
+
+.q-workflow-catalogue-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 310px), 1fr));
+  gap: var(--q-space-4);
+}
+
+.q-workflow-catalogue-card {
+  display: flex;
+  min-width: 0;
+  min-height: 330px;
+  flex-direction: column;
+  padding: var(--q-space-5);
+}
+
+.q-workflow-catalogue-card.is-available {
+  border-color: rgba(80, 198, 169, 0.30);
+}
+
+.q-workflow-catalogue-card.is-next {
+  border-color: rgba(105, 188, 232, 0.24);
+}
+
+.q-workflow-catalogue-header,
+.q-workflow-catalogue-footer,
+.q-workflow-catalogue-statuses {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--q-space-2);
+  align-items: center;
+}
+
+.q-workflow-catalogue-header,
+.q-workflow-catalogue-footer {
+  justify-content: space-between;
+}
+
+.q-workflow-catalogue-kicker,
+.q-workflow-milestone {
+  color: var(--q-text-muted);
+  font-size: calc(10px * var(--q-ui-scale));
+  font-weight: 750;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.q-workflow-catalogue-card h2 {
+  margin: var(--q-space-3) 0 var(--q-space-2);
+  font-size: calc(22px * var(--q-ui-scale));
+}
+
+.q-workflow-catalogue-summary {
+  margin: 0;
+  color: var(--q-text-soft);
+  line-height: 1.6;
+}
+
+.q-workflow-catalogue-meta {
+  display: grid;
+  gap: var(--q-space-3);
+  margin: var(--q-space-5) 0;
+}
+
+.q-workflow-catalogue-meta > div {
+  display: grid;
+  grid-template-columns: minmax(78px, 0.30fr) minmax(0, 1fr);
+  gap: var(--q-space-3);
+  padding-top: var(--q-space-3);
+  border-top: 1px solid var(--q-border);
+}
+
+.q-workflow-catalogue-meta dt {
+  color: var(--q-text-muted);
+  font-size: calc(10px * var(--q-ui-scale));
+  font-weight: 750;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.q-workflow-catalogue-meta dd {
+  min-width: 0;
+  margin: 0;
+  color: var(--q-text-soft);
+  font-size: calc(12px * var(--q-ui-scale));
+  line-height: 1.5;
+}
+
+.q-workflow-catalogue-footer {
+  margin-top: auto;
+  padding-top: var(--q-space-3);
+}
+
+.q-workflow-catalogue-note {
+  max-width: 920px;
+  padding: var(--q-space-5);
+}
+
+.q-workflow-catalogue-note h2 {
+  margin: 0 0 var(--q-space-2);
+}
+
+.q-workflow-catalogue-note p {
+  margin: 0;
+  color: var(--q-text-soft);
+  line-height: 1.65;
+}
+
+.q-status-pill.is-warning {
+  color: var(--q-warning);
+  background: rgba(241, 174, 82, 0.09);
+  border-color: rgba(241, 174, 82, 0.20);
+}
+
+.q-status-pill.is-planned {
+  color: var(--q-text-muted);
+  background: rgba(174, 211, 232, 0.05);
+}
+
+@media (max-width: 520px) {
+  .q-workflow-catalogue-card {
+    min-height: 0;
+    padding: var(--q-space-4);
+  }
+
+  .q-workflow-catalogue-header,
+  .q-workflow-catalogue-footer {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .q-workflow-catalogue-statuses {
+    align-items: flex-start;
+  }
+
+  .q-workflow-catalogue-footer .q-button {
+    width: 100%;
+  }
+}

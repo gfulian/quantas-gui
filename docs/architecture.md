@@ -59,10 +59,14 @@ Pages and callbacks depend on service protocols rather than on one process or
 one filesystem implementation. Long calculations are represented by job
 handles and events and will run outside HTTP callbacks.
 
-The current `0.2.9a4` execution backend is disabled because the GUI does not yet
-submit calculations. Elasticity in `0.3` will add the first process-backed local
-worker. A multi-worker server will use the same interface with a shared queue
-and persistent job store.
+`0.3.0a2` provides the first complete process-backed workflow for Elasticity.
+The worker uses only `quantas.api.elasticity`, persists job state and events in
+the controlled workspace, and publishes the native HDF5 result atomically. The
+Dash page depends on the execution descriptor and workflow service, not on the
+local process implementation. A multi-worker server will use the same interface
+with a shared queue and persistent job store; server mode does not reuse the
+process-local registry and displays execution as unavailable until one is
+injected.
 
 ## Workspace safety
 

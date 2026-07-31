@@ -8,6 +8,7 @@ from quantas_gui.config import Settings
 from quantas_gui.services.backend_info import BackendCompatibility, detect_quantas_backend
 from quantas_gui.services.backends import DisabledExecutionBackend, ExecutionBackend
 from quantas_gui.services.cache import ArtifactCache, LocalArtifactCache
+from quantas_gui.services.local_execution import LocalProcessExecutionBackend
 from quantas_gui.services.result_backend import QuantasResultBackend
 from quantas_gui.services.results import ResultExplorerService
 from quantas_gui.services.workspaces import LocalWorkspaceStore, WorkspaceStore
@@ -27,11 +28,10 @@ class AppServices:
 def build_default_services(settings: Settings) -> AppServices:
     """Build the safe filesystem-backed service graph.
 
-    The same graph is correct for the local launcher and for WSGI workers that
-    share ``workspace_root``. The artifact cache remains process-local; a future shared cache can be
-    injected without changing pages or Result Explorer code.
-    Scientific execution is deliberately disabled until a workflow-specific
-    background worker is connected in milestone ``0.3``.
+    The artifact cache remains process-local. Local mode enables the first
+    process-backed Elasticity worker when the compatible public Quantas API is
+    available. Server mode keeps execution disabled until a shared queue-backed
+    service is injected.
     """
     workspace_store = LocalWorkspaceStore(
         settings.workspace_root,
@@ -39,7 +39,17 @@ def build_default_services(settings: Settings) -> AppServices:
     )
     artifact_cache = LocalArtifactCache(max_entries=settings.result_cache_entries)
     compatibility = detect_quantas_backend()
-    execution = DisabledExecutionBackend()
+    execution: ExecutionBackend
+    if settings.mode == "local" and compatibility.workflow_ready("elasticity"):
+        execution = LocalProcessExecutionBackend(workspace_store)
+    elif settings.mode != "local":
+        execution = DisabledExecutionBackend(
+            "Server mode requires a shared queue-backed execution service."
+        )
+    else:
+        execution = DisabledExecutionBackend(
+            "Elasticity execution requires a compatible Quantas public API."
+        )
     results = ResultExplorerService(
         workspace_store=workspace_store,
         backend=QuantasResultBackend(),

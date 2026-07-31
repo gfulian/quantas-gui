@@ -7,6 +7,7 @@ class ResultIds:
     """Namespace of stable IDs shared by layout and callback modules."""
 
     SESSION = "q-results-session"
+    HYDRATE = "q-results-hydrate"
     UPLOAD = "q-result-upload"
     UPLOAD_PANEL = "q-result-upload-panel"
     UPLOAD_COMPACT = "q-result-upload-compact"

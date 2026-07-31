@@ -19,6 +19,8 @@ from quantas_gui.forms.callbacks import register_form_component_callbacks
 from quantas_gui.pages import register_pages
 from quantas_gui.profile import ApplicationProfile
 from quantas_gui.services.application import AppServices, build_default_services
+from quantas_gui.workflows.elasticity.callbacks import register_elasticity_callbacks
+from quantas_gui.workflows.elasticity.service import ElasticityWorkflowService
 
 _PACKAGE_ROOT = Path(__file__).resolve().parent
 
@@ -68,7 +70,11 @@ def create_app(
     app.server.config["QUANTAS_GUI_SERVICES"] = app_services
     app.server.config["QUANTAS_GUI_PROFILE"] = profile.value
 
-    register_pages(app_services.backend, profile=profile)
+    register_pages(
+        app_services.backend,
+        execution=app_services.execution.descriptor,
+        profile=profile,
+    )
 
     def serve_layout():
         return build_shell(backend=app_services.backend, profile=profile)
@@ -78,6 +84,15 @@ def create_app(
     register_form_component_callbacks(app)
     if profile is ApplicationProfile.STANDARD:
         register_result_callbacks(app, app_services.results)
+        register_elasticity_callbacks(
+            app,
+            ElasticityWorkflowService(
+                workspace_store=app_services.workspace_store,
+                execution=app_services.execution,
+                results=app_services.results,
+                max_upload_bytes=resolved.max_upload_bytes,
+            ),
+        )
     register_settings_callbacks(app)
     _register_health_endpoints(app, resolved, app_services, profile=profile)
     _register_security_headers(app)

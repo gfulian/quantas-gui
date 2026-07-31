@@ -21,6 +21,7 @@ to the technical guide that matches the work you are doing.
 - [Dash component compatibility](dash-component-compatibility.md)
 - [Server deployment](server-deployment.md)
 - [Execution and concurrency](execution-and-concurrency.md)
+- [Elasticity workflow audit](elasticity-workflow.md)
 
 ## Result Explorer
 
