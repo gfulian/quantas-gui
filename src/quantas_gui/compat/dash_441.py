@@ -124,7 +124,7 @@ DASH_CORE_USED_PROPERTIES: dict[str, frozenset[str]] = {
         }
     ),
     "Graph": frozenset({"id", "figure", "config", "className", "responsive", "mathjax"}),
-    "Interval": frozenset({"id", "interval", "max_intervals", "n_intervals"}),
+    "Interval": frozenset({"id", "interval", "max_intervals", "n_intervals", "disabled"}),
     "Input": frozenset(
         {
             "id",
@@ -216,7 +216,7 @@ DASH_CORE_CALLBACK_PROPERTIES: dict[str, frozenset[str]] = {
     "Dropdown": frozenset({"value"}),
     "Graph": frozenset({"figure"}),
     "Input": frozenset({"id", "value"}),
-    "Interval": frozenset({"n_intervals"}),
+    "Interval": frozenset({"n_intervals", "disabled"}),
     "Location": frozenset({"pathname"}),
     "Store": frozenset({"data"}),
     "Tabs": frozenset({"value"}),

@@ -114,3 +114,23 @@ quantas-gui --ui-kit
 
 It uses the same renderers, assets, themes and callbacks as the main
 application, so problems found there are meaningful for real workflows.
+## Elasticity reference implementation
+
+`0.3.0a2` is the first executable use of the form system. Its schema keeps the
+scientific choices separate from Dash callbacks:
+
+- job name and a multiline 6 × 6 stiffness matrix in GPa;
+- direct paste or controlled import from Quantas, CRYSTAL and VASP sources;
+- public 2D/3D sampling choices and selected 3D properties;
+- optional physical tensor rotation in an advanced section;
+- no density, manual symmetry, CLI rendering option or false unit selector.
+
+The workflow callback normalizes widget values, constructs an
+`ElasticityRequest`, and lets the process-side adapter build public
+`quantas.api.elasticity` dataclasses. Selecting a file source requires a
+matching successful import. Switching to manual paste clears unused source
+provenance rather than attributing edited values to the wrong file.
+
+The browser never retains the uploaded file after import. It receives only the
+controlled workspace identifier, safe display metadata and editable scalar
+form values.

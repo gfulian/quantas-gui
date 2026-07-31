@@ -28,6 +28,15 @@ of their files is different.
 No filesystem path, HDF5 object, calculator, table, PlotSpec or large array is
 placed in browser state.
 
+`ElasticityWorkflowService.active_result()` performs the server-side
+registration and returns an `ActiveResultState`. Since `0.3.0a4`, the handoff is
+intentionally two-stage: the workflow callback first writes that state to the
+global result session, then a separate callback observes the committed store
+and navigates to `/results`. A one-shot page hydration trigger runs after the
+Result Explorer layout is mounted, causing the shell, header and initial tab to
+consume the existing global session. No scientific result is rebuilt or
+serialised in the browser.
+
 ## Example
 
 ```python
@@ -45,9 +54,10 @@ session_payload = ActiveResultState(
 ).as_dict()
 ```
 
-The workflow callback writes `session_payload` to `ResultIds.SESSION` and moves
-to `/results`. It does not import Explorer callback helpers or duplicate the
-Explorer interface.
+The workflow callback writes `session_payload` to `ResultIds.SESSION`. A
+separate navigation callback moves to `/results` only after the global store
+reports that exact payload. The workflow does not import Explorer callback
+helpers or duplicate the Explorer interface.
 
 ## Completion card
 

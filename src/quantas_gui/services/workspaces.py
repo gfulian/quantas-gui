@@ -63,6 +63,9 @@ class WorkspaceStore(Protocol):
     def atomic_output(self, destination: Path) -> AbstractContextManager[Path]:
         """Yield a temporary output and atomically publish it on success."""
 
+    def cleanup_output(self, destination: Path) -> None:
+        """Remove a final output and matching unpublished temporary files."""
+
     def delete_workspace(self, workspace_id: str) -> None:
         """Delete a workspace after concurrent users have released it."""
 
@@ -182,6 +185,25 @@ class LocalWorkspaceStore:
                 _sync_file(temporary)
                 temporary.replace(resolved)
             finally:
+                temporary.unlink(missing_ok=True)
+
+    def cleanup_output(self, destination: Path) -> None:
+        """Remove one controlled output and remnants from interrupted publication."""
+        resolved = destination.resolve()
+        root = self.prepare()
+        try:
+            relative = resolved.relative_to(root)
+        except ValueError as exc:
+            raise InvalidWorkspaceIdentifier(str(destination)) from exc
+        if len(relative.parts) < 2:
+            raise InvalidWorkspaceIdentifier(str(destination))
+        workspace_id = relative.parts[0]
+        self._validate_identifier(workspace_id)
+
+        with self._workspace_access(workspace_id):
+            resolved.unlink(missing_ok=True)
+            pattern = f".{resolved.stem}.*.tmp{resolved.suffix}"
+            for temporary in resolved.parent.glob(pattern):
                 temporary.unlink(missing_ok=True)
 
     def delete_workspace(self, workspace_id: str) -> None:

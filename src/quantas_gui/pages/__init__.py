@@ -10,6 +10,7 @@ import dash
 
 from quantas_gui.profile import ApplicationProfile
 from quantas_gui.services.backend_info import BackendCompatibility
+from quantas_gui.services.backends import ExecutionBackendDescriptor
 
 _STANDARD_PAGE_MODULES = (
     "quantas_gui.pages.home",
@@ -36,6 +37,7 @@ _UI_KIT_PAGE_MODULES = (
 def register_pages(
     backend: BackendCompatibility,
     *,
+    execution: ExecutionBackendDescriptor | None = None,
     profile: ApplicationProfile = ApplicationProfile.STANDARD,
 ) -> tuple[ModuleType, ...]:
     """Register only the pages exposed by the selected application profile."""
@@ -45,13 +47,17 @@ def register_pages(
     modules = tuple(import_module(name) for name in module_names)
     for module in modules:
         layout = module.layout
+        layout_arguments: dict[str, object] = {}
         if bool(getattr(module, "USES_BACKEND_STATUS", False)):
-            layout = partial(layout, backend=backend)
-        elif module.__name__ == "quantas_gui.pages.settings":
-            layout = partial(
-                layout,
-                developer_mode=profile is ApplicationProfile.UI_KIT,
-            )
+            layout_arguments["backend"] = backend
+        if bool(getattr(module, "USES_EXECUTION_STATUS", False)):
+            if execution is None:
+                raise ValueError(f"{module.__name__} requires an execution backend descriptor")
+            layout_arguments["execution"] = execution
+        if module.__name__ == "quantas_gui.pages.settings":
+            layout_arguments["developer_mode"] = profile is ApplicationProfile.UI_KIT
+        if layout_arguments:
+            layout = partial(layout, **layout_arguments)
         path = module.PATH
         order = module.ORDER
         if profile is ApplicationProfile.UI_KIT and module.__name__ == "quantas_gui.pages.ui_kit":

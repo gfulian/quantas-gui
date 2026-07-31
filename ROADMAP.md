@@ -13,8 +13,8 @@ still being completed, for example `0.2.9a4`.
 | Version | Main capability | Status |
 |---|---|---|
 | `0.1` | Application foundation | Complete |
-| `0.2` | Result Explorer | Current, final hardening |
-| `0.3` | Elasticity workflow | Next |
+| `0.2` | Result Explorer | Complete |
+| `0.3` | Elasticity workflow | Current |
 | `0.4` | SEISMIC workflow | Planned |
 | `0.5` | HA/QHA workflow | Planned |
 | `0.6` | Thermoelasticity workflow | Planned |
@@ -76,38 +76,49 @@ opened, inspected and exported reliably, with scientifically faithful figures,
 acceptable performance and verified behaviour on supported platforms and
 viewports.
 
-**Current position:** `0.2.9a4` contains the final code-quality and Windows
-validation corrections after the first `0.2.9a2` run. The remaining work is the
-full pinned Windows and CI gate, followed by final module-by-module visual,
-scientific, accessibility and performance sign-off.
+**Status:** complete. `0.2.9a4` is the approved Result Explorer baseline and
+remains available on its dedicated maintenance branch while later workflow
+milestones continue independently.
 
 ---
 
 ## 0.3 — Elasticity workflow
 
-Elasticity will be the first complete executable workflow and the reference
+Elasticity is the first complete executable workflow and the reference
 implementation for later calculators.
 
-The workflow will allow the user to:
+The completed workflow allows the user to:
 
-- load or enter an elastic stiffness tensor and job information;
-- configure the options exposed by `quantas.api.elasticity`;
-- validate matrix shape, units and cross-field requirements;
-- see the elastic symmetry inferred by Quantas;
-- submit the calculation to a background process rather than an HTTP callback;
-- follow progress, logs, warnings and errors;
-- inspect stiffness, compliance, stability and Voigt–Reuss–Hill properties;
-- render supported 2D polar and 3D directional views;
-- apply physical tensor rotations only through the public Quantas contract;
-- save the native HDF5 result;
+- load a shared Quantas input, import CRYSTAL or VASP output, or paste a full or
+  triangular elastic stiffness tensor;
+- edit the job name and canonical 6 × 6 stiffness matrix in GPa;
+- configure the public 2D, 3D and physical tensor-rotation options that are
+  meaningful in the GUI;
+- rely on Quantas for crystal-system inference and final scientific validation;
+- submit the calculation to a separate local process rather than an HTTP
+  callback;
+- follow ordered events, progress, warnings, failures and cooperative
+  cancellation;
+- inspect a compact report-based summary without duplicating the Result
+  Explorer;
+- download the native HDF5 result and deterministic report;
 - open the completed result directly in the shared Result Explorer.
 
-The form will follow the typed public backend contract. Density or manually
-selected symmetry will not be added merely because older text mentions them;
-those fields must first be supported consistently by Quantas.
+The form follows the typed public backend contract. Elasticity intentionally
+ignores density metadata from the input convention shared with SEISMIC and does
+not expose manual symmetry or false plotting and unit controls.
 
-**Completion test:** the GUI result must match the equivalent Quantas API and
-CLI calculation within the documented numerical tolerances.
+**Status:** complete. `0.3.0a7` is the approved Elasticity baseline. The full
+Windows quality gate is green, API and CLI numerical equivalence are covered,
+native HDF5 reopening and opaque Result Explorer handoff are verified, and the
+workflow has been exercised from an Android browser over a private local
+network.
+
+**Completion evidence:** stiffness is preserved exactly; compliance and
+Voigt–Reuss–Hill values agree with the direct API and CLI within
+`rtol=1e-14`, `atol=1e-14`; persisted directional arrays agree within
+`rtol=1e-12`, `atol=1e-12`. Stable, unstable, invalid, cancelled, crashed and
+concurrent-job paths are covered.
 
 ---
 

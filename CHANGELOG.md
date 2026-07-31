@@ -5,6 +5,268 @@ All notable changes to Quantas GUI will be documented in this file.
 The project follows Semantic Versioning while the public interface remains under
 active alpha development.
 
+## 0.3.0a7 — 2026-07-31
+
+This closing alpha completes the Elasticity milestone and turns the previously
+empty Workflows page into an operational catalogue. It does not change
+Elasticity calculations, numerical options or persisted HDF5 content.
+
+### Added
+
+- populate `/workflows` with accessible cards for Elasticity, SEISMIC, HA, QHA,
+  Thermoelasticity and EOS;
+- distinguish public Quantas API readiness from GUI workflow availability;
+- expose **Start workflow** only for the completed Elasticity calculator;
+- show each workflow's principal input, canonical persisted result and roadmap
+  milestone without generating scientific forms mechanically from the registry;
+- add responsive catalogue styling and regression tests for available, planned
+  and incomplete-backend states.
+
+### Project state
+
+- close milestone `0.3` with `0.3.0a7` as the approved Elasticity baseline;
+- identify `0.4` — SEISMIC as the next GUI milestone;
+- retain the shared process-backed execution, feedback, download and Result
+  Explorer handoff architecture as the reference implementation for later
+  calculators.
+
+### Validation
+
+- the complete Windows gate is reported green for Ruff lint, Ruff format, mypy,
+  pytest, Dash component audit, build and distribution checks;
+- the final Windows pytest run reports `218 passed`;
+- the executable workflow and Result Explorer handoff are validated on desktop
+  and from an Android browser over a private local network;
+- the 3D figure's reduced portrait height remains a documented non-blocking
+  limitation because the figure is usable in portrait and displays correctly in
+  landscape.
+
+## 0.3.0a6 — 2026-07-31
+
+This gate-cleanup alpha applies the final Ruff formatting baseline after the
+triangular Elasticity input change. It does not change scientific behaviour,
+workflow state, persisted HDF5 content or the public Quantas contract.
+
+### Fixed
+
+- format the zero-padded triangular-matrix predicates exactly as required by
+  Ruff `0.16.0`.
+
+### Validation
+
+- the Windows gate reports Ruff lint and mypy green and `218` pytest tests
+  passing; the only reported failure before this correction was the formatter
+  difference fixed above;
+- the executable Elasticity workflow and Result Explorer handoff were exercised
+  successfully from an Android phone over the local network;
+- the 3D view remains usable in portrait and displays correctly in landscape;
+  its reduced portrait height is recorded as a minor, non-blocking responsive
+  limitation rather than changed late in this tranche.
+
+## 0.3.0a5 — 2026-07-31
+
+This corrective alpha broadens direct Elasticity matrix paste without changing
+the public Quantas scientific contract or persisted result format.
+
+### Added
+
+- accept compact upper-triangular Voigt matrices with row lengths
+  `6, 5, 4, 3, 2, 1`;
+- accept compact lower-triangular matrices with row lengths
+  `1, 2, 3, 4, 5, 6`;
+- accept full 6 × 6 upper- or lower-triangular matrices whose omitted strict
+  triangle is explicitly padded with zeros;
+- expand accepted triangular representations into one canonical symmetric
+  6 × 6 matrix before constructing the public Elasticity request;
+- document the accepted paste layouts directly beside the textarea.
+
+### Safety and validation
+
+- a full 6 × 6 matrix containing values in both triangles is preserved exactly
+  and is not silently averaged or symmetrized; final scientific validation
+  remains the responsibility of Quantas;
+- mixed or ambiguous compact row-length patterns are rejected with a structural
+  form error;
+- regression tests cover compact upper and lower triangles, zero-padded forms,
+  request construction, malformed layouts and preservation of genuinely
+  asymmetric full matrices;
+- the complete available suite passes against Quantas `2.0.0b7`: `202 passed`,
+  with four UI-runtime tests skipped only because the pinned Dash stack is not
+  installed in the review container.
+
+## 0.3.0a4 — 2026-07-31
+
+This corrective alpha closes the remaining Windows static-gate findings and
+repairs the second stage of the Elasticity-to-Result-Explorer handoff. It does
+not change scientific inputs, numerical results or persisted HDF5 content.
+
+### Fixed
+
+- apply the final Ruff formatting change in the Elasticity import service;
+- remove a mypy name redefinition in the activity renderer and keep the viewer
+  severity narrowed to the public `MessageLevel` literal contract;
+- separate active-result session publication from Dash Pages navigation so the
+  global `q-results-session` store is committed before `/results` is requested;
+- navigate only after the stored active result matches the successful Elasticity
+  workflow handoff, preventing unrelated session changes from redirecting the
+  application;
+- make the Result Explorer shell react explicitly to the current pathname as
+  well as the active-result session;
+- add a one-shot page hydration trigger so the shell, header and initial Overview
+  tab consume the committed workflow result only after the dynamically mounted
+  Result Explorer components exist;
+- add regression coverage for handoff ordering, page hydration, callback inputs
+  and mismatched or unrelated result sessions.
+
+### Validation
+
+- all orchestration return branches have been checked against the exact callback
+  output arity after removing direct navigation from the submit/poll callback;
+- the complete available source suite passes in the review environment; the
+  pinned Windows Ruff, mypy, Dash audit and live browser gate remain the final
+  acceptance evidence for this correction.
+
+## 0.3.0a3 — 2026-07-31
+
+This corrective alpha closes the first Windows gate findings from `0.3.0a2` and
+repairs the workflow-to-Result-Explorer navigation path. It does not add new
+scientific controls or change Elasticity results.
+
+### Fixed
+
+- remove the unused execution-service import and apply the Ruff `0.16.0`
+  import-order and formatting baseline to the new Elasticity files and tests;
+- narrow message levels, external-interface values, imported stiffness and
+  progress metadata so the complete GUI source satisfies the declared mypy
+  contract;
+- replace the brittle assertion that rejected explanatory text about inferred
+  crystal symmetry with a schema-level check proving that no manual symmetry
+  field exists;
+- configure the shell `dcc.Location` with `refresh="callback-nav"` and update
+  its `href` from the Elasticity callback, allowing Dash Pages to render
+  `/results` after the opaque active-result session is stored;
+- add a regression assertion for callback-aware navigation and the Result
+  Explorer handoff output;
+- reject imported sources that contain no usable 6 × 6 stiffness matrix with a
+  clear structural error.
+
+### Validation
+
+- the complete non-UI suite passes against Quantas `2.0.0b7`: `195 passed`,
+  with four tests skipped only because the pinned Dash stack is unavailable in
+  the review container;
+- the original Windows report is fully accounted for in the patch; the pinned
+  Ruff, mypy, Dash audit and live browser handoff must be rerun in the Windows
+  worktree before this corrective alpha is accepted.
+
+## 0.3.0a2 — 2026-07-31
+
+This alpha connects the process-backed Elasticity service to the first complete
+scientific workflow page. It adds source import, declarative inputs, persistent
+job feedback, completion summary and Result Explorer handoff without moving
+scientific responsibility into Dash callbacks.
+
+### Added
+
+- add the executable `/elasticity` page with a declarative job-name field and a
+  monospaced multiline 6 × 6 stiffness matrix in GPa;
+- import shared Quantas text input, CRYSTAL output and extensionless VASP
+  `OUTCAR` files through public `quantas.api.elasticity` operations;
+- retain the shared input convention while deliberately consuming no density
+  or manually selected symmetry in the Elasticity workflow;
+- expose public 2D/3D sampling choices, 3D property selection and optional
+  physical XYZ or 3 × 3 tensor transformation;
+- add non-blocking submit, polling, cooperative cancel and browser-refresh-safe
+  state using only opaque handles, cursors and result references;
+- add bounded Calculation activity tabs for All, Info, Warnings and Errors,
+  including semantic icons and text labels;
+- add explicit queued, running, cancelling, succeeded, succeeded-with-warning,
+  failed and cancelled presentations;
+- add a compact completion summary from public report tables, native HDF5 and
+  report downloads, diagnostic-log download after failure, and direct handoff
+  to the shared Result Explorer;
+- embed a deterministic public-API report in the HDF5 before atomic
+  publication;
+- choose bounded internal 3D process batches to provide useful progress events
+  for larger angular grids without exposing a technical batch-size control or
+  changing scientific data;
+- disable the executable page visibly when no execution backend is available,
+  while retaining the replaceable server-ready execution contract.
+
+### Validation
+
+- add form tests for supported fields, paste parsing, source provenance,
+  selected-source requirements, hidden defaults and progress batch policy;
+- add public import tests for a Quantas input carrying shared density metadata,
+  synthetic CRYSTAL output and extensionless VASP `OUTCAR`;
+- verify that an unstable tensor completes with warnings, persists no fabricated
+  directional fields and remains openable in the Result Explorer;
+- verify ordered progress counters, monotonic progress and deterministic report
+  text inside the native HDF5;
+- add a real CLI equivalence test and compare stiffness exactly, compliance and
+  Voigt–Reuss–Hill values at `rtol=1e-14`, `atol=1e-14`, and stored 3D data at
+  `rtol=1e-12`, `atol=1e-12`;
+- pass `195` tests, with four Dash-runtime tests skipped only because the pinned
+  UI packages are unavailable in the review container.
+
+### Remaining release gates
+
+- run Ruff, mypy, the Dash 4.4.1 component audit, full wheel/source checks and
+  browser interaction tests in the pinned Windows environment;
+- validate dark/light/system themes, desktop/mobile layout, keyboard focus,
+  disabled controls and live failure/cancellation behaviour.
+
+## 0.3.0a1 — 2026-07-30
+
+This is the first engineering alpha of the Elasticity milestone. It establishes
+background execution and the public-API workflow service before the Dash form
+and page callbacks are connected.
+
+### Added
+
+- add a replaceable local execution backend that starts scientific work in a
+  separate `spawn` process and persists job status, ordered events and
+  cancellation requests inside the controlled workspace;
+- add process-crash reconciliation, bounded monotonic progress, sanitised
+  serialisable failures and cleanup of partial outputs;
+- publish successful native Quantas HDF5 results atomically and expose only
+  opaque job, workspace and result identifiers to browser-facing layers;
+- add a typed Elasticity request, a public `quantas.api.elasticity` adapter, a
+  process-side worker and an application service for request persistence,
+  polling, cancellation and Result Explorer handoff;
+- enable local Elasticity execution only when the installed Quantas backend
+  advertises the compatible public lifecycle; keep server-mode execution
+  disabled until a shared queue-backed implementation is supplied;
+- add an operational Elasticity audit documenting the current public contract,
+  event inventory, density discrepancy, decomposition and remaining work.
+
+### Validation
+
+- add process tests for successful publication, ordered event cursors,
+  polling through a recreated backend instance, cooperative cancellation, hard
+  worker crashes, sanitised exceptions and two concurrent jobs with isolated
+  workspaces and results;
+- add workflow tests proving that density and manual symmetry are absent,
+  physical rotation uses the public Quantas contract, and the process result
+  matches a direct `quantas.api.elasticity` calculation;
+- verify exact stiffness preservation, compare compliance and
+  Voigt–Reuss–Hill averages with `rtol=1e-14` and `atol=1e-14`, and compare
+  directional extrema plus stored 2D/3D arrays with `rtol=1e-12` and
+  `atol=1e-12`;
+- verify native HDF5 reopening and opaque handoff to the shared Result Explorer;
+- pass `184` tests against Quantas `2.0.0b7`, with three Dash-dependent tests
+  skipped because the pinned UI stack is absent from the review environment;
+- build the `0.3.0a1` wheel successfully; Ruff, mypy, the pinned component
+  audit, complete source/wheel checks and the end-to-end CLI comparison remain
+  Windows release gates.
+
+### Not yet included
+
+- the declarative Elasticity form, Dash callbacks and final workflow page;
+- server-side shared queue or persistent multi-worker process ownership;
+- a stronger backend cancellation token than observer/checkpoint-based
+  cooperative cancellation.
+
 ## 0.2.9a4 — 2026-07-30
 
 This patch addresses the last failures reported by the complete Windows gate for
@@ -29,14 +291,12 @@ behaviour.
 
 ### Validation
 
-- the complete Windows validator passes in the maintainer environment,
-  including Ruff lint and formatting, mypy, pytest, the Dash component audit,
-  package builds and `twine check`;
+- the maintainer's Windows run reported Ruff lint and mypy green and reached
+  `182` passing tests before the two atomic-output failures fixed here;
 - `173` tests pass against the supplied Quantas `2.0.0b7` source and `3`
-  Dash-dependent tests are skipped only in the reduced review environment,
-  where Dash is unavailable;
-- GitHub Actions is the remaining independent gate before this snapshot is
-  merged and tagged.
+  Dash-dependent tests are skipped because Dash is unavailable in the review
+  environment;
+- the complete Windows gate remains the final confirmation for `0.2.9a4`.
 
 ## 0.2.9a3 — 2026-07-30
 

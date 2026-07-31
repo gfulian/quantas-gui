@@ -28,8 +28,10 @@ management that are not part of the current alpha.
 
 ## Where the project stands
 
-The current package is **`0.2.9a4`**, the final hardening stage of the `0.2`
-Result Explorer milestone.
+The current package is **`0.3.0a7`**, the approved closing alpha of the
+Elasticity workflow milestone. The next public milestone is `0.4` — SEISMIC,
+which will reuse the same execution, feedback, persistence and result-handoff
+architecture.
 
 The application already includes:
 
@@ -48,10 +50,18 @@ The application already includes:
 - server-side artifact caching, atomic file publication and cross-process
   workspace locks;
 - an isolated Scientific UI Kit, started with `quantas-gui --ui-kit`;
-- deployment-neutral contracts for future background jobs and result stores.
+- deployment-neutral contracts for background jobs and result stores;
+- a local `spawn` process backend, typed Elasticity request adapter, native HDF5
+  publication and Result Explorer handoff;
+- an executable Elasticity form with manual, Quantas, CRYSTAL and VASP input,
+  progress, warnings, cancellation, completion summary and downloads;
+- an operational Workflows catalogue that distinguishes backend contract
+  readiness from user-facing GUI availability.
 
-The GUI does not yet run scientific calculations. The first full workflow will
-be Elasticity in version `0.3`.
+The Elasticity process, service, declarative form and Dash callbacks are connected
+end to end and validated through the complete Windows gate. The completed workflow
+includes direct navigation to the shared Result Explorer and is the reference
+implementation for the SEISMIC milestone.
 
 ## Installation from source
 

@@ -72,7 +72,7 @@ def build_shell(
 
     return html.Div(
         [
-            dcc.Location(id="q-location", refresh=False),
+            dcc.Location(id="q-location", refresh="callback-nav"),
             dcc.Store(
                 id="q-user-preferences",
                 storage_type="local",

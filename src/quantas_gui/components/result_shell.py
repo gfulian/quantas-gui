@@ -16,6 +16,11 @@ def explorer_layout() -> html.Div:
     """Create the complete Results Explorer shell and lazy content region."""
     return html.Div(
         [
+            dcc.Interval(
+                id=ResultIds.HYDRATE,
+                interval=100,
+                max_intervals=1,
+            ),
             dcc.Store(id=ResultIds.PLOT_INVENTORY, storage_type="memory"),
             dcc.Store(id=ResultIds.PLOT_SCIENCE_SELECTION, storage_type="memory"),
             dcc.Download(id=ResultIds.DOWNLOAD_ORIGINAL_PAYLOAD),

@@ -16,6 +16,11 @@ from quantas_gui.services.backends import (
     JobStatus,
     ResultStore,
 )
+from quantas_gui.services.local_execution import (
+    LocalProcessExecutionBackend,
+    WorkflowCancelled,
+    WorkflowExecutionContext,
+)
 from quantas_gui.services.workspaces import (
     InvalidWorkspaceIdentifier,
     LocalWorkspaceStore,
@@ -36,10 +41,13 @@ __all__ = [
     "JobHandle",
     "JobState",
     "JobStatus",
+    "LocalProcessExecutionBackend",
     "LocalWorkspaceStore",
     "ResultStore",
     "WorkspaceBusyError",
     "WorkspaceClosingError",
+    "WorkflowCancelled",
+    "WorkflowExecutionContext",
     "WorkspaceStore",
     "detect_quantas_backend",
 ]
