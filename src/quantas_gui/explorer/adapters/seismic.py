@@ -2,12 +2,14 @@
 
 from __future__ import annotations
 
+from dataclasses import replace
 from typing import Any
 
 from quantas_gui.explorer.adapters.base import GuiPlotCollection, ResultModuleAdapter
 from quantas_gui.explorer.models import (
     PlotBuildSelection,
     PlotFamilyDescriptor,
+    PlotSelectionSchema,
     ScientificExportDescriptor,
     TableFamilyDescriptor,
 )
@@ -53,7 +55,7 @@ class SeismicAdapter(ResultModuleAdapter):
         inventory: Any,
     ) -> tuple[PlotFamilyDescriptor, ...]:
         del namespace, result
-        return tuple(
+        families = tuple(
             self._family_from_representation(
                 representation,
                 default=index == 0,
@@ -61,6 +63,58 @@ class SeismicAdapter(ResultModuleAdapter):
             )
             for index, representation in enumerate(inventory.representations)
         )
+        return tuple(_present_surface_family(family) for family in families)
+
+    def plot_selection_schema(
+        self,
+        namespace: Any,
+        result: Any,
+        family_key: str,
+        inventory: Any,
+    ) -> PlotSelectionSchema:
+        """Clarify SEISMIC surface choices without changing public availability."""
+        schema = super().plot_selection_schema(namespace, result, family_key, inventory)
+        if family_key == "property_surface_3d":
+            property_field = schema.property_field
+            if property_field is not None:
+                default = (
+                    property_field.value
+                    if isinstance(property_field.value, tuple)
+                    else (() if property_field.value is None else (property_field.value,))
+                )
+                property_field = replace(
+                    property_field,
+                    label="Scalar properties",
+                    description=(
+                        "Select one or more scalar fields, build them together, then switch "
+                        "immediately between the generated figures. Use the dedicated "
+                        "Acoustic wave surface for canonical phase, slowness and group "
+                        "surfaces."
+                    ),
+                    value=default,
+                    multiple=True,
+                )
+            return replace(
+                schema,
+                title="General scalar-field surface",
+                description=(
+                    "Directional scalar fields on a unit sphere or their natural physical "
+                    "carrier. This family is especially useful for anisotropy, shear "
+                    "splitting, velocity ratios, power-flow angle and enhancement."
+                ),
+                property_field=property_field,
+            )
+        if family_key == "acoustic_surface_3d":
+            return replace(
+                schema,
+                title="Acoustic wave surface",
+                description=(
+                    "Canonical phase-velocity, slowness or group-wavefront surfaces selected "
+                    "by acoustic mode. Select several types and modes, build once, then "
+                    "switch immediately between the generated figures."
+                ),
+            )
+        return schema
 
     def build_plots(
         self,
@@ -185,8 +239,12 @@ class SeismicAdapter(ResultModuleAdapter):
         descriptions = {
             "spherical_map": "directional scalar field on the public spherical projection",
             "spherical_summary": "public extrema, directions, and anisotropy summary",
-            "property_surface_3d": "public scalar-property three-dimensional surface",
-            "acoustic_surface_3d": "public mode-resolved acoustic surface",
+            "property_surface_3d": (
+                "general directional scalar field on a unit sphere or natural physical carrier"
+            ),
+            "acoustic_surface_3d": (
+                "canonical phase-velocity, slowness, or group-wavefront surface by wave mode"
+            ),
         }
         return f"{title}: {descriptions.get(family_key, 'public seismic representation')}."
 
@@ -205,9 +263,33 @@ class SeismicAdapter(ResultModuleAdapter):
         return {
             "spherical_map": "Spherical map",
             "spherical_summary": "Summary",
-            "property_surface_3d": "Property surface",
-            "acoustic_surface_3d": "Acoustic surface",
+            "property_surface_3d": "Scalar fields",
+            "acoustic_surface_3d": "Acoustic waves",
         }.get(family_key, "SEISMIC")
+
+
+def _present_surface_family(family: PlotFamilyDescriptor) -> PlotFamilyDescriptor:
+    """Return clearer GUI labels for the two public SEISMIC surface families."""
+    if family.key == "property_surface_3d":
+        return replace(
+            family,
+            title="General scalar-field surface",
+            description=(
+                "Build one or more directional scalar fields together. Prefer this family "
+                "for anisotropy, shear splitting, velocity ratios, power-flow angle and "
+                "enhancement."
+            ),
+        )
+    if family.key == "acoustic_surface_3d":
+        return replace(
+            family,
+            title="Acoustic wave surface",
+            description=(
+                "Build canonical phase-velocity, slowness and group-wavefront surfaces by "
+                "acoustic mode."
+            ),
+        )
+    return family
 
 
 def _polarization_overlay_available(inventory: Any) -> bool:

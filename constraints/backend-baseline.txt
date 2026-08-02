@@ -1,2 +1,2 @@
-quantas==2.0.0b7
+quantas==2.0.0b8
 packaging==25.0

@@ -5,6 +5,7 @@ from types import SimpleNamespace
 from quantas.api import plotting
 
 from quantas_gui.explorer.adapters import adapter_for, registered_adapters
+from quantas_gui.explorer.models import PlotBuildSelection
 
 
 def test_all_scientific_result_adapters_are_registered() -> None:
@@ -163,3 +164,38 @@ def test_seismic_builders_do_not_invent_polarizations_when_tracking_is_absent() 
     )
     adapter_for("seismic").build_plots(namespace, object(), "spherical_map", inventory)
     assert captured[0].include_polarizations is False
+
+
+def test_seismic_property_surface_forwards_all_selected_scalar_fields() -> None:
+    captured: list[object] = []
+
+    class Options:
+        def __init__(self, **values):
+            self.__dict__.update(values)
+
+    inventory = SimpleNamespace(
+        representation_by_key=lambda key: SimpleNamespace(
+            property_keys=("phase_v_p", "shear_anisotropy")
+        ),
+        context_by_key=lambda key: SimpleNamespace(values=(False,)),
+    )
+    namespace = SimpleNamespace(
+        SurfaceOptions=Options,
+        build_surfaces=lambda result, options: captured.append(options) or object(),
+    )
+    selection = PlotBuildSelection(
+        family_key="property_surface_3d",
+        property_keys=("phase_v_p", "shear_anisotropy"),
+        contexts=(("surface_geometry", "unit_sphere"),),
+    )
+
+    adapter_for("seismic").build_plots(
+        namespace,
+        object(),
+        "property_surface_3d",
+        inventory,
+        selection,
+    )
+
+    assert len(captured) == 1
+    assert captured[0].properties == ("phase_v_p", "shear_anisotropy")

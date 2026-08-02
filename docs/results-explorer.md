@@ -119,3 +119,26 @@ each module. Validation includes:
 - desktop and narrow viewports;
 - keyboard operation;
 - large-result performance.
+
+## SEISMIC three-dimensional surfaces
+
+SEISMIC exposes two intentionally overlapping three-dimensional families.
+
+**General scalar-field surface** presents one or more sampled scalar properties
+on a unit sphere or, where Quantas defines one, on the property's natural
+physical carrier. It is the preferred family for directional anisotropy, shear
+splitting, P-to-S velocity ratios, power-flow angle and enhancement. Phase and
+group velocities remain available because they are valid scalar fields, but the
+shape and the colour may then carry different quantities.
+
+**Acoustic wave surface** presents the canonical phase-velocity, slowness or
+group-wavefront surface for the selected P, S1 or S2 mode. This is the clearest
+choice when the scientific question concerns the physical acoustic surface
+itself.
+
+Both families are built lazily. The scalar selector accepts several properties
+in one build; the acoustic selector accepts several surface types and modes.
+After that build, the figure selector switches among the cached PlotSpecs
+without rerunning SEISMIC or rebuilding the scientific collection. The scalar
+family defaults to one property so that opening a dense result does not create a
+large collection unexpectedly.

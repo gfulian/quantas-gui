@@ -2,7 +2,7 @@
 
 **Approved baseline:** Quantas GUI `0.2.9a4`
 **Current implementation:** Quantas GUI `0.3.0a5`
-**Backend:** Quantas `2.0.0b7`, `dev-refactor` line
+**Backend:** Quantas `2.0.0b8`, `dev-refactor` line
 **Updated:** 2026-07-31
 
 ## Scope

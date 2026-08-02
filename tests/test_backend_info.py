@@ -95,9 +95,18 @@ def _contract_modules() -> tuple[ModuleType, dict[str, ModuleType]]:
 
     for module_name, operations in _REQUIRED_OPERATIONS.items():
         namespace = ModuleType(f"quantas.api.{module_name}")
-        workflow_operations = (
-            ("read_input", "normalize_input", "run", "write_result") if module_name != "eos" else ()
-        )
+        if module_name == "seismic":
+            workflow_operations = (
+                "create_input",
+                "read_input",
+                "normalize_input",
+                "run",
+                "write_result",
+            )
+        elif module_name != "eos":
+            workflow_operations = ("read_input", "normalize_input", "run", "write_result")
+        else:
+            workflow_operations = ()
         for operation in (*operations, *workflow_operations):
             setattr(namespace, operation, lambda *args, **kwargs: None)
         setattr(api, module_name, namespace)
@@ -142,12 +151,12 @@ def _importer(modules: dict[str, ModuleType]):
 def test_backend_contract_accepts_supported_version() -> None:
     _, modules = _contract_modules()
     info = detect_quantas_backend(
-        version_resolver=lambda _: "2.0.0b7",
+        version_resolver=lambda _: "2.0.0b8",
         importer=_importer(modules),
     )
     assert info.ready
     assert info.compatible
-    assert info.version == "2.0.0b7"
+    assert info.version == "2.0.0b8"
     assert info.required_version == REQUIRED_QUANTAS
     assert not info.missing_capabilities
     assert info.workflow_ready("elasticity")
@@ -165,7 +174,7 @@ def test_backend_absence_is_non_fatal_and_actionable() -> None:
     assert "pip install" in info.recovery_action
 
 
-@pytest.mark.parametrize("backend_version", ["2.0.0b6", "2.1.0"])
+@pytest.mark.parametrize("backend_version", ["2.0.0b7", "2.1.0"])
 def test_backend_rejects_versions_outside_public_baseline(backend_version: str) -> None:
     _, modules = _contract_modules()
     info = detect_quantas_backend(
@@ -182,7 +191,7 @@ def test_backend_reports_missing_public_capability() -> None:
     _, modules = _contract_modules()
     delattr(modules["quantas.api.qha"], "describe_plots")
     info = detect_quantas_backend(
-        version_resolver=lambda _: "2.0.0b7",
+        version_resolver=lambda _: "2.0.0b8",
         importer=_importer(modules),
     )
     assert not info.ready
@@ -190,9 +199,9 @@ def test_backend_reports_missing_public_capability() -> None:
     assert "qha.PLOT_INVENTORY" in info.missing_capabilities
 
 
-def test_real_quantas_b7_public_lifecycle_contract_is_accepted() -> None:
+def test_real_quantas_b8_public_lifecycle_contract_is_accepted() -> None:
     info = detect_quantas_backend(
-        version_resolver=lambda _: "2.0.0b7",
+        version_resolver=lambda _: "2.0.0b8",
         importer=import_module,
     )
     assert info.ready, info.diagnostic_message()
@@ -202,7 +211,7 @@ def test_missing_workflow_operation_does_not_disable_result_explorer() -> None:
     _, modules = _contract_modules()
     delattr(modules["quantas.api.elasticity"], "run")
     info = detect_quantas_backend(
-        version_resolver=lambda _: "2.0.0b7",
+        version_resolver=lambda _: "2.0.0b8",
         importer=_importer(modules),
     )
     assert info.ready
@@ -210,11 +219,24 @@ def test_missing_workflow_operation_does_not_disable_result_explorer() -> None:
     assert info.workflow_missing_for("elasticity") == ("run",)
 
 
+def test_missing_seismic_input_generator_disables_only_seismic_workflow() -> None:
+    _, modules = _contract_modules()
+    delattr(modules["quantas.api.seismic"], "create_input")
+    info = detect_quantas_backend(
+        version_resolver=lambda _: "2.0.0b8",
+        importer=_importer(modules),
+    )
+    assert info.ready
+    assert not info.workflow_ready("seismic")
+    assert info.workflow_missing_for("seismic") == ("create_input",)
+    assert info.workflow_ready("elasticity")
+
+
 def test_unknown_workflow_module_is_not_reported_ready() -> None:
     compatibility = BackendCompatibility(
         available=True,
         compatible=True,
-        version="2.0.0b7",
+        version="2.0.0b8",
         required_version=REQUIRED_QUANTAS,
         missing_capabilities=(),
         detail="ready",

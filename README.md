@@ -28,10 +28,10 @@ management that are not part of the current alpha.
 
 ## Where the project stands
 
-The current package is **`0.3.0a7`**, the approved closing alpha of the
-Elasticity workflow milestone. The next public milestone is `0.4` — SEISMIC,
-which will reuse the same execution, feedback, persistence and result-handoff
-architecture.
+The current development package is **`0.4.0a4`**. Elasticity and SEISMIC are
+both complete executable workflows. The next milestone is `0.5`, which will add
+HA and QHA while reusing the same execution, feedback, persistence and
+result-handoff architecture.
 
 The application already includes:
 
@@ -51,22 +51,27 @@ The application already includes:
   workspace locks;
 - an isolated Scientific UI Kit, started with `quantas-gui --ui-kit`;
 - deployment-neutral contracts for background jobs and result stores;
-- a local `spawn` process backend, typed Elasticity request adapter, native HDF5
-  publication and Result Explorer handoff;
+- a local `spawn` process backend with typed Elasticity and SEISMIC request
+  adapters, native HDF5 publication and Result Explorer handoff;
 - an executable Elasticity form with manual, Quantas, CRYSTAL and VASP input,
   progress, warnings, cancellation, completion summary and downloads;
+- an executable SEISMIC form with stiffness and density input, angular sampling,
+  phase/group/enhancement levels, polarizations, numerical tolerances, progress,
+  cancellation, summary, sampled CSV and Result Explorer handoff;
 - an operational Workflows catalogue that distinguishes backend contract
   readiness from user-facing GUI availability.
 
-The Elasticity process, service, declarative form and Dash callbacks are connected
-end to end and validated through the complete Windows gate. The completed workflow
-includes direct navigation to the shared Result Explorer and is the reference
-implementation for the SEISMIC milestone.
+Elasticity remains the approved `0.3.0a7` baseline. SEISMIC `0.4.0a4` is the
+approved second workflow baseline: it supports manual, Quantas, CRYSTAL and
+VASP input; phase, group and enhancement calculations; progress and
+cancellation; HDF5, report and CSV downloads; and direct Result Explorer
+handoff. Its three-dimensional views clearly separate general scalar fields
+from canonical phase, slowness and group acoustic surfaces.
 
 ## Installation from source
 
 Quantas GUI is not yet published on PyPI. It currently requires Quantas
-`>=2.0.0b7,<2.1`, so the backend and GUI should be installed in the same virtual
+`>=2.0.0b8,<2.1`, so the backend and GUI should be installed in the same virtual
 environment.
 
 ### Windows
@@ -200,6 +205,7 @@ references are:
 - [Architectural decisions](ARCHITECTURAL_DECISIONS.md)
 - [Result Explorer](docs/results-explorer.md)
 - [Execution and concurrency](docs/execution-and-concurrency.md)
+- [SEISMIC workflow](docs/seismic-workflow.md)
 - [Contributing](CONTRIBUTING.md)
 - [Changelog](CHANGELOG.md)
 

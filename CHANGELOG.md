@@ -5,6 +5,133 @@ All notable changes to Quantas GUI will be documented in this file.
 The project follows Semantic Versioning while the public interface remains under
 active alpha development.
 
+## 0.4.0a4 — 2026-08-02
+
+This closing alpha completes the SEISMIC milestone. It does not change the
+scientific calculation or native result format; it records the validated state,
+updates the workflow catalogue and makes the operational documentation easier
+to follow.
+
+### Changed
+
+- mark milestone `0.4` complete and identify `0.5` — HA/QHA as the next active
+  milestone;
+- mark both HA and QHA as the next workflow family in the catalogue while
+  keeping their actions disabled until the GUI implementations exist;
+- make the catalogue's **Next** label derive from each workflow milestone rather
+  than from a hard-coded version;
+- add a user-oriented SEISMIC workflow guide covering input, sampling levels,
+  progress, failure states, downloads and the two three-dimensional surface
+  families;
+- update the README, roadmap, project state, documentation index and citation
+  metadata for the closing baseline.
+- align the required and CI-constrained Quantas backend with the corrected
+  `2.0.0b8` release label used by the local CI checkout.
+
+### Validation
+
+- record the complete pinned Windows gate as green for the preceding executable
+  and Result Explorer implementation;
+- record successful real-data runs from a VASP OHAp output and a CRYSTAL calcite
+  output;
+- retain numerical agreement with the public API within `rtol=1e-14`,
+  `atol=1e-14` for averages and isotropic velocities and `rtol=1e-12`,
+  `atol=1e-12` for sampled phase, group and enhancement fields;
+- add catalogue regressions for the completed SEISMIC state and the next HA/QHA
+  milestone.
+
+## 0.4.0a3 — 2026-08-02
+
+### Changed
+
+- rename the SEISMIC 3D plot families in the Result Explorer to **General
+  scalar-field surface** and **Acoustic wave surface**;
+- allow several scalar properties to be selected and built in one operation,
+  after which the generated figures can be switched without rebuilding the
+  scientific collection;
+- explain that the general scalar family is intended primarily for anisotropy,
+  shear splitting, velocity ratios, power-flow angle and enhancement, while the
+  acoustic family is the clearer route to phase, slowness and group surfaces;
+- keep all scientific availability, geometry and values sourced from the public
+  Quantas plot inventory.
+
+### Validation
+
+- add adapter regressions for the revised family labels and descriptions;
+- verify that the scalar-property selector is multi-valued with a bounded
+  one-property default;
+- verify that every selected scalar property reaches the public
+  `SurfaceOptions` in one build request.
+
+## 0.4.0a2 — 2026-08-01
+
+### Added
+
+- add the executable Dash SEISMIC page with manual, Quantas, CRYSTAL and VASP
+  input paths;
+- add reusable complete and triangular stiffness parsing shared with Elasticity;
+- expose density, angular sampling, hemisphere, phase/group/enhancement level,
+  polarization continuity, numerical tolerances and physical tensor rotation;
+- add non-blocking submit, persistent polling, monotonic progress, ordered activity,
+  cooperative cancellation and distinct failed/cancelled presentations;
+- add the compact public-report summary, native HDF5 and report downloads, sampled
+  CSV export and automatic Result Explorer handoff;
+- mark SEISMIC available in the Workflows catalogue while keeping backend and GUI
+  readiness distinct.
+
+### Changed
+
+- retain the exact `quantas==2.0.0b7` CI constraint for the current capability
+  snapshot; the backend version-label correction to `2.0.0b8` remains a separate
+  backend change;
+- move stiffness text parsing and formatting into `workflows.common` so
+  Elasticity and SEISMIC share one structural input convention.
+
+### Validation
+
+- compare process-backed phase, group and enhancement fields with the direct
+  public API within `rtol=1e-12`, `atol=1e-12`;
+- preserve stiffness exactly and elastic averages and isotropic velocities within
+  `rtol=1e-14`, `atol=1e-14`;
+- verify native HDF5 reopening, sampled CSV export, input import, lightweight
+  events, monotonic progress, unstable-medium failure and opaque result handoff;
+- add form, page, callback-registration and prefix-aware catalogue regressions.
+
+## 0.4.0a1 — 2026-08-01
+
+### Added
+
+- add the server-side SEISMIC request contract with density, spherical sampling,
+  calculation level, polarization tracking, numerical tolerances and physical
+  tensor rotation;
+- add a public-API-only SEISMIC adapter, process worker, controlled
+  CRYSTAL/VASP/Quantas input import, native HDF5 publication and Result Explorer
+  handoff;
+- register the SEISMIC process handler and make workflow readiness require the
+  new public `seismic.create_input()` capability without disabling Result
+  Explorer support for older result-only backends;
+- enable the local execution service when either Elasticity or SEISMIC exposes a
+  complete executable public lifecycle.
+
+### Validation
+
+- compare the process result with a direct public API run, preserving density and
+  stiffness and matching elastic averages and isotropic velocities within
+  `rtol=1e-14`, `atol=1e-14`;
+- compare sampled phase, group and enhancement fields within `rtol=1e-12`,
+  `atol=1e-12`, including one non-trivial physical tensor rotation;
+- verify monotonic progress, lightweight events, unstable-tensor failure, atomic
+  HDF5 publication, reopening and opaque Result Explorer handoff;
+- verify shared Quantas input, VASP density extraction and explicit rejection of
+  missing density.
+
+### Notes
+
+- this tranche intentionally does not expose the Dash SEISMIC form yet;
+- the backend capability snapshot is still labelled `2.0.0b7`; the planned
+  backend correction is `2.0.0b8`.
+
+
 ## 0.3.0a7 — 2026-07-31
 
 This closing alpha completes the Elasticity milestone and turns the previously

@@ -8,7 +8,7 @@ only during development so that new forms do not overlook established
 capabilities.
 
 The original inventory was prepared against `2.0.0b6`, while the current GUI
-baseline is `2.0.0b7`. Every item must therefore be checked against the current
+baseline is `2.0.0b8`. Every item must therefore be checked against the current
 `quantas.api` contract and tests before implementation.
 
 ## What the inventory tells us

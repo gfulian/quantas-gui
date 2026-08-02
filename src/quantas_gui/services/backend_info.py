@@ -11,7 +11,7 @@ from types import ModuleType
 from packaging.specifiers import SpecifierSet
 from packaging.version import InvalidVersion, Version
 
-REQUIRED_QUANTAS = ">=2.0.0b7,<2.1"
+REQUIRED_QUANTAS = ">=2.0.0b8,<2.1"
 _EXPECTED_MODULES = (
     "elasticity",
     "seismic",
@@ -84,8 +84,17 @@ _REQUIRED_MODULE_OPERATIONS: dict[str, tuple[str, ...]] = {
 }
 
 _WORKFLOW_MODULE_OPERATIONS: dict[str, tuple[str, ...]] = {
-    module: ("read_input", "normalize_input", "run", "write_result")
-    for module in ("elasticity", "seismic", "ha", "qha", "thermoelasticity")
+    "elasticity": ("read_input", "normalize_input", "run", "write_result"),
+    "seismic": (
+        "create_input",
+        "read_input",
+        "normalize_input",
+        "run",
+        "write_result",
+    ),
+    "ha": ("read_input", "normalize_input", "run", "write_result"),
+    "qha": ("read_input", "normalize_input", "run", "write_result"),
+    "thermoelasticity": ("read_input", "normalize_input", "run", "write_result"),
 }
 
 

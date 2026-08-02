@@ -21,6 +21,8 @@ from quantas_gui.profile import ApplicationProfile
 from quantas_gui.services.application import AppServices, build_default_services
 from quantas_gui.workflows.elasticity.callbacks import register_elasticity_callbacks
 from quantas_gui.workflows.elasticity.service import ElasticityWorkflowService
+from quantas_gui.workflows.seismic.callbacks import register_seismic_callbacks
+from quantas_gui.workflows.seismic.service import SeismicWorkflowService
 
 _PACKAGE_ROOT = Path(__file__).resolve().parent
 
@@ -87,6 +89,15 @@ def create_app(
         register_elasticity_callbacks(
             app,
             ElasticityWorkflowService(
+                workspace_store=app_services.workspace_store,
+                execution=app_services.execution,
+                results=app_services.results,
+                max_upload_bytes=resolved.max_upload_bytes,
+            ),
+        )
+        register_seismic_callbacks(
+            app,
+            SeismicWorkflowService(
                 workspace_store=app_services.workspace_store,
                 execution=app_services.execution,
                 results=app_services.results,

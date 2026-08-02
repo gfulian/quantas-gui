@@ -47,7 +47,7 @@ dependencies = [
     "platformdirs>=4.3,<5",
     "filelock>=3.16,<4",
     "packaging>=24,<26",
-    "quantas>=2.0.0b7,<2.1",
+    "quantas>=2.0.0b8,<2.1",
 ]
 
 [project.optional-dependencies]
