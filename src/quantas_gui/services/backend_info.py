@@ -84,8 +84,17 @@ _REQUIRED_MODULE_OPERATIONS: dict[str, tuple[str, ...]] = {
 }
 
 _WORKFLOW_MODULE_OPERATIONS: dict[str, tuple[str, ...]] = {
-    module: ("read_input", "normalize_input", "run", "write_result")
-    for module in ("elasticity", "seismic", "ha", "qha", "thermoelasticity")
+    "elasticity": ("read_input", "normalize_input", "run", "write_result"),
+    "seismic": (
+        "create_input",
+        "read_input",
+        "normalize_input",
+        "run",
+        "write_result",
+    ),
+    "ha": ("read_input", "normalize_input", "run", "write_result"),
+    "qha": ("read_input", "normalize_input", "run", "write_result"),
+    "thermoelasticity": ("read_input", "normalize_input", "run", "write_result"),
 }
 
 

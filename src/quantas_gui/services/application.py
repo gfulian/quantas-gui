@@ -28,10 +28,10 @@ class AppServices:
 def build_default_services(settings: Settings) -> AppServices:
     """Build the safe filesystem-backed service graph.
 
-    The artifact cache remains process-local. Local mode enables the first
-    process-backed Elasticity worker when the compatible public Quantas API is
-    available. Server mode keeps execution disabled until a shared queue-backed
-    service is injected.
+    The artifact cache remains process-local. Local mode enables the registered
+    process-backed scientific workers when at least one compatible public
+    Quantas workflow contract is available. Server mode keeps execution disabled
+    until a shared queue-backed service is injected.
     """
     workspace_store = LocalWorkspaceStore(
         settings.workspace_root,
@@ -40,7 +40,10 @@ def build_default_services(settings: Settings) -> AppServices:
     artifact_cache = LocalArtifactCache(max_entries=settings.result_cache_entries)
     compatibility = detect_quantas_backend()
     execution: ExecutionBackend
-    if settings.mode == "local" and compatibility.workflow_ready("elasticity"):
+    local_workflow_ready = any(
+        compatibility.workflow_ready(module) for module in ("elasticity", "seismic")
+    )
+    if settings.mode == "local" and local_workflow_ready:
         execution = LocalProcessExecutionBackend(workspace_store)
     elif settings.mode != "local":
         execution = DisabledExecutionBackend(
@@ -48,7 +51,7 @@ def build_default_services(settings: Settings) -> AppServices:
         )
     else:
         execution = DisabledExecutionBackend(
-            "Elasticity execution requires a compatible Quantas public API."
+            "Scientific execution requires a compatible Quantas public workflow API."
         )
     results = ResultExplorerService(
         workspace_store=workspace_store,

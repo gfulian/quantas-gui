@@ -95,9 +95,18 @@ def _contract_modules() -> tuple[ModuleType, dict[str, ModuleType]]:
 
     for module_name, operations in _REQUIRED_OPERATIONS.items():
         namespace = ModuleType(f"quantas.api.{module_name}")
-        workflow_operations = (
-            ("read_input", "normalize_input", "run", "write_result") if module_name != "eos" else ()
-        )
+        if module_name == "seismic":
+            workflow_operations = (
+                "create_input",
+                "read_input",
+                "normalize_input",
+                "run",
+                "write_result",
+            )
+        elif module_name != "eos":
+            workflow_operations = ("read_input", "normalize_input", "run", "write_result")
+        else:
+            workflow_operations = ()
         for operation in (*operations, *workflow_operations):
             setattr(namespace, operation, lambda *args, **kwargs: None)
         setattr(api, module_name, namespace)
@@ -208,6 +217,19 @@ def test_missing_workflow_operation_does_not_disable_result_explorer() -> None:
     assert info.ready
     assert not info.workflow_ready("elasticity")
     assert info.workflow_missing_for("elasticity") == ("run",)
+
+
+def test_missing_seismic_input_generator_disables_only_seismic_workflow() -> None:
+    _, modules = _contract_modules()
+    delattr(modules["quantas.api.seismic"], "create_input")
+    info = detect_quantas_backend(
+        version_resolver=lambda _: "2.0.0b7",
+        importer=_importer(modules),
+    )
+    assert info.ready
+    assert not info.workflow_ready("seismic")
+    assert info.workflow_missing_for("seismic") == ("create_input",)
+    assert info.workflow_ready("elasticity")
 
 
 def test_unknown_workflow_module_is_not_reported_ready() -> None:

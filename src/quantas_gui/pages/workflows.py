@@ -61,7 +61,7 @@ WORKFLOWS = (
         input_summary="Elastic stiffness tensor in GPa and density",
         result_summary="Native Quantas SEISMIC HDF5",
         milestone="0.4",
-        state="next",
+        state="available",
         api_module="seismic",
     ),
     WorkflowCardSpec(
@@ -75,7 +75,7 @@ WORKFLOWS = (
         input_summary="Harmonic phonon and structural data",
         result_summary="Native Quantas HA HDF5",
         milestone="0.5",
-        state="planned",
+        state="next",
         api_module="ha",
     ),
     WorkflowCardSpec(
@@ -89,7 +89,7 @@ WORKFLOWS = (
         input_summary="Volume-dependent phonon and static-energy data",
         result_summary="Native Quantas QHA HDF5",
         milestone="0.5",
-        state="planned",
+        state="next",
         api_module="qha",
     ),
     WorkflowCardSpec(
@@ -178,7 +178,7 @@ def _workflow_card(
     backend: BackendCompatibility,
 ) -> html.Article:
     api_ready, api_label, api_detail = _api_state(spec, backend=backend)
-    state_label, state_class = _gui_state(spec.state)
+    state_label, state_class = _gui_state(spec.state, milestone=spec.milestone)
     can_start = spec.state == "available" and api_ready
 
     action: Any
@@ -269,9 +269,9 @@ def _api_state(
     )
 
 
-def _gui_state(state: WorkflowState) -> tuple[str, str]:
+def _gui_state(state: WorkflowState, *, milestone: str) -> tuple[str, str]:
     if state == "available":
         return "Available", "is-success"
     if state == "next":
-        return "Next · 0.4", "is-info"
+        return f"Next · {milestone}", "is-info"
     return "Planned", "is-planned"

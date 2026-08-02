@@ -22,6 +22,7 @@ to the technical guide that matches the work you are doing.
 - [Server deployment](server-deployment.md)
 - [Execution and concurrency](execution-and-concurrency.md)
 - [Elasticity workflow audit](elasticity-workflow.md)
+- [SEISMIC workflow](seismic-workflow.md)
 
 ## Result Explorer
 

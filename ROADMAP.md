@@ -14,9 +14,9 @@ still being completed, for example `0.2.9a4`.
 |---|---|---|
 | `0.1` | Application foundation | Complete |
 | `0.2` | Result Explorer | Complete |
-| `0.3` | Elasticity workflow | Current |
-| `0.4` | SEISMIC workflow | Planned |
-| `0.5` | HA/QHA workflow | Planned |
+| `0.3` | Elasticity workflow | Complete |
+| `0.4` | SEISMIC workflow | Complete |
+| `0.5` | HA/QHA workflow | Current |
 | `0.6` | Thermoelasticity workflow | Planned |
 | `0.7` | EOS workflow | Planned |
 | `0.8` | Interoperability | Planned |
@@ -124,23 +124,40 @@ concurrent-job paths are covered.
 
 ## 0.4 — SEISMIC workflow
 
-This milestone will expose the Christoffel and seismic-wave analysis as an
-interactive workflow.
+SEISMIC brings Christoffel-equation analysis into the same complete application
+lifecycle established by Elasticity, while adding density, spherical sampling
+and wave-mode diagnostics.
 
-Planned capabilities include:
+The completed workflow allows the user to:
 
-- loading elastic tensors and density from files, manual input or compatible
-  Quantas results;
-- configuring angular sampling, calculation level, tolerances and output;
-- phase and group velocities, polarizations, degeneracies, enhancement,
-  extrema and anisotropy;
-- standard, extended and diagnostic reports;
-- 2D maps, spherical projections, polarization overlays, summaries and 3D wave
-  surfaces;
-- native persistence and supported downstream exports.
+- enter or import a job name, elastic stiffness tensor and density;
+- load the shared Quantas input format or extract compatible data from CRYSTAL
+  and VASP outputs through the public backend API;
+- configure upper, lower or full angular domains and phase, group or enhancement
+  calculation levels;
+- preserve polarization continuity, public tolerances and physical tensor
+  rotations;
+- run the calculation in a separate local process with progress, ordered
+  messages, cancellation and controlled failure states;
+- download the native HDF5 result, deterministic report and sampled CSV;
+- inspect a compact result summary and open the completed result directly in the
+  shared Result Explorer.
 
-**Completion test:** all supported numerical and directional results agree with
-the public SEISMIC API and CLI workflow.
+The Result Explorer distinguishes **General scalar-field surfaces** from
+canonical **Acoustic wave surfaces**. Several scalar properties, surface types
+or acoustic modes can be built together and switched afterward without
+rebuilding the collection.
+
+**Status:** complete. `0.4.0a4` is the approved SEISMIC baseline. The pinned
+Windows quality gate is green, real CRYSTAL and VASP inputs have been exercised,
+native HDF5 reopening and result handoff are verified, and phase, group and
+enhancement fields agree with the direct public API.
+
+**Completion evidence:** stiffness and density are preserved exactly; elastic
+averages and isotropic reference velocities agree within `rtol=1e-14`,
+`atol=1e-14`; sampled phase, group and enhancement fields agree within
+`rtol=1e-12`, `atol=1e-12`. Invalid density, non-positive-definite media,
+cancellation, progress, CSV export and cache reuse are covered.
 
 ---
 

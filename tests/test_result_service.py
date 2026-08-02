@@ -314,6 +314,51 @@ def test_result_service_caches_scientific_selections_independently(tmp_path: Pat
     assert backend.plot_calls == 2
 
 
+def test_result_service_reuses_multi_property_surface_selection(tmp_path: Path) -> None:
+    class CountingBackend(FakeResultBackend):
+        plot_calls = 0
+
+        def plot_families(self, path: Path):
+            del path
+            from quantas_gui.explorer.models import PlotFamilyDescriptor
+
+            return (
+                PlotFamilyDescriptor(
+                    "property_surface_3d",
+                    "General scalar-field surface",
+                    "Selected scalar fields.",
+                    default=True,
+                ),
+            )
+
+        def build_plots(
+            self,
+            path: Path,
+            family_key: str | None = None,
+            selection: PlotBuildSelection | None = None,
+        ):
+            self.plot_calls += 1
+            return super().build_plots(path, family_key, selection)
+
+    backend = CountingBackend()
+    service = _service(tmp_path, backend=backend)
+    reference, _ = service.ingest_upload(
+        filename="seismic.h5",
+        contents=_contents(b"native-hdf5"),
+    )
+    selection = PlotBuildSelection(
+        "property_surface_3d",
+        ("phase_v_p", "shear_anisotropy"),
+        (("surface_geometry", "unit_sphere"),),
+    )
+
+    first = service.build_plots(reference, "property_surface_3d", selection=selection)
+    second = service.build_plots(reference, "property_surface_3d", selection=selection)
+
+    assert first is second
+    assert backend.plot_calls == 1
+
+
 def test_workflow_result_registration_uses_existing_controlled_file(tmp_path: Path) -> None:
     service = _service(tmp_path)
     workspace_id = service.workspace_store.create_workspace()

@@ -316,3 +316,112 @@ def test_long_informative_coordinate_grids_are_summarized() -> None:
     assert schema.context_fields == ()
     assert len(schema.informative_contexts) == 1
     assert schema.informative_contexts[0].values == ("300 K to 400 K · 11 points · step 10 K",)
+
+
+def _seismic_surface_inventory() -> plotting.PlotInventory:
+    return plotting.PlotInventory(
+        module="seismic",
+        properties=(
+            plotting.PlotPropertyDescriptor(
+                key="phase_v_p",
+                name="P-wave phase velocity",
+                symbol_math=r"$V_P$",
+                symbol_plain="V_P",
+                unit="km s^-1",
+                representations=("property_surface_3d",),
+            ),
+            plotting.PlotPropertyDescriptor(
+                key="shear_anisotropy",
+                name="Shear-wave anisotropy",
+                symbol_math=r"$A_S$",
+                symbol_plain="A_S",
+                unit="%",
+                representations=("property_surface_3d",),
+            ),
+        ),
+        representations=(
+            plotting.PlotRepresentationDescriptor(
+                key="property_surface_3d",
+                name="Scalar-property three-dimensional surface",
+                plot_kind="surface",
+                description="Backend scalar-property description.",
+                property_keys=("phase_v_p", "shear_anisotropy"),
+            ),
+            plotting.PlotRepresentationDescriptor(
+                key="acoustic_surface_3d",
+                name="Mode-resolved acoustic surface",
+                plot_kind="surface",
+                description="Backend acoustic-surface description.",
+                supported_contexts=("surface_type", "wave_mode"),
+            ),
+        ),
+        contexts=(
+            plotting.PlotContextDescriptor(
+                key="surface_type",
+                name="Acoustic surface type",
+                values=("phase", "slowness", "group"),
+                required=True,
+            ),
+            plotting.PlotContextDescriptor(
+                key="wave_mode",
+                name="Acoustic mode",
+                values=("v_p", "v_s1", "v_s2"),
+                required=True,
+            ),
+        ),
+    )
+
+
+def test_seismic_surface_families_use_clear_gui_labels() -> None:
+    adapter = adapter_for("seismic")
+    families = adapter.plot_families(
+        SimpleNamespace(),
+        object(),
+        _seismic_surface_inventory(),
+    )
+
+    scalar = next(item for item in families if item.key == "property_surface_3d")
+    acoustic = next(item for item in families if item.key == "acoustic_surface_3d")
+
+    assert scalar.title == "General scalar-field surface"
+    assert "anisotropy" in scalar.description.lower()
+    assert scalar.as_option()["label"].endswith(" · compute")
+    assert acoustic.title == "Acoustic wave surface"
+    assert "phase-velocity" in acoustic.description.lower()
+    assert acoustic.as_option()["label"].endswith(" · compute")
+
+
+def test_seismic_scalar_surfaces_accept_multiple_properties_in_one_build() -> None:
+    adapter = adapter_for("seismic")
+    inventory = _seismic_surface_inventory()
+
+    schema = adapter.plot_selection_schema(
+        SimpleNamespace(),
+        object(),
+        "property_surface_3d",
+        inventory,
+    )
+
+    assert schema.title == "General scalar-field surface"
+    assert schema.property_field is not None
+    assert schema.property_field.label == "Scalar properties"
+    assert schema.property_field.multiple is True
+    assert schema.property_field.value == ("phase_v_p",)
+    assert "build them together" in schema.property_field.description.lower()
+    assert "acoustic wave surface" in schema.property_field.description.lower()
+    assert adapter.default_plot_selection(schema).property_keys == ("phase_v_p",)
+
+
+def test_seismic_acoustic_surface_explains_build_once_switching() -> None:
+    schema = adapter_for("seismic").plot_selection_schema(
+        SimpleNamespace(),
+        object(),
+        "acoustic_surface_3d",
+        _seismic_surface_inventory(),
+    )
+
+    assert schema.title == "Acoustic wave surface"
+    assert "build once" in schema.description.lower()
+    contexts = {field.key: field for field in schema.context_fields}
+    assert contexts["surface_type"].multiple is True
+    assert contexts["wave_mode"].multiple is True

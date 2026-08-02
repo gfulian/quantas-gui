@@ -31,6 +31,7 @@ from quantas_gui.services.workspaces import LocalWorkspaceStore
 
 _DEFAULT_HANDLERS: Mapping[str, str] = {
     "elasticity": "quantas_gui.workflows.elasticity.worker:run_elasticity_request",
+    "seismic": "quantas_gui.workflows.seismic.worker:run_seismic_request",
 }
 _TERMINAL_STATES = frozenset({JobState.SUCCEEDED, JobState.FAILED, JobState.CANCELLED})
 _MAX_EVENT_BATCH = 1000
