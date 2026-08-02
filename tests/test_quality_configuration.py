@@ -104,8 +104,8 @@ def test_quantas_is_a_required_constrained_backend() -> None:
     constraints = _text("constraints/backend-baseline.txt")
     workflow = _text(".github/workflows/ci.yml")
 
-    assert '"quantas>=2.0.0b7,<2.1"' in pyproject
-    assert "quantas==2.0.0b7" in constraints.splitlines()
+    assert '"quantas>=2.0.0b8,<2.1"' in pyproject
+    assert "quantas==2.0.0b8" in constraints.splitlines()
     assert "repository: gfulian/quantas" in workflow
     assert "ref: dev/refactor" in workflow
     assert ".ci/quantas" in workflow

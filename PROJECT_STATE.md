@@ -17,7 +17,7 @@ kept in [CHANGELOG.md](CHANGELOG.md), release goals in
 | Approved Elasticity baseline | `0.3.0a7` |
 | Approved Result Explorer baseline | `0.2.9a4` |
 | Next milestone | `0.5` — HA/QHA workflows |
-| Quantas baseline | `2.0.0b7` capability snapshot, pending version-label correction to `2.0.0b8` |
+| Quantas baseline | `2.0.0b8`, `dev/refactor` line |
 | Legacy reference | Quantas `0.9.1` |
 | Project status | Alpha |
 | Main runtime | Local browser application |
@@ -120,9 +120,6 @@ concurrent jobs and Android access over a private local network.
   `ExecutionBackend`.
 - Dense 3D figures have limited vertical space on a narrow Android portrait
   viewport but remain usable and display correctly in landscape.
-- The backend capability snapshot is still labelled `2.0.0b7`; the planned
-  `2.0.0b8` change is a backend version correction and should be recorded when
-  it lands.
 
 ## Immediate next operation
 
@@ -132,5 +129,4 @@ concurrent jobs and Android access over a private local network.
 4. keep the branch temporarily as a reference if useful;
 5. start milestone `0.5` from the updated `main` branch in a new HA/QHA
    worktree;
-6. record the corrected Quantas `2.0.0b8` SHA when the backend version-only
-   change is available.
+6. record the Quantas `2.0.0b8` commit SHA used by the merged GUI baseline.

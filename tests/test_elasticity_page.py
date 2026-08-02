@@ -142,7 +142,7 @@ def test_result_handoff_waits_for_the_global_session_before_navigation() -> None
             "module_title": "Elasticity",
             "method": None,
             "program": None,
-            "quantas_version": "2.0.0b7",
+            "quantas_version": "2.0.0b8",
             "schema_version": "1",
             "created_at": None,
             "created_by": None,

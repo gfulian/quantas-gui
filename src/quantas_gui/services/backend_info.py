@@ -11,7 +11,7 @@ from types import ModuleType
 from packaging.specifiers import SpecifierSet
 from packaging.version import InvalidVersion, Version
 
-REQUIRED_QUANTAS = ">=2.0.0b7,<2.1"
+REQUIRED_QUANTAS = ">=2.0.0b8,<2.1"
 _EXPECTED_MODULES = (
     "elasticity",
     "seismic",

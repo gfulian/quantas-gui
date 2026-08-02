@@ -15,7 +15,7 @@ def test_local_execution_is_available_when_seismic_is_the_only_ready_workflow(
     compatibility = BackendCompatibility(
         available=True,
         compatible=True,
-        version="2.0.0b7",
+        version="2.0.0b8",
         required_version=REQUIRED_QUANTAS,
         missing_capabilities=(),
         detail="ready",

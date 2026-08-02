@@ -25,6 +25,8 @@ to follow.
   families;
 - update the README, roadmap, project state, documentation index and citation
   metadata for the closing baseline.
+- align the required and CI-constrained Quantas backend with the corrected
+  `2.0.0b8` release label used by the local CI checkout.
 
 ### Validation
 

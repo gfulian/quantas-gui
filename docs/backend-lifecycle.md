@@ -1,6 +1,6 @@
 # Quantas backend lifecycle
 
-The current GUI requires Quantas `>=2.0.0b7,<2.1` and uses only public objects
+The current GUI requires Quantas `>=2.0.0b8,<2.1` and uses only public objects
 under `quantas.api`.
 
 ## Startup compatibility check

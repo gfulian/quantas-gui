@@ -26,7 +26,7 @@ def _backend(
     return BackendCompatibility(
         available=True,
         compatible=True,
-        version="2.0.0b7",
+        version="2.0.0b8",
         required_version=REQUIRED_QUANTAS,
         missing_capabilities=(),
         detail="Public lifecycle API validated",

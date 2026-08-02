@@ -71,7 +71,7 @@ from canonical phase, slowness and group acoustic surfaces.
 ## Installation from source
 
 Quantas GUI is not yet published on PyPI. It currently requires Quantas
-`>=2.0.0b7,<2.1`, so the backend and GUI should be installed in the same virtual
+`>=2.0.0b8,<2.1`, so the backend and GUI should be installed in the same virtual
 environment.
 
 ### Windows

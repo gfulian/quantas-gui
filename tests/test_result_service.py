@@ -25,7 +25,7 @@ from quantas_gui.services.workspaces import LocalWorkspaceStore
 READY = BackendCompatibility(
     available=True,
     compatible=True,
-    version="2.0.0b7",
+    version="2.0.0b8",
     required_version=REQUIRED_QUANTAS,
     missing_capabilities=(),
     detail="Public lifecycle API validated",
@@ -49,7 +49,7 @@ class FakeResultBackend:
                 module_title="Second-order elasticity",
                 method="elasticity",
                 program="quantas",
-                quantas_version="2.0.0b7",
+                quantas_version="2.0.0b8",
                 schema_version="1.0",
                 created_at=None,
                 created_by=None,

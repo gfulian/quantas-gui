@@ -151,12 +151,12 @@ def _importer(modules: dict[str, ModuleType]):
 def test_backend_contract_accepts_supported_version() -> None:
     _, modules = _contract_modules()
     info = detect_quantas_backend(
-        version_resolver=lambda _: "2.0.0b7",
+        version_resolver=lambda _: "2.0.0b8",
         importer=_importer(modules),
     )
     assert info.ready
     assert info.compatible
-    assert info.version == "2.0.0b7"
+    assert info.version == "2.0.0b8"
     assert info.required_version == REQUIRED_QUANTAS
     assert not info.missing_capabilities
     assert info.workflow_ready("elasticity")
@@ -174,7 +174,7 @@ def test_backend_absence_is_non_fatal_and_actionable() -> None:
     assert "pip install" in info.recovery_action
 
 
-@pytest.mark.parametrize("backend_version", ["2.0.0b6", "2.1.0"])
+@pytest.mark.parametrize("backend_version", ["2.0.0b7", "2.1.0"])
 def test_backend_rejects_versions_outside_public_baseline(backend_version: str) -> None:
     _, modules = _contract_modules()
     info = detect_quantas_backend(
@@ -191,7 +191,7 @@ def test_backend_reports_missing_public_capability() -> None:
     _, modules = _contract_modules()
     delattr(modules["quantas.api.qha"], "describe_plots")
     info = detect_quantas_backend(
-        version_resolver=lambda _: "2.0.0b7",
+        version_resolver=lambda _: "2.0.0b8",
         importer=_importer(modules),
     )
     assert not info.ready
@@ -199,9 +199,9 @@ def test_backend_reports_missing_public_capability() -> None:
     assert "qha.PLOT_INVENTORY" in info.missing_capabilities
 
 
-def test_real_quantas_b7_public_lifecycle_contract_is_accepted() -> None:
+def test_real_quantas_b8_public_lifecycle_contract_is_accepted() -> None:
     info = detect_quantas_backend(
-        version_resolver=lambda _: "2.0.0b7",
+        version_resolver=lambda _: "2.0.0b8",
         importer=import_module,
     )
     assert info.ready, info.diagnostic_message()
@@ -211,7 +211,7 @@ def test_missing_workflow_operation_does_not_disable_result_explorer() -> None:
     _, modules = _contract_modules()
     delattr(modules["quantas.api.elasticity"], "run")
     info = detect_quantas_backend(
-        version_resolver=lambda _: "2.0.0b7",
+        version_resolver=lambda _: "2.0.0b8",
         importer=_importer(modules),
     )
     assert info.ready
@@ -223,7 +223,7 @@ def test_missing_seismic_input_generator_disables_only_seismic_workflow() -> Non
     _, modules = _contract_modules()
     delattr(modules["quantas.api.seismic"], "create_input")
     info = detect_quantas_backend(
-        version_resolver=lambda _: "2.0.0b7",
+        version_resolver=lambda _: "2.0.0b8",
         importer=_importer(modules),
     )
     assert info.ready
@@ -236,7 +236,7 @@ def test_unknown_workflow_module_is_not_reported_ready() -> None:
     compatibility = BackendCompatibility(
         available=True,
         compatible=True,
-        version="2.0.0b7",
+        version="2.0.0b8",
         required_version=REQUIRED_QUANTAS,
         missing_capabilities=(),
         detail="ready",
