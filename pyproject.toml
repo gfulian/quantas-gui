@@ -53,7 +53,7 @@ dependencies = [
 [project.optional-dependencies]
 performance = ["orjson>=3.10,<4"]
 server = [
-    "gunicorn>=23,<24; platform_system != 'Windows'",
+    "gunicorn>=23,<27; platform_system != 'Windows'",
     "waitress>=3,<4; platform_system == 'Windows'",
 ]
 dev = [
